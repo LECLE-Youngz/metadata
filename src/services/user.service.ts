@@ -14,6 +14,10 @@ export class UserService {
     return this.userModel.findOne({ id });
   }
 
+  async findUserByListId(ids: number[]): Promise<Array<User>> {
+    return this.userModel.find({ id: { $in: ids } });
+  }
+
   async createUser(user: User): Promise<User> {
     return this.userModel.create(user);
   }

@@ -28,10 +28,6 @@ export class User {
 
     @Prop({ required: true })
     locale: string;
-
-    @Prop({ required: true })
-    address: string;
-
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

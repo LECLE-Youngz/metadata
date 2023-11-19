@@ -24,13 +24,10 @@ export class Nft {
     onSale: boolean;
 
     @Prop({ required: true })
-    publicPrompt: Boolean;
-
-    @Prop({ required: true })
     price: number;
 
     @Prop({ required: true })
-    promptPrice: string;
+    promptPrice: number;
 
     @Prop({ required: true })
     promptBuyer: string[];

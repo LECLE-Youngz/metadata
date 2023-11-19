@@ -38,7 +38,7 @@ export class DataController {
             throw new NotFoundException(`Can not find nft with ${id}`);
         }
 
-        if (nft.publicPrompt == true) {
+        if (nft.promptPrice == 0) {
             return data;
         }
 

@@ -6,7 +6,7 @@ import {
     Body,
     BadRequestException,
 } from "@nestjs/common";
-import { CreateNftDto } from "src/dtos/create-nft.dto";
+import { CreateNftDto } from "src/dtos";
 import { NftService } from "src/services";
 import { Nft } from "src/schemas";
 
@@ -22,7 +22,7 @@ export class NftController {
 
     @Get()
     async getAllNfts(): Promise<Array<Nft>> {
-        return await this.nftService.findAllNft();
+        return await this.nftService.findAll();
     }
 
     @Post()

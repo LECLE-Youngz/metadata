@@ -25,17 +25,13 @@ export class CreateNftDto {
     @IsNotEmpty()
     onSale: boolean;
 
-    @IsBoolean()
-    @IsNotEmpty()
-    publicPrompt: Boolean;
-
     @IsNumber()
     @IsNotEmpty()
     price: number;
 
     @IsString()
     @IsNotEmpty()
-    promptPrice: string;
+    promptPrice: number;
 
     @IsArray()
     @IsNotEmpty()

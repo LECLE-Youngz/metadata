@@ -10,7 +10,7 @@ export class NftService {
         private nftModel: Model<NftDocument>,
     ) { }
 
-    async findAllNft(): Promise<Array<Nft>> {
+    async findAll(): Promise<Array<Nft>> {
         return this.nftModel.find();
     }
 
