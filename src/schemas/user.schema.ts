@@ -6,8 +6,7 @@ export type UserDocument = HydratedDocument<User>;
 @Schema()
 export class User {
     @Prop({ required: true, unique: true, index: true, sparse: true })
-    id: string;
-
+    id: number;
 
     @Prop({ required: true, unique: true })
     email: string;
@@ -30,6 +29,8 @@ export class User {
     @Prop({ required: true })
     locale: string;
 
+    @Prop({ required: true })
+    address: string;
 
 }
 

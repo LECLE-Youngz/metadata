@@ -6,6 +6,10 @@ import { ConfigModule } from "@nestjs/config";
 import {
   User,
   UserSchema,
+  Nft,
+  NftSchema,
+  Data,
+  DataSchema,
 } from "./schemas";
 import * as dotenv from "dotenv";
 
@@ -22,7 +26,8 @@ dotenv.config();
     }),
     MongooseModule.forFeature([
       { name: User.name, schema: UserSchema },
-
+      { name: Nft.name, schema: NftSchema },
+      { name: Data.name, schema: DataSchema },
     ]),
     ConfigModule
   ],

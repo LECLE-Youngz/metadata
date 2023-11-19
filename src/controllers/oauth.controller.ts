@@ -4,12 +4,12 @@ import {
 import { ConfigService } from "@nestjs/config";
 import { OAuth2Client } from "google-auth-library";
 import { GetTokenResponse } from "google-auth-library/build/src/auth/oauth2client";
-import { UserService } from "../services";
-import { User } from "../schemas";
-import { verifyAccessToken } from "../auth/google.verifier";
+import { UserService } from "src/services";
+import { User } from "src/schemas";
+import { verifyAccessToken } from "src/auth/google.verifier";
 
 
-@Controller("/oauth")
+@Controller("api/v1/oauth")
 export class OauthController {
     oAuth2Client: OAuth2Client
     constructor(private configService: ConfigService, private readonly userService: UserService) {
@@ -21,10 +21,10 @@ export class OauthController {
     }
 
     @Post("/google")
-    async getOauth(@Body("code") code: string): Promise<GetTokenResponse["tokens"]> {
+    async getOauth(@Body("code") code: string, address: string): Promise<GetTokenResponse["tokens"]> {
         const { tokens } = await this.oAuth2Client.getToken(code);
         const { access_token } = tokens;
-        const user: User = await verifyAccessToken(`Bearer ${access_token}`);
+        const user = await verifyAccessToken(`Bearer ${access_token}`, address);
         const existedUser = await this.userService.findUserById(user.id);
         if (!existedUser) {
             await this.userService.createUser(user);
@@ -32,7 +32,8 @@ export class OauthController {
         else {
             if (existedUser.picture !== user.picture || existedUser.name !== user.name ||
                 existedUser.locale !== user.locale || existedUser.verified_email !== user.verified_email ||
-                existedUser.family_name !== user.family_name || existedUser.given_name !== user.given_name
+                existedUser.family_name !== user.family_name || existedUser.given_name !== user.given_name ||
+                existedUser.address !== user.address
             )
                 await this.userService.updateUser(user);
             else return tokens;
