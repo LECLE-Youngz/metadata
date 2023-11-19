@@ -18,10 +18,13 @@ export class Post {
     @Prop({ default: () => new Date().getTime() })
     timestamp: number;
 
-    @Prop()
+    @Prop({ default: [] })
     likes: Array<number>;
 
-    @Prop()
+    @Prop({ default: false })
+    edited: boolean;
+
+    @Prop({ required: true })
     nftId: number;
 }
 

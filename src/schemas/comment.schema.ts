@@ -20,7 +20,7 @@ export class Comment {
     @Prop({ default: () => new Date().getTime() })
     timestamp: number;
 
-    @Prop()
+    @Prop({ default: [] })
     likes: Array<number>;
 }
 

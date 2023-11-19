@@ -18,8 +18,8 @@ export class CommentService {
         return this.commentModel.find({ postId });
     }
 
-    async createComment(comment: Comment): Promise<Comment> {
-        return this.commentModel.create(comment);
+    async createComment(ownerId: number, postId: number, text: string): Promise<Comment> {
+        return this.commentModel.create({ ownerId, postId, text });
     }
 
     async updateComment(comment: Comment): Promise<any> {
