@@ -4,11 +4,10 @@ import {
 } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { OAuth2Client } from "google-auth-library";
-import { GetTokenResponse } from "google-auth-library/build/src/auth/oauth2client";
+// import { GetTokenResponse } from "google-auth-library/build/src/auth/oauth2client";
 import { SocialUserService, UserService, WalletService } from "src/services";
 import { User } from "src/schemas";
 import { verifyAccessToken } from "src/auth/google.verifier";
-import { OauthDto } from "src/dtos";
 
 
 @Controller("api/v1/oauth")
