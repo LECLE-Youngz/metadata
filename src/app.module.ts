@@ -2,6 +2,10 @@ import { Module } from '@nestjs/common';
 import * as controllers from './controllers';
 import * as services from './services';
 import { MongooseModule } from "@nestjs/mongoose";
+import {
+  User,
+  UserSchema,
+} from "./schemas";
 import * as dotenv from "dotenv";
 dotenv.config();
 
@@ -15,6 +19,7 @@ dotenv.config();
       },
     }),
     MongooseModule.forFeature([
+      { name: User.name, schema: UserSchema },
 
     ]),
   ],

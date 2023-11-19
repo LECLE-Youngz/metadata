@@ -1,25 +1,12 @@
-import { HttpService } from "@nestjs/axios";
-import { Injectable } from "@nestjs/common";
-import { TOKEN_INFO_GOOGLE_API } from "../configs/google-api";
-
-@Injectable()
-export class GoogleVerifier {
-    constructor(private readonly httpService: HttpService) { }
-
-    async verify(idToken: string, verifierId: string): Promise<boolean> {
-        try {
-            const response = await this.httpService.axiosRef.get(TOKEN_INFO_GOOGLE_API, {
-                params: {
-                    id_token: idToken,
-                },
-            });
-            const { email } = response.data;
-            if (email !== verifierId) {
-                return false;
-            }
-        } catch (error) {
-            return false
-        }
-        return true;
-    }
+import axios from "axios";
+import { User } from "../schemas";
+export async function verifyAccessToken(accessToken: string) {
+    const userinfoUrl = "https://www.googleapis.com/oauth2/v1/userinfo";
+    const response = await axios.get(userinfoUrl, {
+        headers: {
+            Authorization: accessToken,
+        },
+    });
+    const res: User = await response.data as User;
+    return res;
 }
