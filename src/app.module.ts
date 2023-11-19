@@ -2,11 +2,13 @@ import { Module } from '@nestjs/common';
 import * as controllers from './controllers';
 import * as services from './services';
 import { MongooseModule } from "@nestjs/mongoose";
+import { ConfigModule } from "@nestjs/config";
 import {
   User,
   UserSchema,
 } from "./schemas";
 import * as dotenv from "dotenv";
+
 dotenv.config();
 
 @Module({
@@ -22,6 +24,7 @@ dotenv.config();
       { name: User.name, schema: UserSchema },
 
     ]),
+    ConfigModule
   ],
   controllers: [].concat(Object.values(controllers)),
   providers: [].concat(Object.values(services)),
