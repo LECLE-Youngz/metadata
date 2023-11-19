@@ -10,6 +10,14 @@ import {
   NftSchema,
   Data,
   DataSchema,
+  Comment,
+  CommentSchema,
+  Post,
+  PostSchema,
+  SocialUser,
+  SocialUserSchema,
+  Wallet,
+  WalletSchema,
 } from "./schemas";
 import * as dotenv from "dotenv";
 
@@ -28,6 +36,10 @@ dotenv.config();
       { name: User.name, schema: UserSchema },
       { name: Nft.name, schema: NftSchema },
       { name: Data.name, schema: DataSchema },
+      { name: Comment.name, schema: CommentSchema },
+      { name: Post.name, schema: PostSchema },
+      { name: SocialUser.name, schema: SocialUserSchema },
+      { name: Wallet.name, schema: WalletSchema },
     ]),
     ConfigModule
   ],
