@@ -10,11 +10,11 @@ export class UserService {
     private userModel: Model<UserDocument>,
   ) { }
 
-  async findUserById(id: number): Promise<User> {
+  async findUserById(id: string): Promise<User> {
     return this.userModel.findOne({ id });
   }
 
-  async findUserByListId(ids: number[]): Promise<Array<User>> {
+  async findUserByListId(ids: string[]): Promise<Array<User>> {
     return this.userModel.find({ id: { $in: ids } });
   }
 

@@ -16,11 +16,13 @@ export class UserController {
   ) { }
 
   @Get(":id")
-  async getUserById(@Param("id") id: number) {
+  async getUserById(@Param("id") id: string) {
     const info = await this.userService.findUserById(id);
-    const wallet = await this.walletService.findWalletById(id);
-    const socialUser = await this.socialUserService.findSocialUserById(id);
-    return { ...info, ...wallet, ...socialUser };
+    const wallet = await this.walletService.findWalletById(info.id);
+    const socialUser = await this.socialUserService.findSocialUserById(info.id);
+    const listUserByFlowing = await this.userService.findUserByListId(socialUser.following)
+    const listUserByFlowers = await this.userService.findUserByListId(socialUser.follower)
+    return { info: info, wallet: wallet, listUserFlowing: listUserByFlowing, listUserByFlowers: listUserByFlowers }
   }
 
   @Get()
@@ -28,23 +30,7 @@ export class UserController {
     const info = await this.userService.findAll()
     const wallet = await this.walletService.findAll()
     const socialUser = await this.socialUserService.findAll()
-    return info.map((user) => {
-      const walletUser = wallet.find((wallet) => wallet.id === user.id)
-      const socialUserUser = socialUser.find((socialUser) => socialUser.id === user.id)
-      return { ...user, ...walletUser, ...socialUserUser }
-    })
+    return { info: info, wallet: wallet, socialUser: socialUser }
   }
 
-  @Get("/list/:ids")
-  async getUserByListId(@Param("ids") ids: string) {
-    const listId = ids.split(",").map((id) => parseInt(id))
-    const info = await this.userService.findUserByListId(listId);
-    const wallet = await this.walletService.findWalletByListId(listId);
-    const socialUser = await this.socialUserService.findSocialUserByListId(listId);
-    return info.map((user) => {
-      const walletUser = wallet.find((wallet) => wallet.id === user.id)
-      const socialUserUser = socialUser.find((socialUser) => socialUser.id === user.id)
-      return { ...user, ...walletUser, ...socialUserUser }
-    })
-  }
 }

@@ -9,7 +9,7 @@ export class Comment {
     id: number;
 
     @Prop({ required: true })
-    ownerId: number;
+    ownerId: string;
 
     @Prop({ required: true })
     postId: number;

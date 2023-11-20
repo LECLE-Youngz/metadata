@@ -7,7 +7,7 @@ export class CreateNftDto {
 
     @IsNumber()
     @IsNotEmpty()
-    ownerId: number;
+    ownerId: string;
 
     @IsString()
     @IsNotEmpty()

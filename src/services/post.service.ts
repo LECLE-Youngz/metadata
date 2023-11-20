@@ -19,7 +19,7 @@ export class PostService {
         return this.postModel.find({ id: { $in: ids } });
     }
 
-    async createPost(ownerId: number, post: CreatePostDto): Promise<Post> {
+    async createPost(ownerId: string, post: CreatePostDto): Promise<Post> {
         return this.postModel.create({ ...post, ownerId });
     }
 
@@ -31,15 +31,15 @@ export class PostService {
         return this.postModel.find();
     }
 
-    async addListLike(id: number, postId: number): Promise<any> {
+    async addListLike(id: string, postId: number): Promise<any> {
         return this.postModel.updateOne({ id }, { $push: { like: postId } })
     }
 
-    async removeListLike(id: number, postId: number): Promise<any> {
+    async removeListLike(id: string, postId: number): Promise<any> {
         return this.postModel.updateOne({ id }, { $pull: { like: postId } })
     }
 
-    async findListLikeById(id: number): Promise<Array<number>> {
+    async findListLikeById(id: string): Promise<Array<number>> {
         const post = await this.postModel.findOne({ id })
         return post.likes;
     }

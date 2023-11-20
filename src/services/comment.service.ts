@@ -18,7 +18,7 @@ export class CommentService {
         return this.commentModel.find({ postId });
     }
 
-    async createComment(ownerId: number, postId: number, text: string): Promise<Comment> {
+    async createComment(ownerId: string, postId: number, text: string): Promise<Comment> {
         return this.commentModel.create({ ownerId, postId, text });
     }
 

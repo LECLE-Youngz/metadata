@@ -10,7 +10,7 @@ export class Post {
     id: number;
 
     @Prop({ required: true })
-    ownerId: number;
+    ownerId: string;
 
     @Prop({ required: true })
     text: string;

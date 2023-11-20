@@ -92,13 +92,13 @@ export class SocialController {
     // user social
 
     @Put("/flowing/:id")
-    async updateFlower(@Param("id") flowingId: number, @Headers('Authorization') accessToken: string) {
+    async updateFlower(@Param("id") flowingId: string, @Headers('Authorization') accessToken: string) {
         const user = await verifyAccessToken(accessToken);
         return await this.socialUserService.addListFlow(user.id, flowingId);
     }
 
     @Put("/unflowing/:id")
-    async updateUnFlower(@Param("id") flowingId: number, @Headers('Authorization') accessToken: string) {
+    async updateUnFlower(@Param("id") flowingId: string, @Headers('Authorization') accessToken: string) {
         const user = await verifyAccessToken(accessToken);
         return await this.socialUserService.removeListFlow(user.id, flowingId);
     }
@@ -110,24 +110,24 @@ export class SocialController {
     }
 
     @Get("/flowing/:id")
-    async getFlowing(@Param("id") flowingId: number) {
+    async getFlowing(@Param("id") flowingId: string) {
         const listUserId = await this.socialUserService.findListFlowingById(flowingId);
         const listUser = await this.userService.findUserByListId(listUserId);
         return listUser;
     }
 
     @Get("/follower/:id")
-    async getFollower(@Param("id") followerId: number) {
+    async getFollower(@Param("id") followerId: string) {
         const listUserId = await this.socialUserService.findListFollowerById(followerId);
         const listUser = await this.userService.findUserByListId(listUserId);
         return listUser;
     }
 
-    @Get("/bookmarks/:id")
-    async getBookMarks(@Param("id") bookMarksId: number) {
-        const listPostId = await this.socialUserService.findListBookMarksById(bookMarksId);
-        const listPost = await this.postService.findPostByListId(listPostId);
-        return listPost;
-    }
+    // @Get("/bookmarks/:id")
+    // async getBookMarks(@Param("id") bookMarksId: number) {
+    //     const listPostId = await this.socialUserService.findListBookMarksById(bookMarksId);
+    //     const listPost = await this.postService.findPostByListId(listPostId);
+    //     return listPost;
+    // }
 
 }

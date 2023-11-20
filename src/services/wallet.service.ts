@@ -10,11 +10,11 @@ export class WalletService {
         private userModel: Model<WalletDocument>,
     ) { }
 
-    async findWalletById(id: number): Promise<Wallet> {
+    async findWalletById(id: string): Promise<Wallet> {
         return this.userModel.findOne({ id });
     }
 
-    async createWallet(id: number, address: String): Promise<Wallet> {
+    async createWallet(id: string, address: String): Promise<Wallet> {
         return this.userModel.create({ id, address });
     }
 
@@ -22,11 +22,11 @@ export class WalletService {
         return this.userModel.find();
     }
 
-    async updateWallet(id: number, address: string): Promise<any> {
+    async updateWallet(id: string, address: string): Promise<any> {
         return this.userModel.updateOne({ id }, { address })
     }
 
-    async findWalletByListId(ids: number[]): Promise<Array<Wallet>> {
+    async findWalletByListId(ids: string[]): Promise<Array<Wallet>> {
         return this.userModel.find({ id: { $in: ids } });
     }
 

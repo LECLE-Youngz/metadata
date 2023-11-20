@@ -9,7 +9,7 @@ export class Nft {
     id: number;
 
     @Prop({ required: true })
-    ownerId: number;
+    ownerId: string;
 
     @Prop({ required: true })
     name: string;

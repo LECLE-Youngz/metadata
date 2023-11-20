@@ -7,7 +7,7 @@ export class CreateCommentDto {
 
     @IsNumber()
     @IsNotEmpty()
-    ownerId: number;
+    ownerId: string;
 
     @IsString()
     @IsNotEmpty()

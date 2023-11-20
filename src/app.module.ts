@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import * as controllers from './controllers';
 import * as services from './services';
 import { MongooseModule } from "@nestjs/mongoose";
-import { ConfigModule } from "@nestjs/config";
+import { ConfigModule, ConfigService } from "@nestjs/config";
 import {
   User,
   UserSchema,
@@ -19,18 +19,21 @@ import {
   Wallet,
   WalletSchema,
 } from "./schemas";
-import * as dotenv from "dotenv";
-
-dotenv.config();
+import configuration from "src/configs/configuration";
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      load: [configuration]
+    }),
     MongooseModule.forRootAsync({
-      useFactory: async () => {
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => {
         return {
-          uri: process.env.MONGO_URL,
+          uri: configService.get<string>("database.mongo_url"),
         };
       },
+      inject: [ConfigService],
     }),
     MongooseModule.forFeature([
       { name: User.name, schema: UserSchema },

@@ -7,7 +7,7 @@ export type WalletDocument = HydratedDocument<Wallet>;
 @Schema()
 export class Wallet {
     @Prop({ required: true, unique: true, index: true, sparse: true })
-    id: number;
+    id: string;
 
     @Prop({ required: true, unique: true, index: true })
     address: string;
