@@ -30,4 +30,9 @@ export class CommentService {
         return this.commentModel.find();
     }
 
+    async getNewId(): Promise<number> {
+        const comments = await this.findAll();
+        const ids = comments.map((comment) => comment.id);
+        return Math.max(...ids) + 1;
+    }
 }

@@ -19,8 +19,8 @@ export class PostService {
         return this.postModel.find({ id: { $in: ids } });
     }
 
-    async createPost(ownerId: string, post: CreatePostDto): Promise<Post> {
-        return this.postModel.create({ ...post, ownerId });
+    async createPost(ownerId: string, id: number, post: CreatePostDto): Promise<Post> {
+        return this.postModel.create({ ownerId, id, ...post });
     }
 
     async updatePost(id: number, text: string): Promise<any> {
@@ -42,5 +42,11 @@ export class PostService {
     async findListLikeById(id: string): Promise<Array<number>> {
         const post = await this.postModel.findOne({ id })
         return post.likes;
+    }
+
+    async getNewId(): Promise<number> {
+        const posts = await this.findAll();
+        const ids = posts.map((post) => post.id);
+        return Math.max(...ids) + 1;
     }
 }

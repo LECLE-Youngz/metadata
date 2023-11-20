@@ -5,7 +5,7 @@ export type CommentDocument = HydratedDocument<Comment>;
 
 @Schema()
 export class Comment {
-    @Prop({ unique: true, index: true, sparse: true, auto: true })
+    @Prop({ required: true, unique: true, index: true, sparse: true })
     id: number;
 
     @Prop({ required: true })

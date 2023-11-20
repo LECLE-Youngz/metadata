@@ -15,8 +15,8 @@ export class SocialUserService {
     }
 
 
-    async createSocialUser(socialUser: SocialUser): Promise<SocialUser> {
-        return this.socialUserModel.create(socialUser);
+    async createSocialUser(socialUserData: Partial<SocialUser>): Promise<SocialUser> {
+        return this.socialUserModel.create(socialUserData);
     }
 
     async addListFlow(id: string, flowingId: string): Promise<any> {

@@ -40,7 +40,7 @@ export class OauthController {
             if (!existedUser) {
                 await this.userService.createUser(user);
                 const wallet = await this.walletService.createWallet(user.id, address);
-                const socialUser = await this.socialUserService.createSocialUser(new SocialUser(user.id));
+                const socialUser = await this.socialUserService.createSocialUser({ id: user.id });
                 return {
                     info: { ...user },
                     socialUser: { ...socialUser },

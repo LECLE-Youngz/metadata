@@ -102,7 +102,8 @@ export class SocialController {
     @Post("/post")
     async createPost(@Body() createPost: CreatePostDto, @Headers('Authorization') accessToken: string) {
         const user = await verifyAccessToken(accessToken);
-        return await this.postService.createPost(user.id, createPost);
+        const id = await this.postService.getNewId();
+        return await this.postService.createPost(user.id, id, createPost);
     }
 
     @Put("/post/:id")
