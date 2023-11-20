@@ -97,7 +97,7 @@ export class UserController {
           numPromptPurchased: 0
         },
         picture: user.picture,
-        nft: nft ? nft : [],
+        nft: userNft ? userNft : [],
       };
 
     });
