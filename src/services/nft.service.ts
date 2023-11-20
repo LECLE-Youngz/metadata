@@ -14,12 +14,12 @@ export class NftService {
         return this.nftModel.find();
     }
 
-    async findNftById(nftId: number): Promise<Nft> {
-        return this.nftModel.findOne({ nftId });
+    async findNftById(id: number): Promise<Nft> {
+        return this.nftModel.findOne({ id });
     }
 
-    async findNftsByListId(nftIds: number[]): Promise<Array<Nft>> {
-        return this.nftModel.find({ nftId: { $in: nftIds } });
+    async findNftsByListId(id: number[]): Promise<Array<Nft>> {
+        return this.nftModel.find({ id: { $in: id } });
     }
 
     async findNftsByOwnerId(ownerId: string): Promise<Array<Nft>> {

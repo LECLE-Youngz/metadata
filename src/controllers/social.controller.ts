@@ -50,14 +50,25 @@ export class SocialController {
                 const ownerComment = await this.userService.findUserById(comment.ownerId);
                 return { ...comment, ownerComment };
             }));
-            return { ...post, ...nft, ownerPost, listOwnerComment };
+            return {
+                postId: post.id,
+                text: post.text,
+                listLike: post.likes,
+                listComment: listOwnerComment,
+                nft: nft,
+                postOwner: {
+                    id: ownerPost.id,
+                    name: ownerPost.name,
+                    email: ownerPost.email,
+                    picture: ownerPost.picture,
+                }
+            }
         }));
         return listSocials;
     }
 
     @Post("/post")
     async createPost(@Body() createPost: CreatePostDto, @Headers('Authorization') accessToken: string) {
-        console.log(accessToken, accessToken)
         const user = await verifyAccessToken(accessToken);
         return await this.postService.createPost(user.id, createPost);
     }
