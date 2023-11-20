@@ -6,7 +6,7 @@ import { ConfigService } from "@nestjs/config";
 import { OAuth2Client } from "google-auth-library";
 import { GetTokenResponse } from "google-auth-library/build/src/auth/oauth2client";
 import { SocialUserService, UserService, WalletService } from "src/services";
-import { User } from "src/schemas";
+import { SocialUser, User } from "src/schemas";
 import { verifyAccessToken } from "src/auth/google.verifier";
 
 @Controller("api/v1/oauth")
@@ -40,7 +40,7 @@ export class OauthController {
             if (!existedUser) {
                 await this.userService.createUser(user);
                 const wallet = await this.walletService.createWallet(user.id, address);
-                const socialUser = await this.socialUserService.initSocialUser(user.id);
+                const socialUser = await this.socialUserService.createSocialUser(new SocialUser(user.id));
                 return {
                     info: { ...user },
                     socialUser: { ...socialUser },
@@ -62,12 +62,12 @@ export class OauthController {
                 )
                     await this.userService.updateUser(user);
 
-
                 if (!socialUser)
-                    await this.socialUserService.initSocialUser(user.id);
+                    await this.socialUserService.createSocialUser(new SocialUser(user.id));
 
                 if (wallet && wallet.address !== address)
                     await this.walletService.updateWallet(user.id, address);
+
 
                 return {
                     info: { ...user },

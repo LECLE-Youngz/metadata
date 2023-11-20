@@ -14,9 +14,6 @@ export class SocialUserService {
         return this.socialUserModel.findOne({ id });
     }
 
-    async initSocialUser(id: string): Promise<SocialUser> {
-        return this.socialUserModel.create({ id, follower: [], flowing: [], bookMarks: [] });
-    }
 
     async createSocialUser(socialUser: SocialUser): Promise<SocialUser> {
         return this.socialUserModel.create(socialUser);
