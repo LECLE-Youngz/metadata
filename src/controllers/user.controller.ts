@@ -105,4 +105,16 @@ export class UserController {
     return mappedData;
   }
 
+  // get wallet by email 
+  @Get("/wallet/:email")
+  async getWalletByEmail(@Param("email") email: string) {
+    const user = await this.userService.findUserByEmail(email);
+    const wallet = await this.walletService.findWalletById(user.id);
+    return {
+      id: user.id,
+      email: user.email,
+      address: wallet.address,
+    };
+  }
+
 }

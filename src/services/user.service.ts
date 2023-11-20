@@ -14,6 +14,10 @@ export class UserService {
     return this.userModel.findOne({ id });
   }
 
+  async findUserByEmail(email: string): Promise<User> {
+    return this.userModel.findOne({ email })
+  }
+
   async findUserByListId(ids: string[]): Promise<Array<User>> {
     return this.userModel.find({ id: { $in: ids } });
   }
