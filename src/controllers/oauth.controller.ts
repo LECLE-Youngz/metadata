@@ -8,22 +8,25 @@ import { OAuth2Client } from "google-auth-library";
 import { SocialUserService, UserService, WalletService } from "src/services";
 import { User } from "src/schemas";
 import { verifyAccessToken } from "src/auth/google.verifier";
-
+import * as dotenv from "dotenv";
 
 @Controller("api/v1/oauth")
 export class OauthController {
     oAuth2Client: OAuth2Client
     constructor(private configService: ConfigService, private readonly userService: UserService, private readonly walletService: WalletService, private readonly socialUserService: SocialUserService) {
         this.oAuth2Client = new OAuth2Client(
-            this.configService.get<string>("ggClientId"),
-            this.configService.get<string>("ggClientSecret"),
+            process.env.GG_CLIENT_ID,
+            process.env.GG_CLIENT_SECRET,
             "postmessage"
         );
     }
 
     @Post("/google")
-    async getOauth(@Body("code") code: string, address?: string) {
+    async getOauth(@Body("code") code: string, @Body("address") address?: string) {
         try {
+            if (!code) {
+                throw new BadRequestException("Missing code");
+            }
             const { tokens } = await this.oAuth2Client.getToken(code);
             const { access_token } = tokens;
             const user: User = await verifyAccessToken(`Bearer ${access_token}`);

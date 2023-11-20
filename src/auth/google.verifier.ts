@@ -7,6 +7,9 @@ export async function verifyAccessToken(accessToken: string) {
             Authorization: accessToken,
         },
     });
+    if (response.status !== 200) {
+        throw new Error("Failed to verify access token");
+    }
     return await response.data as User;
 
 }
