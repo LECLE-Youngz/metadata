@@ -42,7 +42,7 @@ export class OauthController {
                 const wallet = await this.walletService.createWallet(user.id, address);
                 const socialUser = await this.socialUserService.initSocialUser(user.id);
                 return {
-                    user: { ...user },
+                    info: { ...user },
                     socialUser: { ...socialUser },
                     wallet: { ...wallet },
                     tokens: { ...tokens },
