@@ -57,6 +57,7 @@ export class SocialController {
 
     @Post("/post")
     async createPost(@Body() createPost: CreatePostDto, @Headers('Authorization') accessToken: string) {
+        console.log(accessToken, accessToken)
         const user = await verifyAccessToken(accessToken);
         return await this.postService.createPost(user.id, createPost);
     }
