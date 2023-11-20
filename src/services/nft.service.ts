@@ -22,7 +22,7 @@ export class NftService {
         return this.nftModel.find({ nftId: { $in: nftIds } });
     }
 
-    async findNftsByOwnerId(ownerId: number): Promise<Array<Nft>> {
+    async findNftsByOwnerId(ownerId: string): Promise<Array<Nft>> {
         return this.nftModel.find({ ownerId });
     }
 
