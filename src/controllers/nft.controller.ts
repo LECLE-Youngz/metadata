@@ -54,9 +54,7 @@ export class NftController {
             })
         );
 
-        return {
-            nfts: nftsWithOwners,
-        };
+        return nftsWithOwners
     }
 
 
