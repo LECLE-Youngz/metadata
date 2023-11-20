@@ -49,7 +49,11 @@ export class OauthController {
                 }
             }
             else {
+
                 const wallet = await this.walletService.findWalletById(user.id);
+                if (!wallet)
+                    await this.walletService.createWallet(user.id, address);
+
                 const socialUser = await this.socialUserService.findSocialUserById(user.id);
 
                 if (existedUser.picture !== user.picture || existedUser.name !== user.name ||
@@ -58,8 +62,6 @@ export class OauthController {
                 )
                     await this.userService.updateUser(user);
 
-                if (!wallet)
-                    await this.walletService.createWallet(user.id, address);
 
                 if (!socialUser)
                     await this.socialUserService.initSocialUser(user.id);

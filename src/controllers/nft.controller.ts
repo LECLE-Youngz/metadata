@@ -25,6 +25,11 @@ export class NftController {
         return await this.nftService.findAll();
     }
 
+    @Get("/owner/:id")
+    async getNftsByOwnerId(@Param("id") id: string): Promise<Array<Nft>> {
+        return await this.nftService.findNftsByOwnerId(id);
+    }
+
     @Post()
     async createNft(@Body() createNft: CreateNftDto): Promise<Nft> {
         const existedNft = await this.nftService.findNftById(createNft.id);
