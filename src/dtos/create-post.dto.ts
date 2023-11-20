@@ -8,5 +8,5 @@ export class CreatePostDto {
 
     @IsNumber()
     @IsNotEmpty()
-    nftId: number;
+    nftId?: number;
 }

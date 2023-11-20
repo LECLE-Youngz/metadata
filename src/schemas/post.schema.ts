@@ -6,8 +6,9 @@ export type PostDocument = HydratedDocument<Post>;
 
 @Schema()
 export class Post {
-    @Prop({ unique: true, index: true, sparse: true, auto: true })
-    id: number;
+    // id auto increment
+    @Prop({ unique: true, index: true, sparse: true, auto: true, type: Number })
+    id: number; // id auto increment
 
     @Prop({ required: true })
     ownerId: string;
