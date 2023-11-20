@@ -34,9 +34,31 @@ export class SocialController {
         const ownerPost = await this.userService.findUserById(post.ownerId);
         const listOwnerComment = await Promise.all(comment.map(async (comment) => {
             const ownerComment = await this.userService.findUserById(comment.ownerId);
-            return { ...comment, ownerComment };
+            return {
+                id: comment.id,
+                text: comment.text,
+                timestamp: comment.timestamp,
+                ownerComment: {
+                    id: ownerComment.id,
+                    name: ownerComment.name,
+                    email: ownerComment.email,
+                    picture: ownerComment.picture,
+                }
+            }
         }));
-        return { ...post, ...nft, ownerPost, listOwnerComment };
+        return {
+            postId: post.id,
+            text: post.text,
+            listLike: post.likes,
+            listComment: listOwnerComment,
+            nft: nft,
+            postOwner: {
+                id: ownerPost.id,
+                name: ownerPost.name,
+                email: ownerPost.email,
+                picture: ownerPost.picture,
+            }
+        }
     }
 
     @Get("/post")
@@ -48,7 +70,17 @@ export class SocialController {
             const ownerPost = await this.userService.findUserById(post.ownerId);
             const listOwnerComment = await Promise.all(comment.map(async (comment) => {
                 const ownerComment = await this.userService.findUserById(comment.ownerId);
-                return { ...comment, ownerComment };
+                return {
+                    id: comment.id,
+                    text: comment.text,
+                    timestamp: comment.timestamp,
+                    ownerComment: {
+                        id: ownerComment.id,
+                        name: ownerComment.name,
+                        email: ownerComment.email,
+                        picture: ownerComment.picture,
+                    }
+                }
             }));
             return {
                 postId: post.id,
