@@ -22,7 +22,13 @@ export class UserController {
     const socialUser = await this.socialUserService.findSocialUserById(info.id);
     const listUserByFlowing = await this.userService.findUserByListId(socialUser.following)
     const listUserByFlowers = await this.userService.findUserByListId(socialUser.follower)
-    return { info: info, wallet: wallet, listUserFlowing: listUserByFlowing, listUserByFlowers: listUserByFlowers }
+
+    // mapping
+    return listUserByFlowing.map((user) => {
+      const wallet = this.walletService.findWalletById(user.id)
+      const socialUser = this.socialUserService.findSocialUserById(user.id)
+      return { ...user, wallet, socialUser }
+    })
   }
 
   @Get()
@@ -30,7 +36,13 @@ export class UserController {
     const info = await this.userService.findAll()
     const wallet = await this.walletService.findAll()
     const socialUser = await this.socialUserService.findAll()
-    return { info: info, wallet: wallet, socialUser: socialUser }
+
+    // mapping  
+    return info.map((user) => {
+      const wallet = this.walletService.findWalletById(user.id)
+      const socialUser = this.socialUserService.findSocialUserById(user.id)
+      return { ...user, wallet, socialUser }
+    })
   }
 
 }
