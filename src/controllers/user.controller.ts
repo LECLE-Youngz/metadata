@@ -75,7 +75,9 @@ export class UserController {
     const mappedData = info.map((user) => {
       const userWallet = wallet.find((w) => w.id === user.id);
       const userSocial = socialUser.find((su) => su.id === user.id);
-      const userNft = nft.find((n) => n.ownerId === user.id);
+      // getUserListNft
+      const userNft = nft.filter((n) => n.ownerId === user.id);
+
 
       return {
         id: user.id,
