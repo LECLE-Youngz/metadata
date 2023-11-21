@@ -106,6 +106,9 @@ export class SocialController {
                 throw new BadRequestException(`You don't have permission`);
             }
             const user = await verifyAccessToken(accessToken);
+
+            // TODO: check nftId of user on blockchain
+
             return await this.postService.createPost(user.id, createPost);
         } catch (err) {
             throw new BadRequestException(err.message);
