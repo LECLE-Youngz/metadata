@@ -4,6 +4,14 @@ export class CreatePostDto {
 
     @IsString()
     @IsNotEmpty()
+    header: string;
+
+    @IsString()
+    @IsNotEmpty()
+    description: string;
+
+    @IsString()
+    @IsNotEmpty()
     text: string;
 
     @IsNumber()

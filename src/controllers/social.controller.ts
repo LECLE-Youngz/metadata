@@ -101,12 +101,16 @@ export class SocialController {
 
     @Post("/post")
     async createPost(@Body() createPost: CreatePostDto, @Headers('Authorization') accessToken: string) {
-        if (!accessToken) {
-            throw new BadRequestException(`You don't have permission`);
+        try {
+            if (!accessToken) {
+                throw new BadRequestException(`You don't have permission`);
+            }
+            const user = await verifyAccessToken(accessToken);
+            const id = await this.postService.getNewId();
+            return await this.postService.createPost(user.id, id, createPost);
+        } catch (err) {
+            throw new BadRequestException(err.message);
         }
-        const user = await verifyAccessToken(accessToken);
-        const id = await this.postService.getNewId() ?? 1;
-        return await this.postService.createPost(user.id, id, createPost);
     }
 
     @Put("/post/:id")

@@ -57,7 +57,7 @@ export class OauthController {
                         address: wallet.address,
                     },
                     socialUser: {
-                        bookMarks: socialUser.bookMarks,
+                        bookmarks: socialUser.bookmarks,
                         following: socialUser.following,
                         follower: socialUser.follower,
                         numSold: socialUser.numSold,
@@ -101,7 +101,7 @@ export class OauthController {
                         address: wallet.address ?? "",
                     },
                     socialUser: {
-                        bookMarks: socialUser.bookMarks ?? [],
+                        bookmarks: socialUser.bookmarks ?? [],
                         following: socialUser.following ?? [],
                         follower: socialUser.follower ?? [],
                         numSold: socialUser.numSold ?? 0,

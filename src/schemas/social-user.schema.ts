@@ -10,7 +10,7 @@ export class SocialUser {
     id: string; // user Id
 
     @Prop({ required: true })
-    bookMarks: Array<number>; // post Id
+    bookmarks: Array<number>; // post Id
 
     @Prop({ required: true })
     following: Array<string>; // user Id

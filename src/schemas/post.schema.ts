@@ -13,18 +13,27 @@ export class Post {
     ownerId: string;
 
     @Prop({ required: true })
+    header: string;
+
+    @Prop({ required: true })
+    description: string;
+
+    @Prop({ required: true })
     text: string;
 
     @Prop({ default: () => new Date().getTime() })
     timestamp: number;
 
     @Prop({ default: [] })
-    likes: Array<number>;
+    likes: Array<string>;
 
     @Prop({ default: false })
     edited: boolean;
 
     @Prop({ required: true })
     nftId: number;
+
+    @Prop({ default: [] })
+    bookmark: Array<string>;
 }
 export const PostSchema = SchemaFactory.createForClass(Post);

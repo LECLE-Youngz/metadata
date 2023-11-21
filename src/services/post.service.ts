@@ -20,7 +20,19 @@ export class PostService {
     }
 
     async createPost(ownerId: string, id: number, post: CreatePostDto): Promise<Post> {
-        return this.postModel.create({ ownerId, id, ...post });
+        return this.postModel.create(
+            {
+                id,
+                ownerId,
+                bookmark: [],
+                likes: [],
+                nftId: post.nftId,
+                header: post.header,
+                description: post.description,
+                text: post.text,
+                timestamp: new Date().getTime(),
+                edited: false
+            });
     }
 
     async updatePost(id: number, text: string): Promise<any> {
@@ -39,14 +51,18 @@ export class PostService {
         return this.postModel.updateOne({ id }, { $pull: { like: postId } })
     }
 
-    async findListLikeById(id: string): Promise<Array<number>> {
+    async findListLikeById(id: string): Promise<Array<string>> {
         const post = await this.postModel.findOne({ id })
         return post.likes;
     }
 
     async getNewId(): Promise<number> {
         const posts = await this.findAll();
+        if (posts.length == 0) {
+            return 1;
+        }
         const ids = posts.map((post) => post.id);
         return Math.max(...ids) + 1;
+
     }
 }
