@@ -147,12 +147,17 @@ export class SocialController {
 
     @Post("/post/:id/comment")
     async createComment(@Param("id") id: number, @Body() text: string, @Headers('Authorization') accessToken: string) {
-        const user = await verifyAccessToken(accessToken);
-        return await this.commentService.createComment(user.id, id, text);
+        try {
+            const user = await verifyAccessToken(accessToken);
+            return await this.commentService.createComment(user.id, id, text);
+        }
+        catch (err) {
+            throw new BadRequestException(err.message);
+        }
     }
 
-    @Post("/post/:id/comment/:id")
-    async createReply(@Param("id") id: number, @Param("id") commentId: number, @Body() text: string, @Headers('Authorization') accessToken: string) {
+    @Post("/post/:id/comment/:commentId")
+    async createReply(@Param("id") id: number, @Param("commentId") commentId: number, @Body() text: string, @Headers('Authorization') accessToken: string) {
         const user = await verifyAccessToken(accessToken);
         return await this.commentService.createReplyComment(user.id, id, text, commentId);
     }

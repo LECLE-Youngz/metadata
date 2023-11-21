@@ -19,11 +19,29 @@ export class CommentService {
     }
 
     async createComment(ownerId: string, postId: number, text: string): Promise<Comment> {
-        return this.commentModel.create({ ownerId, postId, text, timestamp: new Date().getTime(), likes: [], replyCommentId: 0, id: await this.getNewId() });
+        return this.commentModel.create(
+            {
+                ownerId: ownerId,
+                postId: postId,
+                text: text,
+                timestamp: new Date().getTime(),
+                likes: [],
+                replyCommentId: 0,
+                id: await this.getNewId()
+            });
     }
 
     async createReplyComment(ownerId: string, postId: number, text: string, replyCommentId: number): Promise<Comment> {
-        return this.commentModel.create({ ownerId, postId, text, timestamp: new Date().getTime(), likes: [], replyCommentId, id: await this.getNewId() });
+        return this.commentModel.create(
+            {
+                ownerId: ownerId,
+                postId: postId,
+                text: text,
+                timestamp: new Date().getTime(),
+                likes: [],
+                replyCommentId: replyCommentId,
+                id: await this.getNewId()
+            });
     }
 
     async updateComment(comment: Comment): Promise<any> {

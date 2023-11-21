@@ -64,7 +64,8 @@ export class OauthController {
                         numPurchased: socialUser.numPurchased,
                         numPromptSold: socialUser.numPromptSold,
                         numPromptPurchased: socialUser.numPromptPurchased
-                    }
+                    },
+                    tokens: tokens
                 }
             }
             else {
@@ -108,7 +109,8 @@ export class OauthController {
                         numPurchased: socialUser.numPurchased ?? 0,
                         numPromptSold: socialUser.numPromptSold ?? 0,
                         numPromptPurchased: socialUser.numPromptPurchased ?? 0
-                    }
+                    },
+                    tokens: tokens
                 }
 
             }
