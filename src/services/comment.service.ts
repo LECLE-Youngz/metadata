@@ -70,4 +70,12 @@ export class CommentService {
     async findReplyCommentByCommentId(commentId: number): Promise<Array<Comment>> {
         return this.commentModel.find({ replyCommentId: commentId });
     }
+
+    async updateLikeOrUnlikeAndList(id: number, userId: string): Promise<any> {
+        const comment = await this.findCommentById(id);
+        if (comment.likes.includes(userId)) {
+            return this.commentModel.updateOne({ id }, { $pull: { likes: userId } })
+        }
+        return this.commentModel.updateOne({ id }, { $push: { likes: userId } })
+    }
 }

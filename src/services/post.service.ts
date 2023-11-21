@@ -45,17 +45,18 @@ export class PostService {
         return this.postModel.updateOne({ id }, { text, timestamp: new Date().getTime(), edited: true })
     }
 
+    async updateLikeOrUnlikeAndList(id: number, userId: string): Promise<any> {
+        const post = await this.findPostById(id);
+        if (post.likes.includes(userId)) {
+            return this.postModel.updateOne({ id }, { $pull: { likes: userId } })
+        }
+        return this.postModel.updateOne({ id }, { $push: { likes: userId } })
+    }
+
     async findAll(): Promise<Array<Post>> {
         return this.postModel.find();
     }
 
-    async addListLike(id: string, postId: number): Promise<any> {
-        return this.postModel.updateOne({ id }, { $push: { like: postId } })
-    }
-
-    async removeListLike(id: string, postId: number): Promise<any> {
-        return this.postModel.updateOne({ id }, { $pull: { like: postId } })
-    }
 
     async findListLikeById(id: string): Promise<Array<string>> {
         const post = await this.postModel.findOne({ id })
@@ -69,6 +70,5 @@ export class PostService {
         }
         const ids = posts.map((post) => post.id);
         return Math.max(...ids) + 1;
-
     }
 }

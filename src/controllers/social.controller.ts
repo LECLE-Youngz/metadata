@@ -170,17 +170,17 @@ export class SocialController {
         return await this.postService.updatePost(id, text);
     }
 
-    @Put("/post/:id/like")
+    @Put("/post/:id/like-or-unlike")
     async updateLike(@Param("id") id: number, @Headers('Authorization') accessToken: string) {
-        const user = await verifyAccessToken(accessToken);
-        return await this.postService.addListLike(user.id, id);
+        try {
+            const user = await verifyAccessToken(accessToken);
+            return await this.postService.updateLikeOrUnlikeAndList(id, user.id);
+        }
+        catch (err) {
+            throw new BadRequestException(err.message);
+        }
     }
 
-    @Put("/post/:id/unlike")
-    async updateUnLike(@Param("id") id: number, @Headers('Authorization') accessToken: string) {
-        const user = await verifyAccessToken(accessToken);
-        return await this.postService.removeListLike(user.id, id);
-    }
 
     @Post("/post/:id/comment")
     async createComment(@Param("id") id: number, @Body() createComment: CreateCommentDto, @Headers('Authorization') accessToken: string) {
@@ -212,6 +212,17 @@ export class SocialController {
         const numberOfReplies = comment.numberOfReplies + 1;
         await this.commentService.updateNumberOfReplies(commentId, numberOfReplies);
         return await this.commentService.createReplyComment(user.id, id, createComment.text, commentId);
+    }
+
+    @Put("/post/comment/:commentId/like-or-unlike")
+    async updateLikeComment(@Param("commentId") commentId: number, @Headers('Authorization') accessToken: string) {
+        try {
+            const user = await verifyAccessToken(accessToken);
+            return await this.commentService.updateLikeOrUnlikeAndList(commentId, user.id);
+        }
+        catch (err) {
+            throw new BadRequestException(err.message);
+        }
     }
 
     @Get("/post/:id/comment/:commentId/reply")
@@ -283,31 +294,6 @@ export class SocialController {
 
     // user social
 
-    @Put("/flowing/:id")
-    async updateFlower(@Param("id") flowingId: string, @Headers('Authorization') accessToken: string) {
-        const user = await verifyAccessToken(accessToken);
-        return await this.socialUserService.addListFlow(user.id, flowingId);
-    }
-
-    @Put("/unflowing/:id")
-    async updateUnFlower(@Param("id") flowingId: string, @Headers('Authorization') accessToken: string) {
-        const user = await verifyAccessToken(accessToken);
-        return await this.socialUserService.removeListFlow(user.id, flowingId);
-    }
-
-    @Put("/bookmarks/:id")
-    async updateBookMarks(@Param("id") postId: number, @Headers('Authorization') accessToken: string) {
-        const user = await verifyAccessToken(accessToken);
-        return await this.socialUserService.addListBookMark(user.id, postId);
-    }
-
-    @Get("/flowing/:id")
-    async getFlowing(@Param("id") flowingId: string) {
-        const listUserId = await this.socialUserService.findListFlowingById(flowingId);
-        const listUser = await this.userService.findUserByListId(listUserId);
-        return listUser;
-    }
-
     @Get("/follower/:id")
     async getFollower(@Param("id") followerId: string) {
         const listUserId = await this.socialUserService.findListFollowerById(followerId);
@@ -315,14 +301,6 @@ export class SocialController {
         return listUser;
     }
 
-    // @Get("/bookmarks/:id")
-    // async getBookMarks(@Param("id") bookMarksId: number) {
-    //     const listPostId = await this.socialUserService.findListBookMarksById(bookMarksId);
-    //     const listPost = await this.postService.findPostByListId(listPostId);
-    //     return listPost;
-    // }
-
-    // comment
 
     @Get("/comment/:id")
     async getCommentById(@Param("id") id: number) {
@@ -341,10 +319,18 @@ export class SocialController {
         }
     }
 
-    // @Post("/comment/")
-    // async createComment(@Body() postId: number, @Body() text: string, @Headers('Authorization') accessToken: string) {
-    //     const user = await verifyAccessToken(accessToken);
-    //     return await this.commentService.createComment(comment.ownerId, comment.postId, comment.text);
-    // }
+
+    // Social User
+    @Put("/social-user/:id/follow-or-unfollow")
+    async updateFlowingAndFlower(@Param("id") id: string, @Headers('Authorization') accessToken: string) {
+        try {
+            const user = await verifyAccessToken(accessToken);
+            return await this.socialUserService.updateFlowingAndFlowerOrUnFlowingAndUnFlower(id, user.id);
+        }
+        catch (err) {
+            throw new BadRequestException(err.message);
+        }
+    }
+
 
 }

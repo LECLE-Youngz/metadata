@@ -64,6 +64,23 @@ export class SocialUserService {
         return socialUser.follower;
     }
 
+    async updateFlowingAndFlowerOrUnFlowingAndUnFlower(id: string, flowingId: string): Promise<any> {
+        const socialUser = await this.findSocialUserById(id);
+        const flowingUser = await this.findSocialUserById(flowingId);
+        if (!socialUser.following.includes(flowingId) && !flowingUser.follower.includes(id)) {
+            await this.addListFlow(id, flowingId)
+            await this.addListFlow(flowingId, id)
+            return { status: 'flowing' }
+
+
+        } else {
+            await this.removeListFlow(id, flowingId)
+            await this.removeListFlow(flowingId, id)
+            return { status: 'unflowing' }
+        }
+
+    }
+
     // async findListBookMarksById(id: number): Promise<Array<number>> {
     //     const socialUser = await this.socialUserModel.findOne({ id })
     //     return socialUser.bookMarks
