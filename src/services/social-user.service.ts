@@ -32,15 +32,6 @@ export class SocialUserService {
         );
     }
 
-    async addListFlow(id: string, flowingId: string): Promise<any> {
-        await this.socialUserModel.updateOne({ id: flowingId }, { $push: { follower: id } })
-        return this.socialUserModel.updateOne({ id }, { $push: { flowing: flowingId } })
-    }
-
-    async removeListFlow(id: string, flowingId: string): Promise<any> {
-        await this.socialUserModel.updateOne({ id: flowingId }, { $pull: { follower: id } })
-        return this.socialUserModel.updateOne({ id }, { $pull: { flowing: flowingId } })
-    }
 
     async addListBookMark(id: string, postId: number): Promise<any> {
         return this.socialUserModel.updateOne({ id }, { $push: { bookMarks: postId } })
@@ -65,25 +56,21 @@ export class SocialUserService {
     }
 
     async updateFlowingAndFlowerOrUnFlowingAndUnFlower(id: string, flowingId: string): Promise<any> {
-        const socialUser = await this.findSocialUserById(id);
-        const flowingUser = await this.findSocialUserById(flowingId);
-        if (!socialUser.following.includes(flowingId) && !flowingUser.follower.includes(id)) {
-            await this.addListFlow(id, flowingId)
-            await this.addListFlow(flowingId, id)
-            return { status: 'flowing' }
-
-
-        } else {
-            await this.removeListFlow(id, flowingId)
-            await this.removeListFlow(flowingId, id)
-            return { status: 'unflowing' }
+        const socialUser = await this.socialUserModel.findOne({ id })
+        const flowingUser = await this.socialUserModel.findOne({ id: flowingId })
+        if (socialUser.following.includes(flowingId) && flowingUser.follower.includes(id)) {
+            await this.socialUserModel.updateOne({ id }, { $pull: { following: flowingId } })
+            await this.socialUserModel.updateOne({ id: flowingId }, { $pull: { follower: id } })
+            return {
+                status: "unflowing"
+            };
         }
-
+        await this.socialUserModel.updateOne({ id }, { $push: { following: flowingId } })
+        await this.socialUserModel.updateOne({ id: flowingId }, { $push: { follower: id } })
+        return {
+            status: "flowing"
+        };
     }
 
-    // async findListBookMarksById(id: number): Promise<Array<number>> {
-    //     const socialUser = await this.socialUserModel.findOne({ id })
-    //     return socialUser.bookMarks
-    // }
 
 }
