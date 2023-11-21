@@ -34,6 +34,7 @@ export class CommentService {
     }
 
     async createReplyComment(ownerId: string, postId: number, text: string, replyCommentId: number): Promise<Comment> {
+
         return this.commentModel.create(
             {
                 ownerId: ownerId,
@@ -42,12 +43,17 @@ export class CommentService {
                 timestamp: new Date().getTime(),
                 likes: [],
                 replyCommentId: replyCommentId,
-                id: await this.getNewId()
+                id: await this.getNewId(),
+                numberOfReplies: 0
             });
     }
 
     async updateComment(comment: Comment): Promise<any> {
         return this.commentModel.updateOne({ id: comment.id }, comment);
+    }
+
+    async updateNumberOfReplies(id: number, numberOfReplies: number): Promise<any> {
+        return this.commentModel.updateOne({ id }, { numberOfReplies })
     }
 
     async findAll(): Promise<Array<Comment>> {

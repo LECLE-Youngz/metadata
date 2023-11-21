@@ -25,6 +25,9 @@ export class Comment {
 
     @Prop({ default: 0 })
     replyCommentId: number;
+
+    @Prop({ default: 0 })
+    numberOfReplies: number;
 }
 
 export const CommentSchema = SchemaFactory.createForClass(Comment);

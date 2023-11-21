@@ -84,7 +84,8 @@ export class SocialController {
                         name: ownerComment.name,
                         email: ownerComment.email,
                         picture: ownerComment.picture,
-                    }
+                    },
+                    numberOfReplies: comment.numberOfReplies
                 }
             }));
             return {
@@ -102,7 +103,8 @@ export class SocialController {
                     name: ownerPost.name,
                     email: ownerPost.email,
                     picture: ownerPost.picture,
-                }
+                },
+                numberOfComments: post.numberOfComments
             }
         }));
         return listSocials;
@@ -150,6 +152,10 @@ export class SocialController {
     async createComment(@Param("id") id: number, @Body() createComment: CreateCommentDto, @Headers('Authorization') accessToken: string) {
         try {
             const user = await verifyAccessToken(accessToken);
+            // update number of comment
+            const post = await this.postService.findPostById(id);
+            const numberOfComments = post.numberOfComments + 1;
+            await this.postService.updateNumberOfComments(id, numberOfComments);
             return await this.commentService.createComment(user.id, id, createComment.text);
         }
         catch (err) {
@@ -164,6 +170,9 @@ export class SocialController {
         if (comment.replyCommentId !== 0) {
             throw new BadRequestException(`This comment is reply comment`);
         }
+        // update number of reply comment
+        const numberOfReplies = comment.numberOfReplies + 1;
+        await this.commentService.updateNumberOfReplies(commentId, numberOfReplies);
         return await this.commentService.createReplyComment(user.id, id, createComment.text, commentId);
     }
 
@@ -210,7 +219,7 @@ export class SocialController {
                             name: ownerReplyComment.name,
                             email: ownerReplyComment.email,
                             picture: ownerReplyComment.picture,
-                        }
+                        },
                     }
                 }));
                 return {
@@ -223,7 +232,8 @@ export class SocialController {
                         email: ownerComment.email,
                         picture: ownerComment.picture,
                     },
-                    listReplyComment: mapReplyCmt
+                    listReplyComment: mapReplyCmt,
+                    numberOfReplies: comment.numberOfReplies
                 }
             }));
             return mapUserAndReplyCmt;
