@@ -167,6 +167,47 @@ export class SocialController {
         return await this.commentService.createReplyComment(user.id, id, createComment.text, commentId);
     }
 
+    @Get("/post/:id/comment")
+    async getComment(@Param("id") id: number) {
+        try {
+            const comment = await this.commentService.findCommentByPostId(id);
+            const mapUserAndReplyCmt = await Promise.all(comment.map(async (comment) => {
+                const ownerComment = await this.userService.findUserById(comment.ownerId);
+                const replyComment = await this.commentService.findReplyCommentByCommentId(comment.id);
+                const mapReplyCmt = await Promise.all(replyComment.map(async (replyComment) => {
+                    const ownerReplyComment = await this.userService.findUserById(replyComment.ownerId);
+                    return {
+                        id: replyComment.id,
+                        text: replyComment.text,
+                        timestamp: replyComment.timestamp,
+                        ownerComment: {
+                            id: ownerReplyComment.id,
+                            name: ownerReplyComment.name,
+                            email: ownerReplyComment.email,
+                            picture: ownerReplyComment.picture,
+                        }
+                    }
+                }));
+                return {
+                    id: comment.id,
+                    text: comment.text,
+                    timestamp: comment.timestamp,
+                    ownerComment: {
+                        id: ownerComment.id,
+                        name: ownerComment.name,
+                        email: ownerComment.email,
+                        picture: ownerComment.picture,
+                    },
+                    listReplyComment: mapReplyCmt
+                }
+            }));
+            return mapUserAndReplyCmt;
+        }
+        catch (e) {
+            throw new BadRequestException(e.message);
+        }
+    }
+
     // user social
 
     @Put("/flowing/:id")

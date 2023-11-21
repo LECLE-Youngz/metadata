@@ -15,7 +15,9 @@ export class CommentService {
     }
 
     async findCommentByPostId(postId: number): Promise<Array<Comment>> {
-        return this.commentModel.find({ postId });
+        // without reply comments
+        return this.commentModel.find({ postId, replyCommentId: 0 });
+
     }
 
     async createComment(ownerId: string, postId: number, text: string): Promise<Comment> {
@@ -57,5 +59,9 @@ export class CommentService {
         if (comments.length === 0) return 1;
         const ids = comments.map((comment) => comment.id);
         return Math.max(...ids) + 1;
+    }
+
+    async findReplyCommentByCommentId(commentId: number): Promise<Array<Comment>> {
+        return this.commentModel.find({ replyCommentId: commentId });
     }
 }
