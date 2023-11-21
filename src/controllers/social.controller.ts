@@ -167,6 +167,31 @@ export class SocialController {
         return await this.commentService.createReplyComment(user.id, id, createComment.text, commentId);
     }
 
+    @Get("/post/:id/comment/:commentId/reply")
+    async getReplyComment(@Param("id") id: number, @Param("commentId") commentId: number) {
+        try {
+            const replyComment = await this.commentService.findReplyCommentByCommentId(commentId);
+            const mapReplyCmt = await Promise.all(replyComment.map(async (replyComment) => {
+                const ownerReplyComment = await this.userService.findUserById(replyComment.ownerId);
+                return {
+                    id: replyComment.id,
+                    text: replyComment.text,
+                    timestamp: replyComment.timestamp,
+                    ownerComment: {
+                        id: ownerReplyComment.id,
+                        name: ownerReplyComment.name,
+                        email: ownerReplyComment.email,
+                        picture: ownerReplyComment.picture,
+                    }
+                }
+            }));
+            return mapReplyCmt;
+        }
+        catch (e) {
+            throw new BadRequestException(e.message);
+        }
+    }
+
     @Get("/post/:id/comment")
     async getComment(@Param("id") id: number) {
         try {
