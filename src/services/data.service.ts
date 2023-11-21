@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
-import { Data, DataDocument } from "src/schemas";
+import { Data, DataDocument, Metadata } from "src/schemas";
 
 @Injectable()
 export class DataService {
@@ -14,8 +14,11 @@ export class DataService {
         return this.dataModel.findOne({ id });
     }
 
-    async createData(data: Data): Promise<Data> {
-        return this.dataModel.create(data);
+    async createData(id: number, meta: Metadata): Promise<Data> {
+        return this.dataModel.create({
+            id,
+            meta,
+        });
     }
 
 }

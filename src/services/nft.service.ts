@@ -26,8 +26,26 @@ export class NftService {
         return this.nftModel.find({ ownerId });
     }
 
-    async createNft(nft: Nft): Promise<Nft> {
-        return this.nftModel.create(nft);
+    async createNft(
+        id: number,
+        ownerId: string,
+        name: string,
+        description: string,
+        thumbnail: string,
+        price: number,
+        promptPrice: number,
+        promptBuyer: string[],
+    ): Promise<Nft> {
+        return this.nftModel.create({
+            id,
+            ownerId,
+            name,
+            description,
+            thumbnail,
+            price,
+            promptPrice,
+            promptBuyer,
+        });
     }
 
     async deleteNft(nftId: string) {

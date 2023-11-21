@@ -1,13 +1,10 @@
-import { IsArray, IsBoolean, IsNotEmpty, IsNumber, IsString } from "class-validator";
+import { IsArray, IsBoolean, IsNotEmpty, IsNumber, IsObject, IsString } from "class-validator";
+import { Metadata } from "src/schemas";
 
 export class CreateNftDto {
     @IsNumber()
     @IsNotEmpty()
     id: number;
-
-    @IsNumber()
-    @IsNotEmpty()
-    ownerId: string;
 
     @IsString()
     @IsNotEmpty()
@@ -21,10 +18,6 @@ export class CreateNftDto {
     @IsNotEmpty()
     thumbnail: string;
 
-    @IsBoolean()
-    @IsNotEmpty()
-    onSale: boolean;
-
     @IsNumber()
     @IsNotEmpty()
     price: number;
@@ -36,4 +29,8 @@ export class CreateNftDto {
     @IsArray()
     @IsNotEmpty()
     promptBuyer: string[];
+
+    @IsObject()
+    @IsNotEmpty()
+    meta: Metadata;
 }
