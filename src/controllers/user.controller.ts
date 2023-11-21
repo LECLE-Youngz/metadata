@@ -52,10 +52,10 @@ export class UserController {
           };
         }) || [],
         bookmarks: socialUser?.bookMarks || [],
-        numNFTSold: socialUser.ranking.numSold,
-        numNFTPurchased: socialUser.ranking.numPurchased,
-        numPromptSold: socialUser.ranking.numPromptSold,
-        numPromptPurchased: socialUser.ranking.numPromptPurchased
+        numNFTSold: socialUser.ranking.numSold || 0,
+        numNFTPurchased: socialUser.ranking.numPurchased || 0,
+        numPromptSold: socialUser.ranking.numPromptSold || 0,
+        numPromptPurchased: socialUser.ranking.numPromptPurchased || 0
       },
       picture: info.picture,
       nft: nft ? nft : [],
@@ -93,10 +93,10 @@ export class UserController {
           following: userSocial?.following || [],
           followers: userSocial?.follower || [],
           bookmarks: userSocial?.bookMarks || [],
-          numNFTSold: userSocial.ranking.numSold,
-          numNFTPurchased: userSocial.ranking.numPurchased,
-          numPromptSold: userSocial.ranking.numPromptSold,
-          numPromptPurchased: userSocial.ranking.numPromptPurchased
+          numNFTSold: userSocial.ranking.numSold || 0,
+          numNFTPurchased: userSocial.ranking.numPurchased || 0,
+          numPromptSold: userSocial.ranking.numPromptSold || 0,
+          numPromptPurchased: userSocial.ranking.numPromptPurchased || 0
         },
         picture: user.picture,
         nft: userNft ? userNft : [],
