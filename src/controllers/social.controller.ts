@@ -325,6 +325,10 @@ export class SocialController {
     async updateFlowingAndFlower(@Param("id") id: string, @Headers('Authorization') accessToken: string) {
         try {
             const user = await verifyAccessToken(accessToken);
+            if (id === user.id) {
+                throw new BadRequestException(`You can't follow yourself`);
+
+            }
             return await this.socialUserService.updateFlowingAndFlowerOrUnFlowingAndUnFlower(id, user.id);
         }
         catch (err) {
