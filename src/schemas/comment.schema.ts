@@ -21,7 +21,7 @@ export class Comment {
     timestamp: number;
 
     @Prop({ default: [] })
-    likes: Array<number>;
+    likes: Array<string>;
 
     @Prop({ default: 0 })
     replyCommentId: number;
