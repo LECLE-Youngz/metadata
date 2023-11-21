@@ -55,6 +55,7 @@ export class SocialController {
             bookmark: post.bookmark,
             listLike: post.likes,
             listComment: listOwnerComment,
+            timestamp: post.timestamp,
             tags: post.tags,
             nft: nft,
             postOwner: {
@@ -94,6 +95,7 @@ export class SocialController {
                 header: post.header,
                 description: post.description,
                 bookmark: post.bookmark,
+                timestamp: post.timestamp,
                 listLike: post.likes,
                 listComment: listOwnerComment,
                 tags: post.tags,
