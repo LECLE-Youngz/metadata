@@ -169,6 +169,10 @@ export class SocialController {
     async createReply(@Param("id") id: number, @Param("commentId") commentId: number, @Body() createComment: CreateCommentDto, @Headers('Authorization') accessToken: string) {
         const user = await verifyAccessToken(accessToken);
         const comment = await this.commentService.findCommentById(commentId);
+        // check comment in post
+        if (comment.postId !== Number(id)) {
+            throw new BadRequestException(`This comment don't in this post`);
+        }
         if (comment.replyCommentId !== 0) {
             throw new BadRequestException(`This comment is reply comment`);
         }
