@@ -13,6 +13,7 @@ import { CreatePostDto } from "src/dtos/create-post.dto";
 import { PostService, CommentService, SocialUserService, UserService, NftService } from "src/services";
 
 import { verifyAccessToken } from "src/auth/google.verifier";
+import { CreateCommentDto } from "src/dtos";
 
 @Controller("api/v1/socials")
 export class SocialController {
@@ -146,10 +147,10 @@ export class SocialController {
     }
 
     @Post("/post/:id/comment")
-    async createComment(@Param("id") id: number, @Body() text: string, @Headers('Authorization') accessToken: string) {
+    async createComment(@Param("id") id: number, @Body() createComment: CreateCommentDto, @Headers('Authorization') accessToken: string) {
         try {
             const user = await verifyAccessToken(accessToken);
-            return await this.commentService.createComment(user.id, id, text);
+            return await this.commentService.createComment(user.id, id, createComment.text);
         }
         catch (err) {
             throw new BadRequestException(err.message);
@@ -157,9 +158,13 @@ export class SocialController {
     }
 
     @Post("/post/:id/comment/:commentId")
-    async createReply(@Param("id") id: number, @Param("commentId") commentId: number, @Body() text: string, @Headers('Authorization') accessToken: string) {
+    async createReply(@Param("id") id: number, @Param("commentId") commentId: number, @Body() createComment: CreateCommentDto, @Headers('Authorization') accessToken: string) {
         const user = await verifyAccessToken(accessToken);
-        return await this.commentService.createReplyComment(user.id, id, text, commentId);
+        const comment = await this.commentService.findCommentById(commentId);
+        if (comment.replyCommentId !== 0) {
+            throw new BadRequestException(`This comment is reply comment`);
+        }
+        return await this.commentService.createReplyComment(user.id, id, createComment.text, commentId);
     }
 
     // user social
