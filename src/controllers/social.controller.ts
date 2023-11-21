@@ -35,10 +35,26 @@ export class SocialController {
         const ownerPost = await this.userService.findUserById(post.ownerId);
         const listOwnerComment = await Promise.all(comment.map(async (comment) => {
             const ownerComment = await this.userService.findUserById(comment.ownerId);
+            const replyComment = await this.commentService.findReplyCommentByCommentId(comment.id);
+            const mapReplyCmt = await Promise.all(replyComment.map(async (replyComment) => {
+                const ownerReplyComment = await this.userService.findUserById(replyComment.ownerId);
+                return {
+                    id: replyComment.id,
+                    text: replyComment.text,
+                    timestamp: replyComment.timestamp,
+                    ownerComment: {
+                        id: ownerReplyComment.id,
+                        name: ownerReplyComment.name,
+                        email: ownerReplyComment.email,
+                        picture: ownerReplyComment.picture,
+                    },
+                }
+            }));
             return {
                 id: comment.id,
                 text: comment.text,
                 timestamp: comment.timestamp,
+                listReplyComment: mapReplyCmt,
                 ownerComment: {
                     id: ownerComment.id,
                     name: ownerComment.name,
@@ -76,6 +92,22 @@ export class SocialController {
             const ownerPost = await this.userService.findUserById(post.ownerId);
             const listOwnerComment = await Promise.all(comment.map(async (comment) => {
                 const ownerComment = await this.userService.findUserById(comment.ownerId);
+                // get reply cmt
+                const replyComment = await this.commentService.findReplyCommentByCommentId(comment.id);
+                const mapReplyCmt = await Promise.all(replyComment.map(async (replyComment) => {
+                    const ownerReplyComment = await this.userService.findUserById(replyComment.ownerId);
+                    return {
+                        id: replyComment.id,
+                        text: replyComment.text,
+                        timestamp: replyComment.timestamp,
+                        ownerComment: {
+                            id: ownerReplyComment.id,
+                            name: ownerReplyComment.name,
+                            email: ownerReplyComment.email,
+                            picture: ownerReplyComment.picture,
+                        },
+                    }
+                }));
                 return {
                     id: comment.id,
                     text: comment.text,
@@ -86,6 +118,7 @@ export class SocialController {
                         email: ownerComment.email,
                         picture: ownerComment.picture,
                     },
+                    listReplyComment: mapReplyCmt,
                     numberOfReplies: comment.numberOfReplies
                 }
             }));
@@ -95,9 +128,9 @@ export class SocialController {
                 header: post.header,
                 description: post.description,
                 bookmark: post.bookmark,
-                timestamp: post.timestamp,
                 listLike: post.likes,
                 listComment: listOwnerComment,
+                timestamp: post.timestamp,
                 tags: post.tags,
                 nft: nft,
                 postOwner: {
@@ -105,8 +138,7 @@ export class SocialController {
                     name: ownerPost.name,
                     email: ownerPost.email,
                     picture: ownerPost.picture,
-                },
-                numberOfComments: post.numberOfComments
+                }
             }
         }));
         return listSocials;
