@@ -29,6 +29,7 @@ export class PostService {
                 nftId: post.nftId,
                 header: post.header,
                 description: post.description,
+                tags: post.tags,
                 text: post.text,
                 timestamp: new Date().getTime(),
                 edited: false

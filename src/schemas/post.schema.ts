@@ -35,5 +35,8 @@ export class Post {
 
     @Prop({ default: [] })
     bookmark: Array<string>;
+
+    @Prop({ default: [] })
+    tags: Array<string>;
 }
 export const PostSchema = SchemaFactory.createForClass(Post);

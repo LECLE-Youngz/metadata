@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber, IsString } from "class-validator";
+import { IsArray, IsNotEmpty, IsNumber, IsString } from "class-validator";
 
 export class CreatePostDto {
 
@@ -17,4 +17,8 @@ export class CreatePostDto {
     @IsNumber()
     @IsNotEmpty()
     nftId: number;
+
+    @IsArray()
+    @IsNotEmpty()
+    tags: Array<string>;
 }
