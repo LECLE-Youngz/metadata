@@ -3,7 +3,7 @@ import {
 } from "@nestjs/common";
 
 
-@Controller("api/v1/ping")
+@Controller()
 export class PingController {
     @Get()
     async ping() {
