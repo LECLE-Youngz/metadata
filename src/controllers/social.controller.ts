@@ -106,8 +106,7 @@ export class SocialController {
                 throw new BadRequestException(`You don't have permission`);
             }
             const user = await verifyAccessToken(accessToken);
-            const id = await this.postService.getNewId();
-            return await this.postService.createPost(user.id, id, createPost);
+            return await this.postService.createPost(user.id, createPost);
         } catch (err) {
             throw new BadRequestException(err.message);
         }
@@ -139,6 +138,12 @@ export class SocialController {
     async createComment(@Param("id") id: number, @Body() text: string, @Headers('Authorization') accessToken: string) {
         const user = await verifyAccessToken(accessToken);
         return await this.commentService.createComment(user.id, id, text);
+    }
+
+    @Post("/post/:id/comment/:id")
+    async createReply(@Param("id") id: number, @Param("id") commentId: number, @Body() text: string, @Headers('Authorization') accessToken: string) {
+        const user = await verifyAccessToken(accessToken);
+        return await this.commentService.createReplyComment(user.id, id, text, commentId);
     }
 
     // user social
@@ -180,6 +185,31 @@ export class SocialController {
     //     const listPostId = await this.socialUserService.findListBookMarksById(bookMarksId);
     //     const listPost = await this.postService.findPostByListId(listPostId);
     //     return listPost;
+    // }
+
+    // comment
+
+    @Get("/comment/:id")
+    async getCommentById(@Param("id") id: number) {
+        const comment = await this.commentService.findCommentById(id);
+        const ownerComment = await this.userService.findUserById(comment.ownerId);
+        return {
+            id: comment.id,
+            text: comment.text,
+            timestamp: comment.timestamp,
+            ownerComment: {
+                id: ownerComment.id,
+                name: ownerComment.name,
+                email: ownerComment.email,
+                picture: ownerComment.picture,
+            }
+        }
+    }
+
+    // @Post("/comment/")
+    // async createComment(@Body() postId: number, @Body() text: string, @Headers('Authorization') accessToken: string) {
+    //     const user = await verifyAccessToken(accessToken);
+    //     return await this.commentService.createComment(comment.ownerId, comment.postId, comment.text);
     // }
 
 }

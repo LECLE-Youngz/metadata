@@ -19,7 +19,11 @@ export class CommentService {
     }
 
     async createComment(ownerId: string, postId: number, text: string): Promise<Comment> {
-        return this.commentModel.create({ ownerId, postId, text });
+        return this.commentModel.create({ ownerId, postId, text, timestamp: new Date().getTime(), likes: [], replyCommentId: 0, id: await this.getNewId() });
+    }
+
+    async createReplyComment(ownerId: string, postId: number, text: string, replyCommentId: number): Promise<Comment> {
+        return this.commentModel.create({ ownerId, postId, text, timestamp: new Date().getTime(), likes: [], replyCommentId, id: await this.getNewId() });
     }
 
     async updateComment(comment: Comment): Promise<any> {
@@ -32,6 +36,7 @@ export class CommentService {
 
     async getNewId(): Promise<number> {
         const comments = await this.findAll();
+        if (comments.length === 0) return 1;
         const ids = comments.map((comment) => comment.id);
         return Math.max(...ids) + 1;
     }

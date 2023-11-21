@@ -19,10 +19,10 @@ export class PostService {
         return this.postModel.find({ id: { $in: ids } });
     }
 
-    async createPost(ownerId: string, id: number, post: CreatePostDto): Promise<Post> {
+    async createPost(ownerId: string, post: CreatePostDto): Promise<Post> {
         return this.postModel.create(
             {
-                id,
+                id: await this.getNewId(),
                 ownerId,
                 bookmark: [],
                 likes: [],
