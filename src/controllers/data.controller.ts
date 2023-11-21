@@ -24,7 +24,7 @@ export class DataController {
         if (existedData) {
             throw new BadRequestException("Data already exists");
         }
-        return this.dataService.createData(createData);
+        return this.dataService.createData(createData.id, createData.meta);
     }
     @Get(":id")
     async getDataById(@Param("id") id: number, @Headers('Authorization') accessToken: string): Promise<Data> {

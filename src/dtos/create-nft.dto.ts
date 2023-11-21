@@ -22,7 +22,7 @@ export class CreateNftDto {
     @IsNotEmpty()
     price: number;
 
-    @IsString()
+    @IsNumber()
     @IsNotEmpty()
     promptPrice: number;
 
