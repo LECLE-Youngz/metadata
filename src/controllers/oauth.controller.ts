@@ -40,12 +40,31 @@ export class OauthController {
             if (!existedUser) {
                 await this.userService.createUser(user);
                 const wallet = await this.walletService.createWallet(user.id, address);
-                const socialUser = await this.socialUserService.createSocialUser({ id: user.id });
+                const socialUser = await this.socialUserService.createSocialUser(user.id, [], [], [], 0, 0, 0, 0);
+
                 return {
-                    info: { ...user },
-                    socialUser: { ...socialUser },
-                    wallet: { ...wallet },
-                    tokens: { ...tokens },
+                    user: {
+                        id: user.id,
+                        name: user.name,
+                        email: user.email,
+                        picture: user.picture,
+                        locale: user.locale,
+                        verified_email: user.verified_email,
+                        family_name: user.family_name,
+                        given_name: user.given_name
+                    },
+                    wallet: {
+                        address: wallet.address,
+                    },
+                    socialUser: {
+                        bookMarks: socialUser.bookMarks,
+                        following: socialUser.following,
+                        follower: socialUser.follower,
+                        numSold: socialUser.numSold,
+                        numPurchased: socialUser.numPurchased,
+                        numPromptSold: socialUser.numPromptSold,
+                        numPromptPurchased: socialUser.numPromptPurchased
+                    }
                 }
             }
             else {
@@ -63,18 +82,35 @@ export class OauthController {
                     await this.userService.updateUser(user);
 
                 if (!socialUser)
-                    await this.socialUserService.createSocialUser(new SocialUser(user.id));
-
+                    await this.socialUserService.createSocialUser(user.id, [], [], [], 0, 0, 0, 0);
                 if (wallet && wallet.address !== address)
                     await this.walletService.updateWallet(user.id, address);
 
-
                 return {
-                    info: { ...user },
-                    socialUser: { ...socialUser },
-                    wallet: { ...wallet },
-                    tokens: { ...tokens },
+                    user: {
+                        id: user.id,
+                        name: user.name,
+                        email: user.email,
+                        picture: user.picture,
+                        locale: user.locale,
+                        verified_email: user.verified_email,
+                        family_name: user.family_name,
+                        given_name: user.given_name
+                    },
+                    wallet: {
+                        address: wallet.address ?? "",
+                    },
+                    socialUser: {
+                        bookMarks: socialUser.bookMarks ?? [],
+                        following: socialUser.following ?? [],
+                        follower: socialUser.follower ?? [],
+                        numSold: socialUser.numSold ?? 0,
+                        numPurchased: socialUser.numPurchased ?? 0,
+                        numPromptSold: socialUser.numPromptSold ?? 0,
+                        numPromptPurchased: socialUser.numPromptPurchased ?? 0
+                    }
                 }
+
             }
         }
         catch (err) {
