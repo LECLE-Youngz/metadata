@@ -15,7 +15,7 @@ import { DataService, NftService } from "src/services";
 import { Data, User } from "src/schemas";
 //   import { getCurrentPromptBuyer, getCurrentPromptPrice } from "src/utils/blockchain";
 import { verifyAccessToken } from "src/auth/google.verifier";
-@Controller("api/v1/datum")
+@Controller("api/v1/data")
 export class DataController {
     constructor(private readonly dataService: DataService, private readonly nftService: NftService) { }
     @Post()
