@@ -49,6 +49,9 @@ export class SocialController {
         return {
             postId: post.id,
             text: post.text,
+            header: post.header,
+            description: post.description,
+            bookmark: post.bookmark,
             listLike: post.likes,
             listComment: listOwnerComment,
             nft: nft,
