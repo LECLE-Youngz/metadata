@@ -368,4 +368,11 @@ export class SocialController {
             throw new BadRequestException(err.message);
         }
     }
+
+    @Get("/post/tags/:tag")
+    async getPostByTag(@Param("tag") tag: string) {
+        const posts = await this.postService.findAll();
+        const listPost = posts.filter(post => post.tags.includes(tag));
+        return listPost.map(post => post.id);
+    }
 }
