@@ -343,13 +343,17 @@ export class SocialController {
 
 
     // get all tag
-    @Get("  ")
+    @Get("/post/tags")
     async getAllTag() {
         const posts = await this.postService.findAll();
         const listTag = posts.map(post => post.tags);
         const listTagFlat = listTag.flat();
         const listTagUnique = [...new Set(listTagFlat)];
-        return listTagUnique;
+        const listTagCount = listTagUnique.map(tag => {
+            const count = listTagFlat.filter(tagFlat => tagFlat === tag).length;
+            return { tag, count };
+        })
+        return listTagCount;
     }
 
     //
