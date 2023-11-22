@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 import { SocialUser, SocialUserDocument } from "src/schemas";
+import { PostService } from "./post.service";
 
 @Injectable()
 export class SocialUserService {
@@ -33,9 +34,7 @@ export class SocialUserService {
     }
 
 
-    async addListBookMark(id: string, postId: number): Promise<any> {
-        return this.socialUserModel.updateOne({ id }, { $push: { bookMarks: postId } })
-    }
+
 
     async findAll(): Promise<Array<SocialUser>> {
         return this.socialUserModel.find();
@@ -69,6 +68,20 @@ export class SocialUserService {
         await this.socialUserModel.updateOne({ id: flowingId }, { $push: { follower: id } })
         return {
             status: "flowing"
+        };
+    }
+
+    async updateBookmarksOrUnBookmarks(id: string, postId: number): Promise<any> {
+        const socialUser = await this.socialUserModel.findOne({ id })
+        if (socialUser.bookmarks.includes(postId)) {
+            await this.socialUserModel.updateOne({ id }, { $pull: { bookMarks: postId } })
+            return {
+                status: "unbookmarks"
+            };
+        }
+        await this.socialUserModel.updateOne({ id }, { $push: { bookMarks: postId } })
+        return {
+            status: "bookmarks"
         };
     }
 

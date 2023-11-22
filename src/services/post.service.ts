@@ -71,4 +71,12 @@ export class PostService {
         const ids = posts.map((post) => post.id);
         return Math.max(...ids) + 1;
     }
+
+    async updateBookmarkOrUnBookmarkAndList(id: number, userId: string): Promise<any> {
+        const post = await this.findPostById(id);
+        if (post.bookmark.includes(userId)) {
+            return this.postModel.updateOne({ id }, { $pull: { bookmark: userId } })
+        }
+        return this.postModel.updateOne({ id }, { $push: { bookmark: userId } })
+    }
 }

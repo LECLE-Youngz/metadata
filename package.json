@@ -32,6 +32,7 @@
     "bn.js": "^5.2.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
+    "elliptic": "^6.5.4",
     "gaxios": "^6.1.1",
     "google-auth-library": "^9.2.0",
     "json-stable-stringify": "^1.1.0",
@@ -39,6 +40,7 @@
     "mongoose": "^8.0.1",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.2.0",
+    "secp256k1": "^5.0.0",
     "web3-utils": "^4.0.7"
   },
   "devDependencies": {

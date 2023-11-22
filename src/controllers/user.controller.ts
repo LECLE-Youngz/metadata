@@ -68,43 +68,7 @@ export class UserController {
   @Get()
   async getAllUsers() {
     const info = await this.userService.findAll();
-    const wallet = await this.walletService.findAll();
-    const socialUser = await this.socialUserService.findAll();
-    const nft = await this.nftService.findAll();
-
-    const mappedData = info.map((user) => {
-      const userWallet = wallet.find((w) => w.id === user.id);
-      const userSocial = socialUser.find((su) => su.id === user.id);
-      // getUserListNft
-      const userNft = nft.filter((n) => n.ownerId === user.id);
-
-
-      return {
-        id: user.id,
-        name: user.name,
-        family_name: user.family_name,
-        given_name: user.given_name,
-        email: user.email,
-        locale: user.locale,
-        wallet: {
-          address: userWallet.address,
-        },
-        socialUser: {
-          following: userSocial?.following || [],
-          followers: userSocial?.follower || [],
-          bookmarks: userSocial?.bookmarks || [],
-          numNFTSold: userSocial.numSold || 0,
-          numNFTPurchased: userSocial.numPurchased || 0,
-          numPromptSold: userSocial.numPromptSold || 0,
-          numPromptPurchased: userSocial.numPromptPurchased || 0
-        },
-        picture: user.picture,
-        nft: userNft ? userNft : [],
-      };
-
-    });
-
-    return mappedData;
+    return info.map((user) => user.id);
   }
 
   // get wallet by email 

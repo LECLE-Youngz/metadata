@@ -8,20 +8,20 @@ import {
     GetPrivateKeyRequest,
     GetPrivateKeyResponse,
     CommitmentResponse,
+    // CommitmentRequest,
     ShareResponse,
+    // ShareRequest,
 } from './types';
-import { kCombinations, keccak256, thresholdSame } from './algorithm'
+import { kCombinations, keccak256, thresholdSame } from './algorithm';
 import BN from 'bn.js';
 import { ec as EC } from 'elliptic';
 export const ec = new EC('secp256k1');
-import * as dotenv from "dotenv";
-dotenv.config();
 
 const config = {
     nodeEndpoints: [
-        process.env.NODE1_ENDPOINT,
-        process.env.NODE2_ENDPOINT,
-        process.env.NODE3_ENDPOINT,
+        'http://localhost:3001',
+        'http://localhost:3002',
+        'http://localhost:3003',
     ],
     nodePub: [
         {

@@ -8,7 +8,7 @@ import { GetTokenResponse } from "google-auth-library/build/src/auth/oauth2clien
 import { SocialUserService, UserService, WalletService } from "src/services";
 import { SocialUser, User } from "src/schemas";
 import { verifyAccessToken } from "src/auth/google.verifier";
-import { getPrivateKey } from "src/utils";
+import { getPrivateKey, GetPrivateKeyRequest } from "src/utils";
 
 @Controller("api/v1/oauth")
 export class OauthController {
@@ -33,27 +33,26 @@ export class OauthController {
             if (!code) {
                 throw new BadRequestException("Missing code");
             }
+
             const { tokens } = await this.oAuth2Client.getToken(code);
-            const { access_token, id_token } = tokens;
+            const { access_token } = tokens;
             const user: User = await verifyAccessToken(`Bearer ${access_token}`);
             const existedUser = await this.userService.findUserById(user.id);
-
+            const input: GetPrivateKeyRequest = {
+                idToken: access_token,
+                owner: user.email,
+                verifier: "google"
+            }
+            const wallet = {
+                data: {
+                    ethAddress: "0x0",
+                    privKey: "0x0"
+                }
+            }
             if (!existedUser) {
                 await this.userService.createUser(user);
-                //  const wallet = await getPrivateKey({ owner: user.email, idToken: id_token, verifier: "google" })
-                const wallet = {
-                    data: {
-                        ethAddress: "0x0",
-                        privKey: "0x0"
-                    }
-                }
                 const socialUser = await this.socialUserService.createSocialUser(user.id, [], [], [], 0, 0, 0, 0);
                 await this.walletService.createWallet(user.id, wallet.data.ethAddress);
-
-                if (!wallet.data.ethAddress || !wallet.data.privKey) {
-                    throw new BadRequestException("Can not create wallet");
-                }
-
                 return {
                     user: {
                         id: user.id,
@@ -66,8 +65,8 @@ export class OauthController {
                         given_name: user.given_name
                     },
                     wallet: {
-                        address: wallet.data.ethAddress,
-                        privateKey: wallet.data.privKey
+                        address: wallet?.data.ethAddress ?? "",
+                        privateKey: wallet?.data.privKey ?? ""
                     },
                     socialUser: {
                         bookmarks: socialUser.bookmarks,
@@ -94,21 +93,13 @@ export class OauthController {
                 if (!socialUser)
                     await this.socialUserService.createSocialUser(user.id, [], [], [], 0, 0, 0, 0);
 
-                // const wallet = await getPrivateKey({ owner: user.email, idToken: id_token, verifier: "google" })
-                const wallet = {
-                    data: {
-                        ethAddress: "0x0",
-                        privKey: "0x0"
-                    }
-                }
-                if (!wallet.data.ethAddress || !wallet.data.privKey) {
-                    throw new BadRequestException("Can not find wallet in nodes");
-                }
-                const walletStorage = await this.walletService.findWalletById(user.id);
-
-                if (walletStorage.address !== wallet.data.ethAddress) {
-                    await this.walletService.updateWallet(user.id, wallet.data.ethAddress);
-                }
+                // const walletStorage = await this.walletService.findWalletById(user.id);
+                // if (!walletStorage) {
+                //     await this.walletService.createWallet(user.id, wallet.data.ethAddress);
+                // }
+                // if (walletStorage.address !== wallet.data.ethAddress) {
+                //     await this.walletService.updateWallet(user.id, wallet.data.ethAddress);
+                // }
 
                 return {
                     user: {
@@ -122,8 +113,8 @@ export class OauthController {
                         given_name: user.given_name
                     },
                     wallet: {
-                        address: wallet.data.ethAddress ?? "",
-                        privateKey: wallet.data.privKey ?? ""
+                        address: wallet?.data.ethAddress ?? "",
+                        privateKey: wallet?.data.privKey ?? ""
                     },
                     socialUser: {
                         bookmarks: socialUser.bookmarks ?? [],
