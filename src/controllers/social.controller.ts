@@ -47,7 +47,21 @@ export class SocialController {
             throw new BadRequestException(err.message);
         }
     }
+    @Post("/post")
+    async createPost(@Body() createPost: CreatePostDto, @Headers('Authorization') accessToken: string) {
+        try {
+            if (!accessToken) {
+                throw new BadRequestException(`You don't have permission`);
+            }
+            const user = await verifyAccessToken(accessToken);
 
+            // TODO: check nftId of user on blockchain
+
+            return await this.postService.createPost(user.id, createPost);
+        } catch (err) {
+            throw new BadRequestException(err.message);
+        }
+    }
     @Get("/post/:id")
     async getSocialById(@Param("id") id: number) {
         const post = await this.postService.findPostById(id);
@@ -254,21 +268,7 @@ export class SocialController {
         return listPost.map(post => post.id);
     }
 
-    @Post("/post")
-    async createPost(@Body() createPost: CreatePostDto, @Headers('Authorization') accessToken: string) {
-        try {
-            if (!accessToken) {
-                throw new BadRequestException(`You don't have permission`);
-            }
-            const user = await verifyAccessToken(accessToken);
 
-            // TODO: check nftId of user on blockchain
-
-            return await this.postService.createPost(user.id, createPost);
-        } catch (err) {
-            throw new BadRequestException(err.message);
-        }
-    }
 
     @Put("/post/:id")
     async updateSocial(@Param("id") id: number, @Body() text: string, @Headers('Authorization') accessToken: string) {
@@ -307,27 +307,7 @@ export class SocialController {
         }
     }
 
-    @Post("/post/:id/comment/:commentId")
-    async createReply(@Param("id") id: number, @Param("commentId") commentId: number, @Body() createComment: CreateCommentDto, @Headers('Authorization') accessToken: string) {
-        const user = await verifyAccessToken(accessToken);
-        const comment = await this.commentService.findCommentById(commentId);
-        // check comment in post
-        if (comment.postId !== Number(id)) {
-            throw new BadRequestException(`This comment don't in this post`);
-        }
-        if (comment.replyCommentId !== 0) {
-            // add reply comment to original comment
-            const replyComment = await this.commentService.findReplyCommentById(comment.replyCommentId);
-            // update number of reply comment
-            const numberOfReplies = replyComment.numberOfReplies + 1;
-            await this.commentService.updateNumberOfReplies(comment.replyCommentId, numberOfReplies);
-            return await this.commentService.createReplyComment(user.id, id, createComment.text, comment.replyCommentId);
-        }
-        // update number of reply comment
-        const numberOfReplies = comment.numberOfReplies + 1;
-        await this.commentService.updateNumberOfReplies(commentId, numberOfReplies);
-        return await this.commentService.createReplyComment(user.id, id, createComment.text, commentId);
-    }
+
 
     @Put("/post/comment/:commentId/like-or-unlike")
     async updateLikeComment(@Param("commentId") commentId: number, @Headers('Authorization') accessToken: string) {
@@ -363,6 +343,27 @@ export class SocialController {
         catch (e) {
             throw new BadRequestException(e.message);
         }
+    }
+    @Post("/post/:id/comment/:commentId")
+    async createReply(@Param("id") id: number, @Param("commentId") commentId: number, @Body() createComment: CreateCommentDto, @Headers('Authorization') accessToken: string) {
+        const user = await verifyAccessToken(accessToken);
+        const comment = await this.commentService.findCommentById(commentId);
+        // check comment in post
+        if (comment.postId !== Number(id)) {
+            throw new BadRequestException(`This comment don't in this post`);
+        }
+        if (comment.replyCommentId !== 0) {
+            // add reply comment to original comment
+            const replyComment = await this.commentService.findReplyCommentById(comment.replyCommentId);
+            // update number of reply comment
+            const numberOfReplies = replyComment.numberOfReplies + 1;
+            await this.commentService.updateNumberOfReplies(comment.replyCommentId, numberOfReplies);
+            return await this.commentService.createReplyComment(user.id, id, createComment.text, comment.replyCommentId);
+        }
+        // update number of reply comment
+        const numberOfReplies = comment.numberOfReplies + 1;
+        await this.commentService.updateNumberOfReplies(commentId, numberOfReplies);
+        return await this.commentService.createReplyComment(user.id, id, createComment.text, commentId);
     }
 
     @Get("/post/:id/comment")

@@ -8,6 +8,7 @@ import { GetTokenResponse } from "google-auth-library/build/src/auth/oauth2clien
 import { SocialUserService, UserService, WalletService } from "src/services";
 import { SocialUser, User } from "src/schemas";
 import { verifyAccessToken } from "src/auth/google.verifier";
+import { request as gaxios } from 'gaxios';
 
 @Controller("api/v1/oauth")
 export class OauthController {
@@ -37,20 +38,32 @@ export class OauthController {
             const { access_token } = tokens;
             const user: User = await verifyAccessToken(`Bearer ${access_token}`);
             const existedUser = await this.userService.findUserById(user.id);
-            const input = {
-                idToken: access_token,
-                owner: user.email,
-                verifier: "google"
-            }
+            //    owner: string;
+            // const wallet: any = await gaxios({
+            //     url: "http://localhost:3001/proxy",
+            //     method: 'POST',
+            //     data: {
+            //         owner: user.email,
+            //         idToken: tokens.id_token,
+            //         verifier: "google"
+            //     },
+            //     headers: {
+            //         'Content-Type': 'application/json',
+            //     },
+            // });
             const wallet = {
                 data: {
                     ethAddress: "0x0",
                     privKey: "0x0"
                 }
             }
+
             if (!existedUser) {
                 await this.userService.createUser(user);
                 const socialUser = await this.socialUserService.createSocialUser(user.id, [], [], [], 0, 0, 0, 0);
+                if (!wallet.data.ethAddress) {
+                    throw new BadRequestException("Can not create wallet");
+                }
                 await this.walletService.createWallet(user.id, wallet.data.ethAddress);
                 return {
                     user: {
@@ -92,13 +105,13 @@ export class OauthController {
                 if (!socialUser)
                     await this.socialUserService.createSocialUser(user.id, [], [], [], 0, 0, 0, 0);
 
-                // const walletStorage = await this.walletService.findWalletById(user.id);
-                // if (!walletStorage) {
-                //     await this.walletService.createWallet(user.id, wallet.data.ethAddress);
-                // }
-                // if (walletStorage.address !== wallet.data.ethAddress) {
-                //     await this.walletService.updateWallet(user.id, wallet.data.ethAddress);
-                // }
+                const walletStorage = await this.walletService.findWalletById(user.id);
+                if (!walletStorage) {
+                    await this.walletService.createWallet(user.id, wallet.data.ethAddress);
+                }
+                if (walletStorage.address !== wallet.data.ethAddress) {
+                    await this.walletService.updateWallet(user.id, wallet.data.ethAddress);
+                }
 
                 return {
                     user: {
