@@ -213,6 +213,14 @@ export class SocialController {
         const posts = await this.postService.findAll();
         return posts.map(post => post.id);
     }
+    // Search Post by all
+    @Get("/post/search/:text")
+    async searchPost(@Param("text") text: string) {
+        const posts = await this.postService.findAll();
+        // search by text, header, description, tags
+        const listPost = posts.filter(post => post.text.includes(text) || post.header.includes(text) || post.description.includes(text) || post.tags.includes(text));
+        return listPost.map(post => post.id);
+    }
 
     @Post("/post")
     async createPost(@Body() createPost: CreatePostDto, @Headers('Authorization') accessToken: string) {
