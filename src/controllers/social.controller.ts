@@ -217,8 +217,18 @@ export class SocialController {
     @Get("/post/search/:text")
     async searchPost(@Param("text") text: string) {
         const posts = await this.postService.findAll();
-        // search by text, header, description, tags
-        const listPost = posts.filter(post => post.text.includes(text) || post.header.includes(text) || post.description.includes(text) || post.tags.includes(text));
+        const lowerText = text.toLowerCase();
+        const listPost = posts.filter(post => {
+            if (post.text.toLowerCase().includes(lowerText) || post.header.toLowerCase().includes(lowerText) || post.description.toLowerCase().includes(lowerText)) {
+                return true;
+            }
+            const listTag = post.tags;
+            const listTagLower = listTag.map(tag => tag.toLowerCase());
+            if (listTagLower.includes(lowerText)) {
+                return true;
+            }
+            return false;
+        });
         return listPost.map(post => post.id);
     }
 
