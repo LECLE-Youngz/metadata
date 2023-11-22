@@ -33,6 +33,7 @@ export class DataController {
         const nftIds = nfts.map(nft => nft.id);
         // TODO: Blockchain verification with User.address and nftIds
         // return data mapping with nft
+        const data = await this.dataService.findDataByListId(nftIds);
         const mappingData = nfts.map(nft => {
             return {
                 id: nft.id,
@@ -42,14 +43,7 @@ export class DataController {
                 price: nft.price,
                 promptPrice: nft.promptPrice,
                 promptBuyer: nft.promptBuyer,
-                meta: {
-                    name: nft.name,
-                    description: nft.description,
-                    image: nft.thumbnail,
-                    price: nft.price,
-                    promptPrice: nft.promptPrice,
-                    promptBuyer: nft.promptBuyer,
-                }
+                meta: data.find(d => d.id == nft.id).meta
             }
         });
         return mappingData

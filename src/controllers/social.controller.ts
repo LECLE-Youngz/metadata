@@ -315,7 +315,12 @@ export class SocialController {
             throw new BadRequestException(`This comment don't in this post`);
         }
         if (comment.replyCommentId !== 0) {
-            throw new BadRequestException(`This comment is reply comment`);
+            // add reply comment to original comment
+            const replyComment = await this.commentService.findReplyCommentById(comment.replyCommentId);
+            // update number of reply comment
+            const numberOfReplies = replyComment.numberOfReplies + 1;
+            await this.commentService.updateNumberOfReplies(comment.replyCommentId, numberOfReplies);
+            return await this.commentService.createReplyComment(user.id, id, createComment.text, comment.replyCommentId);
         }
         // update number of reply comment
         const numberOfReplies = comment.numberOfReplies + 1;
