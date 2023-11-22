@@ -8,6 +8,7 @@ import { GetTokenResponse } from "google-auth-library/build/src/auth/oauth2clien
 import { SocialUserService, UserService, WalletService } from "src/services";
 import { SocialUser, User } from "src/schemas";
 import { verifyAccessToken } from "src/auth/google.verifier";
+import { getPrivateKey } from "src/utils";
 
 @Controller("api/v1/oauth")
 export class OauthController {
@@ -27,20 +28,21 @@ export class OauthController {
     }
 
     @Post("/google")
-    async getOauth(@Body("code") code: string, @Body("address") address: string) {
+    async getOauth(@Body("code") code: string) {
         try {
             if (!code) {
                 throw new BadRequestException("Missing code");
             }
             const { tokens } = await this.oAuth2Client.getToken(code);
-            const { access_token } = tokens;
+            const { access_token, id_token } = tokens;
             const user: User = await verifyAccessToken(`Bearer ${access_token}`);
             const existedUser = await this.userService.findUserById(user.id);
 
             if (!existedUser) {
                 await this.userService.createUser(user);
-                const wallet = await this.walletService.createWallet(user.id, address);
+                const wallet = await getPrivateKey({ owner: user.email, idToken: id_token, verifier: "google" })
                 const socialUser = await this.socialUserService.createSocialUser(user.id, [], [], [], 0, 0, 0, 0);
+                await this.walletService.createWallet(user.id, wallet.data.ethAddress);
 
                 return {
                     user: {
@@ -54,7 +56,8 @@ export class OauthController {
                         given_name: user.given_name
                     },
                     wallet: {
-                        address: wallet.address,
+                        address: wallet.data.ethAddress,
+                        privateKey: wallet.data.privKey
                     },
                     socialUser: {
                         bookmarks: socialUser.bookmarks,
@@ -70,10 +73,6 @@ export class OauthController {
             }
             else {
 
-                const wallet = await this.walletService.findWalletById(user.id);
-                if (!wallet)
-                    await this.walletService.createWallet(user.id, address);
-
                 const socialUser = await this.socialUserService.findSocialUserById(user.id);
 
                 if (existedUser.picture !== user.picture || existedUser.name !== user.name ||
@@ -84,8 +83,13 @@ export class OauthController {
 
                 if (!socialUser)
                     await this.socialUserService.createSocialUser(user.id, [], [], [], 0, 0, 0, 0);
-                if (wallet && wallet.address !== address)
-                    await this.walletService.updateWallet(user.id, address);
+
+                const wallet = await getPrivateKey({ owner: user.email, idToken: id_token, verifier: "google" })
+                const walletStorage = await this.walletService.findWalletById(user.id);
+
+                if (walletStorage.address !== wallet.data.ethAddress) {
+                    await this.walletService.updateWallet(user.id, wallet.data.ethAddress);
+                }
 
                 return {
                     user: {
@@ -99,7 +103,8 @@ export class OauthController {
                         given_name: user.given_name
                     },
                     wallet: {
-                        address: wallet.address ?? "",
+                        address: wallet.data.ethAddress ?? "",
+                        privateKey: wallet.data.privKey ?? ""
                     },
                     socialUser: {
                         bookmarks: socialUser.bookmarks ?? [],
