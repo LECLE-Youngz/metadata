@@ -8,8 +8,9 @@
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "start": "nest start",
-    "start:dev": "nest start --watch",
+    "start": "node dist/main",
+    "start:dev": "nest start",
+    "start:dev:watch": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
@@ -26,14 +27,19 @@
     "@nestjs/core": "^9.0.0",
     "@nestjs/mongoose": "^10.0.2",
     "@nestjs/platform-express": "^9.0.0",
+    "@toruslabs/eccrypto": "^4.0.0",
     "axios": "^1.6.2",
+    "bn.js": "^5.2.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
     "gaxios": "^6.1.1",
     "google-auth-library": "^9.2.0",
+    "json-stable-stringify": "^1.1.0",
+    "keccak": "^3.0.4",
     "mongoose": "^8.0.1",
     "reflect-metadata": "^0.1.13",
-    "rxjs": "^7.2.0"
+    "rxjs": "^7.2.0",
+    "web3-utils": "^4.0.7"
   },
   "devDependencies": {
     "@nestjs/cli": "^9.0.0",
