@@ -26,6 +26,34 @@ export class DataController {
         }
         return this.dataService.createData(createData.id, createData.meta);
     }
+    @Get("/owner")
+    async getDataByOwnerId(@Headers('Authorization') accessToken: string) {
+        const User = await verifyAccessToken(accessToken);
+        const nfts = await this.nftService.findNftsByOwnerId(User.id);
+        const nftIds = nfts.map(nft => nft.id);
+        // TODO: Blockchain verification with User.address and nftIds
+        // return data mapping with nft
+        const mappingData = nfts.map(nft => {
+            return {
+                id: nft.id,
+                name: nft.name,
+                description: nft.description,
+                thumbnail: nft.thumbnail,
+                price: nft.price,
+                promptPrice: nft.promptPrice,
+                promptBuyer: nft.promptBuyer,
+                meta: {
+                    name: nft.name,
+                    description: nft.description,
+                    image: nft.thumbnail,
+                    price: nft.price,
+                    promptPrice: nft.promptPrice,
+                    promptBuyer: nft.promptBuyer,
+                }
+            }
+        });
+        return mappingData
+    }
     @Get(":id")
     async getDataById(@Param("id") id: number, @Headers('Authorization') accessToken: string): Promise<Data> {
         const user = await verifyAccessToken(accessToken);
@@ -48,12 +76,5 @@ export class DataController {
         return data;
     }
 
-    @Get("/owner")
-    async getDataByOwnerId(@Headers('Authorization') accessToken: string): Promise<Array<Data>> {
-        const User = await verifyAccessToken(accessToken);
-        const nfts = await this.nftService.findNftsByOwnerId(User.id);
-        const nftIds = nfts.map(nft => nft.id);
-        // TODO: Blockchain verification with User.address and nftIds
-        return this.dataService.findDataByListId(nftIds);
-    }
+
 }
