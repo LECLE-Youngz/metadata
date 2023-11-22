@@ -8,7 +8,6 @@ import { GetTokenResponse } from "google-auth-library/build/src/auth/oauth2clien
 import { SocialUserService, UserService, WalletService } from "src/services";
 import { SocialUser, User } from "src/schemas";
 import { verifyAccessToken } from "src/auth/google.verifier";
-import { getPrivateKey, GetPrivateKeyRequest } from "src/utils";
 
 @Controller("api/v1/oauth")
 export class OauthController {
@@ -38,7 +37,7 @@ export class OauthController {
             const { access_token } = tokens;
             const user: User = await verifyAccessToken(`Bearer ${access_token}`);
             const existedUser = await this.userService.findUserById(user.id);
-            const input: GetPrivateKeyRequest = {
+            const input = {
                 idToken: access_token,
                 owner: user.email,
                 verifier: "google"
