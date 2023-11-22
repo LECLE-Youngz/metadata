@@ -92,7 +92,7 @@ export class SocialController {
             header: post.header,
             description: post.description,
             bookmark: post.bookmark,
-            listLike: post.likes,
+            likes: post.likes,
             listComment: listOwnerComment,
             timestamp: post.timestamp,
             tags: post.tags,
