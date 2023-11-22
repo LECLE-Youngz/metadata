@@ -79,4 +79,8 @@ export class PostService {
         }
         return this.postModel.updateOne({ id }, { $push: { bookmark: userId } })
     }
+
+    async findPostByOwnerId(ownerId: string): Promise<Array<Post>> {
+        return this.postModel.find({ ownerId });
+    }
 }
