@@ -85,5 +85,8 @@ export class SocialUserService {
         };
     }
 
-
+    async findListBookmarkById(id: string): Promise<Array<number>> {
+        const socialUser = await this.socialUserModel.findOne({ id })
+        return socialUser.bookmarks;
+    }
 }

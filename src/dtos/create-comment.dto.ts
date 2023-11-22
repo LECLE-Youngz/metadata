@@ -6,12 +6,3 @@ export class CreateCommentDto {
     text: string;
 }
 
-export class CreateReplyCommentDto {
-    @IsString()
-    @IsNotEmpty()
-    text: string;
-
-    @IsNumber()
-    @IsNotEmpty()
-    replyCommentId: number;
-}

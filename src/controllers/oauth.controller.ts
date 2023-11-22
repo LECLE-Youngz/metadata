@@ -38,7 +38,6 @@ export class OauthController {
             const { access_token } = tokens;
             const user: User = await verifyAccessToken(`Bearer ${access_token}`);
             const existedUser = await this.userService.findUserById(user.id);
-            //    owner: string;
             // const wallet: any = await gaxios({
             //     url: "http://localhost:3001/proxy",
             //     method: 'POST',
