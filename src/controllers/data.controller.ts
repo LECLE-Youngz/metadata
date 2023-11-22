@@ -46,4 +46,13 @@ export class DataController {
         // TODO: Blockchain verification with User.address
         return data;
     }
+
+    @Get("/owner")
+    async getDataByOwnerId(@Headers('Authorization') accessToken: string): Promise<Array<Data>> {
+        const User = await verifyAccessToken(accessToken);
+        const nfts = await this.nftService.findNftsByOwnerId(User.id);
+        const nftIds = nfts.map(nft => nft.id);
+        // TODO: Blockchain verification with User.address and nftIds
+        return this.dataService.findDataByListId(nftIds);
+    }
 }

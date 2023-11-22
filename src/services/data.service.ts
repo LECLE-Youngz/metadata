@@ -13,6 +13,10 @@ export class DataService {
     async findDataById(id: number): Promise<Data> {
         return this.dataModel.findOne({ id });
     }
+    async findDataByListId(ids: number[]): Promise<Array<Data>> {
+        return this.dataModel.find({ id: { $in: ids } });
+
+    }
 
     async createData(id: number, meta: Metadata): Promise<Data> {
         return this.dataModel.create({
@@ -20,5 +24,6 @@ export class DataService {
             meta,
         });
     }
+
 
 }
