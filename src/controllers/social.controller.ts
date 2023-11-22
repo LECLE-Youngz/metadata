@@ -62,63 +62,7 @@ export class SocialController {
             throw new BadRequestException(err.message);
         }
     }
-    @Get("/post/:id")
-    async getSocialById(@Param("id") id: number) {
-        const post = await this.postService.findPostById(id);
-        const comment = await this.commentService.findCommentByPostId(post.id);
-        const nft = await this.nftService.findNftById(post.nftId);
-        const ownerPost = await this.userService.findUserById(post.ownerId);
-        const listOwnerComment = await Promise.all(comment.map(async (comment) => {
-            const ownerComment = await this.userService.findUserById(comment.ownerId);
-            const replyComment = await this.commentService.findReplyCommentByCommentId(comment.id);
-            const mapReplyCmt = await Promise.all(replyComment.map(async (replyComment) => {
-                const ownerReplyComment = await this.userService.findUserById(replyComment.ownerId);
-                return {
-                    id: replyComment.id,
-                    text: replyComment.text,
-                    timestamp: replyComment.timestamp,
-                    likes: replyComment.likes,
-                    ownerComment: {
-                        id: ownerReplyComment.id,
-                        name: ownerReplyComment.name,
-                        email: ownerReplyComment.email,
-                        picture: ownerReplyComment.picture,
-                    },
-                }
-            }));
-            return {
-                id: comment.id,
-                text: comment.text,
-                timestamp: comment.timestamp,
-                likes: comment.likes,
-                listReplyComment: mapReplyCmt,
-                ownerComment: {
-                    id: ownerComment.id,
-                    name: ownerComment.name,
-                    email: ownerComment.email,
-                    picture: ownerComment.picture,
-                }
-            }
-        }));
-        return {
-            postId: post.id,
-            text: post.text,
-            header: post.header,
-            description: post.description,
-            bookmark: post.bookmark,
-            likes: post.likes,
-            listComment: listOwnerComment,
-            timestamp: post.timestamp,
-            tags: post.tags,
-            nft: nft,
-            postOwner: {
-                id: ownerPost.id,
-                name: ownerPost.name,
-                email: ownerPost.email,
-                picture: ownerPost.picture,
-            }
-        }
-    }
+
 
     @Get("/post/owner")
     async getPostByOwnerId(@Headers('Authorization') accessToken: string) {
@@ -477,4 +421,61 @@ export class SocialController {
         return listPost.map(post => post.id);
     }
 
+    @Get("/post/:id")
+    async getSocialById(@Param("id") id: number) {
+        const post = await this.postService.findPostById(id);
+        const comment = await this.commentService.findCommentByPostId(post.id);
+        const nft = await this.nftService.findNftById(post.nftId);
+        const ownerPost = await this.userService.findUserById(post.ownerId);
+        const listOwnerComment = await Promise.all(comment.map(async (comment) => {
+            const ownerComment = await this.userService.findUserById(comment.ownerId);
+            const replyComment = await this.commentService.findReplyCommentByCommentId(comment.id);
+            const mapReplyCmt = await Promise.all(replyComment.map(async (replyComment) => {
+                const ownerReplyComment = await this.userService.findUserById(replyComment.ownerId);
+                return {
+                    id: replyComment.id,
+                    text: replyComment.text,
+                    timestamp: replyComment.timestamp,
+                    likes: replyComment.likes,
+                    ownerComment: {
+                        id: ownerReplyComment.id,
+                        name: ownerReplyComment.name,
+                        email: ownerReplyComment.email,
+                        picture: ownerReplyComment.picture,
+                    },
+                }
+            }));
+            return {
+                id: comment.id,
+                text: comment.text,
+                timestamp: comment.timestamp,
+                likes: comment.likes,
+                listReplyComment: mapReplyCmt,
+                ownerComment: {
+                    id: ownerComment.id,
+                    name: ownerComment.name,
+                    email: ownerComment.email,
+                    picture: ownerComment.picture,
+                }
+            }
+        }));
+        return {
+            postId: post.id,
+            text: post.text,
+            header: post.header,
+            description: post.description,
+            bookmark: post.bookmark,
+            likes: post.likes,
+            listComment: listOwnerComment,
+            timestamp: post.timestamp,
+            tags: post.tags,
+            nft: nft,
+            postOwner: {
+                id: ownerPost.id,
+                name: ownerPost.name,
+                email: ownerPost.email,
+                picture: ownerPost.picture,
+            }
+        }
+    }
 }
