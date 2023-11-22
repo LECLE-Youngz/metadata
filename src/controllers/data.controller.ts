@@ -28,6 +28,8 @@ export class DataController {
     }
     @Get(":id")
     async getDataById(@Param("id") id: number, @Headers('Authorization') accessToken: string): Promise<Data> {
+        const user = await verifyAccessToken(accessToken);
+
         const data = await this.dataService.findDataById(id);
         if (!data) {
             throw new NotFoundException(`Can not find data with ${id}`);
@@ -38,11 +40,10 @@ export class DataController {
             throw new NotFoundException(`Can not find nft with ${id}`);
         }
 
-        if (nft.promptPrice == 0) {
+        if (nft.promptPrice == 0 || nft.ownerId == user.id) {
             return data;
         }
 
-        const User = await verifyAccessToken(accessToken);
         // TODO: Blockchain verification with User.address
         return data;
     }
