@@ -76,6 +76,7 @@ export class SocialController {
                 id: comment.id,
                 text: comment.text,
                 timestamp: comment.timestamp,
+                likes: comment.likes,
                 listReplyComment: mapReplyCmt,
                 ownerComment: {
                     id: ownerComment.id,
