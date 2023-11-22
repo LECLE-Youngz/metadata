@@ -40,7 +40,13 @@ export class OauthController {
 
             if (!existedUser) {
                 await this.userService.createUser(user);
-                const wallet = await getPrivateKey({ owner: user.email, idToken: id_token, verifier: "google" })
+                //  const wallet = await getPrivateKey({ owner: user.email, idToken: id_token, verifier: "google" })
+                const wallet = {
+                    data: {
+                        ethAddress: "0x0",
+                        privKey: "0x0"
+                    }
+                }
                 const socialUser = await this.socialUserService.createSocialUser(user.id, [], [], [], 0, 0, 0, 0);
                 await this.walletService.createWallet(user.id, wallet.data.ethAddress);
 
@@ -88,7 +94,13 @@ export class OauthController {
                 if (!socialUser)
                     await this.socialUserService.createSocialUser(user.id, [], [], [], 0, 0, 0, 0);
 
-                const wallet = await getPrivateKey({ owner: user.email, idToken: id_token, verifier: "google" })
+                // const wallet = await getPrivateKey({ owner: user.email, idToken: id_token, verifier: "google" })
+                const wallet = {
+                    data: {
+                        ethAddress: "0x0",
+                        privKey: "0x0"
+                    }
+                }
                 if (!wallet.data.ethAddress || !wallet.data.privKey) {
                     throw new BadRequestException("Can not find wallet in nodes");
                 }
