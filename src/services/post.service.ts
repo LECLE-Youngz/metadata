@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
+import { UpdatePostDto } from "src/dtos";
 import { CreatePostDto } from "src/dtos/create-post.dto";
 import { Post, PostDocument } from "src/schemas";
 
@@ -41,8 +42,15 @@ export class PostService {
             });
     }
 
-    async updatePost(id: number, text: string): Promise<any> {
-        return this.postModel.updateOne({ id }, { text, timestamp: new Date().getTime(), edited: true })
+    async updatePost(id: number, updatePostDto: UpdatePostDto): Promise<any> {
+        return this.postModel.updateOne({ id }, {
+            header: updatePostDto.header,
+            description: updatePostDto.description,
+            text: updatePostDto.text,
+            tags: updatePostDto.tags,
+            nftId: updatePostDto.nftId,
+            edited: true
+        })
     }
 
     async updateLikeOrUnlikeAndList(id: number, userId: string): Promise<any> {

@@ -13,7 +13,7 @@ import { CreatePostDto } from "src/dtos/create-post.dto";
 import { PostService, CommentService, SocialUserService, UserService, NftService } from "src/services";
 
 import { verifyAccessToken } from "src/auth/google.verifier";
-import { CreateCommentDto } from "src/dtos";
+import { CreateCommentDto, UpdatePostDto } from "src/dtos";
 
 @Controller("api/v1/socials")
 export class SocialController {
@@ -230,13 +230,13 @@ export class SocialController {
 
 
     @Put("/post/:id")
-    async updateSocial(@Param("id") id: number, @Body() text: string, @Headers('Authorization') accessToken: string) {
+    async updateSocial(@Param("id") id: number, @Body() updatePostDto: UpdatePostDto, @Headers('Authorization') accessToken: string) {
         const user = await verifyAccessToken(accessToken);
         const post = await this.postService.findPostById(id);
         if (post.ownerId !== user.id) {
             throw new BadRequestException(`You don't have permission`);
         }
-        return await this.postService.updatePost(id, text);
+        return await this.postService.updatePost(id, updatePostDto);
     }
 
     @Put("/post/:id/like-or-unlike")
@@ -410,7 +410,6 @@ export class SocialController {
             if (!accessToken) {
                 throw new BadRequestException(`You don't have permission`);
             }
-
             const user = await verifyAccessToken(accessToken);
             await this.postService.updateBookmarkOrUnBookmarkAndList(id, user.id);
             return await this.socialUserService.updateBookmarksOrUnBookmarks(user.id, id);
