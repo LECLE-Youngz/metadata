@@ -6,7 +6,6 @@ import {
 } from "@nestjs/common";
 
 import { UserService, WalletService, SocialUserService, NftService } from "src/services";
-import { User } from "src/schemas";
 
 @Controller("api/v1/users")
 export class UserController {
