@@ -17,7 +17,6 @@ export class OauthController {
     constructor(
         private configService: ConfigService,
         private readonly userService: UserService,
-        private readonly walletService: WalletService,
         private readonly socialUserService: SocialUserService
     ) {
         this.oAuth2Client = new OAuth2Client(
@@ -33,37 +32,14 @@ export class OauthController {
             if (!code) {
                 throw new BadRequestException("Missing code");
             }
-
             const { tokens } = await this.oAuth2Client.getToken(code);
             const { access_token } = tokens;
             const user: User = await verifyAccessToken(`Bearer ${access_token}`);
             const existedUser = await this.userService.findUserById(user.id);
-            // const wallet: any = await gaxios({
-            //     url: "http://localhost:3001/proxy",
-            //     method: 'POST',
-            //     data: {
-            //         owner: user.email,
-            //         idToken: tokens.id_token,
-            //         verifier: "google"
-            //     },
-            //     headers: {
-            //         'Content-Type': 'application/json',
-            //     },
-            // });
-            const wallet = {
-                data: {
-                    ethAddress: "0x0",
-                    privKey: "0x0"
-                }
-            }
 
             if (!existedUser) {
                 await this.userService.createUser(user);
                 const socialUser = await this.socialUserService.createSocialUser(user.id, [], [], [], 0, 0, 0, 0);
-                if (!wallet.data.ethAddress) {
-                    throw new BadRequestException("Can not create wallet");
-                }
-                await this.walletService.createWallet(user.id, wallet.data.ethAddress);
                 return {
                     user: {
                         id: user.id,
@@ -74,10 +50,6 @@ export class OauthController {
                         verified_email: user.verified_email,
                         family_name: user.family_name,
                         given_name: user.given_name
-                    },
-                    wallet: {
-                        address: wallet?.data.ethAddress ?? "",
-                        privateKey: wallet?.data.privKey ?? ""
                     },
                     socialUser: {
                         bookmarks: socialUser.bookmarks,
@@ -104,14 +76,6 @@ export class OauthController {
                 if (!socialUser)
                     await this.socialUserService.createSocialUser(user.id, [], [], [], 0, 0, 0, 0);
 
-                const walletStorage = await this.walletService.findWalletById(user.id);
-                if (!walletStorage) {
-                    await this.walletService.createWallet(user.id, wallet.data.ethAddress);
-                }
-                if (walletStorage.address !== wallet.data.ethAddress) {
-                    await this.walletService.updateWallet(user.id, wallet.data.ethAddress);
-                }
-
                 return {
                     user: {
                         id: user.id,
@@ -122,10 +86,6 @@ export class OauthController {
                         verified_email: user.verified_email,
                         family_name: user.family_name,
                         given_name: user.given_name
-                    },
-                    wallet: {
-                        address: wallet?.data.ethAddress ?? "",
-                        privateKey: wallet?.data.privKey ?? ""
                     },
                     socialUser: {
                         bookmarks: socialUser.bookmarks ?? [],

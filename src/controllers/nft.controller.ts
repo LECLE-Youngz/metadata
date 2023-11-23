@@ -18,7 +18,6 @@ export class NftController {
     constructor(private readonly nftService: NftService,
         private readonly userService: UserService,
         private readonly dataService: DataService,
-        private readonly walletService: WalletService,
     ) { }
 
     @Get(":id")
@@ -100,7 +99,7 @@ export class NftController {
             };
         }
         const user = await verifyAccessToken(accessToken);
-        const wallet = await this.walletService.findWalletById(user.id);
+        // check address wallet in nodes network
         // check if user is owner of data in blockchain 
         return {
             id: data.id,

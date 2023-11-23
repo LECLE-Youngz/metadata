@@ -35,9 +35,6 @@ export class UserController {
       given_name: info.given_name,
       email: info.email,
       locale: info.locale,
-      wallet: {
-        address: wallet.address,
-      },
       socialUser: {
         following: listUserByFlowing?.map((user) => {
           return {
@@ -72,15 +69,15 @@ export class UserController {
   }
 
   // get wallet by email 
-  @Get("/wallet/:email")
-  async getWalletByEmail(@Param("email") email: string) {
-    const user = await this.userService.findUserByEmail(email);
-    const wallet = await this.walletService.findWalletById(user.id);
-    return {
-      id: user.id,
-      email: user.email,
-      address: wallet.address,
-    };
-  }
+  // @Get("/wallet/:email")
+  // async getWalletByEmail(@Param("email") email: string) {
+  //   const user = await this.userService.findUserByEmail(email);
+  //   const wallet = await this.walletService.findWalletById(user.id);
+  //   return {
+  //     id: user.id,
+  //     email: user.email,
+  //     address: wallet.address,
+  //   };
+  // }
 
 }
