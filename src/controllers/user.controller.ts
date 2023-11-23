@@ -11,7 +11,6 @@ import { UserService, WalletService, SocialUserService, NftService } from "src/s
 export class UserController {
   constructor(
     private readonly userService: UserService,
-    private readonly walletService: WalletService,
     private readonly socialUserService: SocialUserService,
     private readonly nftService: NftService
   ) { }
@@ -19,7 +18,6 @@ export class UserController {
   @Get(":id")
   async getUserById(@Param("id") id: string) {
     const info = await this.userService.findUserById(id);
-    const wallet = await this.walletService.findWalletById(info.id);
     const socialUser = await this.socialUserService.findSocialUserById(info.id);
     const listUserByFlowing = await this.userService.findUserByListId(socialUser?.following || []);
     const listUserByFlowers = await this.userService.findUserByListId(socialUser?.follower || []);
