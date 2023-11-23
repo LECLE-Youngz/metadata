@@ -91,4 +91,8 @@ export class PostService {
     async findPostByOwnerId(ownerId: string): Promise<Array<Post>> {
         return this.postModel.find({ ownerId });
     }
+
+    async deletePostById(id: number): Promise<any> {
+        return this.postModel.deleteOne({ id });
+    }
 }

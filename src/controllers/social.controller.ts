@@ -6,7 +6,8 @@ import {
     Body,
     Put,
     Headers,
-    BadRequestException
+    BadRequestException,
+    Delete
 } from "@nestjs/common";
 import { CreatePostDto } from "src/dtos/create-post.dto";
 
@@ -230,13 +231,22 @@ export class SocialController {
 
 
     @Put("/post/:id")
-    async updateSocial(@Param("id") id: number, @Body() updatePostDto: UpdatePostDto, @Headers('Authorization') accessToken: string) {
+    async updatePost(@Param("id") id: number, @Body() updatePostDto: UpdatePostDto, @Headers('Authorization') accessToken: string) {
         const user = await verifyAccessToken(accessToken);
         const post = await this.postService.findPostById(id);
         if (post.ownerId !== user.id) {
             throw new BadRequestException(`You don't have permission`);
         }
         return await this.postService.updatePost(id, updatePostDto);
+    }
+    @Delete("/post/:id")
+    async deletePost(@Param("id") id: number, @Headers('Authorization') accessToken: string) {
+        const user = await verifyAccessToken(accessToken);
+        const post = await this.postService.findPostById(id);
+        if (post.ownerId !== user.id) {
+            throw new BadRequestException(`You don't have permission`);
+        }
+        return await this.postService.deletePostById(id);
     }
 
     @Put("/post/:id/like-or-unlike")
