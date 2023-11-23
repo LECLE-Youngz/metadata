@@ -30,7 +30,7 @@ export class Post {
     @Prop({ default: false })
     edited: boolean;
 
-    @Prop({ required: true, unique: true })
+    @Prop({ required: true })
     nftId: number;
 
     @Prop({ default: [] })
