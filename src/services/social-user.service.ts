@@ -74,14 +74,14 @@ export class SocialUserService {
     async updateBookmarksOrUnBookmarks(id: string, postId: number): Promise<any> {
         const socialUser = await this.socialUserModel.findOne({ id })
         if (socialUser.bookmarks.includes(postId)) {
-            await this.socialUserModel.updateOne({ id }, { $pull: { bookMarks: postId } })
+            await this.socialUserModel.updateOne({ id }, { $pull: { bookmarks: postId } })
             return {
-                status: "unbookmarks"
+                status: "unbookmark"
             };
         }
-        await this.socialUserModel.updateOne({ id }, { $push: { bookMarks: postId } })
+        await this.socialUserModel.updateOne({ id }, { $push: { bookmarks: postId } })
         return {
-            status: "bookmarks"
+            status: "bookmark"
         };
     }
 
