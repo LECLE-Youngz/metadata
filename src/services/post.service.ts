@@ -24,9 +24,10 @@ export class PostService {
     }
 
     async createPost(ownerId: string, post: CreatePostDto): Promise<Post> {
+        const id = await this.getNewId();
         return this.postModel.create(
             {
-                id: await this.getNewId(),
+                id: id,
                 ownerId,
                 bookmark: [],
                 likes: [],

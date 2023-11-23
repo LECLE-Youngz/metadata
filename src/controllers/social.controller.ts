@@ -408,8 +408,9 @@ export class SocialController {
     async updateBookmark(@Param("id") id: number, @Headers('Authorization') accessToken: string) {
         try {
             const user = await verifyAccessToken(accessToken);
-            await this.socialUserService.updateBookmarksOrUnBookmarks(user.id, id);
-            return await this.postService.updateBookmarkOrUnBookmarkAndList(id, user.id);
+            await this.postService.updateBookmarkOrUnBookmarkAndList(id, user.id);
+            return await this.socialUserService.updateBookmarksOrUnBookmarks(user.id, id);
+
         }
         catch (err) {
             throw new BadRequestException(err.message);
