@@ -39,7 +39,8 @@ export class Post {
     @Prop({ default: [] })
     tags: Array<string>;
 
-    @Prop({ default: 0 })
-    numberOfComments: number;
+    @Prop({ required: true })
+    exclusiveContent: boolean;
+
 }
 export const PostSchema = SchemaFactory.createForClass(Post);

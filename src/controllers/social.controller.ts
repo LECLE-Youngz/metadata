@@ -67,10 +67,6 @@ export class SocialController {
     async createComment(@Param("id") id: number, @Body() createComment: CreateCommentDto, @Headers('Authorization') accessToken: string) {
         try {
             const user = await verifyAccessToken(accessToken);
-            // update number of comment
-            const post = await this.postService.findPostById(id);
-            const numberOfComments = post.numberOfComments + 1;
-            await this.postService.updateNumberOfComments(id, numberOfComments);
             return await this.commentService.createComment(user.id, id, createComment.text);
         }
         catch (err) {
@@ -129,6 +125,7 @@ export class SocialController {
                     timestamp: post.timestamp,
                     tags: post.tags,
                     nft: nft,
+                    exclusiveContent: post.exclusiveContent,
                 }
             }));
             return mapPost;
@@ -189,6 +186,7 @@ export class SocialController {
                     timestamp: post.timestamp,
                     tags: post.tags,
                     nft: nft,
+                    exclusiveContent: post.exclusiveContent,
                     postOwner: {
                         id: ownerPost.id,
                         name: ownerPost.name,
@@ -366,12 +364,6 @@ export class SocialController {
 
     // user social
 
-    @Get("/follower/:id")
-    async getFollower(@Param("id") followerId: string) {
-        const listUserId = await this.socialUserService.findListFollowerById(followerId);
-        const listUser = await this.userService.findUserByListId(listUserId);
-        return listUser;
-    }
 
 
     @Get("/comment/:id")

@@ -16,9 +16,6 @@ export class PostService {
         return this.postModel.findOne({ id });
     }
 
-    async updateNumberOfComments(id: number, numberOfComments: number): Promise<any> {
-        return this.postModel.updateOne({ id }, { numberOfComments })
-    }
 
     async findPostByListId(ids: number[]): Promise<Array<Post>> {
         return this.postModel.find({ id: { $in: ids } });
@@ -37,6 +34,7 @@ export class PostService {
                 tags: post.tags,
                 text: post.text,
                 timestamp: new Date().getTime(),
+                exclusiveContent: post.exclusiveContent,
                 edited: false,
                 numberOfComments: 0
             });

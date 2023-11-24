@@ -5,7 +5,7 @@ import {
   Param,
 } from "@nestjs/common";
 
-import { UserService, WalletService, SocialUserService, NftService } from "src/services";
+import { UserService, SocialUserService, NftService } from "src/services";
 
 @Controller("api/v1/users")
 export class UserController {
@@ -19,8 +19,6 @@ export class UserController {
   async getUserById(@Param("id") id: string) {
     const info = await this.userService.findUserById(id);
     const socialUser = await this.socialUserService.findSocialUserById(info.id);
-    const listUserByFlowing = await this.userService.findUserByListId(socialUser?.following || []);
-    const listUserByFlowers = await this.userService.findUserByListId(socialUser?.follower || []);
     const nft = await this.nftService.findNftsByOwnerId(info.id);
 
     // Mapping the data
@@ -33,18 +31,10 @@ export class UserController {
       email: info.email,
       locale: info.locale,
       socialUser: {
-        following: listUserByFlowing?.map((user) => {
-          return {
-            id: user.id,
-            name: user.name,
-          };
-        }) || [],
-        followers: listUserByFlowers?.map((user) => {
-          return {
-            id: user.id,
-            name: user.name,
-          };
-        }) || [],
+        following: socialUser.following || [],
+        followers: socialUser.follower || [],
+        subscribers: socialUser.subscribers || [],
+        subscribing: socialUser.subscribing || [],
         bookmarks: socialUser?.bookmarks || [],
         numNFTSold: socialUser.numSold || 0,
         numNFTPurchased: socialUser.numPurchased || 0,

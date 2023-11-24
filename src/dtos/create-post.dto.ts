@@ -1,4 +1,4 @@
-import { IsArray, IsNotEmpty, IsNumber, IsString } from "class-validator";
+import { IsArray, IsBoolean, IsNotEmpty, IsNumber, IsString } from "class-validator";
 
 export class CreatePostDto {
 
@@ -21,4 +21,8 @@ export class CreatePostDto {
     @IsArray()
     @IsNotEmpty()
     tags: Array<string>;
+
+    @IsBoolean()
+    @IsNotEmpty()
+    exclusiveContent: boolean;
 }
