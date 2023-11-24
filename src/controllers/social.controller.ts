@@ -125,7 +125,7 @@ export class SocialController {
                     timestamp: post.timestamp,
                     tags: post.tags,
                     nft: nft,
-                    exclusiveContent: post.exclusiveContent,
+                    exclusiveContent: [],
                 }
             }));
             return mapPost;
@@ -186,7 +186,7 @@ export class SocialController {
                     timestamp: post.timestamp,
                     tags: post.tags,
                     nft: nft,
-                    exclusiveContent: post.exclusiveContent,
+                    exclusiveContent: [],
                     postOwner: {
                         id: ownerPost.id,
                         name: ownerPost.name,

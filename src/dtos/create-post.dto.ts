@@ -22,7 +22,4 @@ export class CreatePostDto {
     @IsNotEmpty()
     tags: Array<string>;
 
-    @IsBoolean()
-    @IsNotEmpty()
-    exclusiveContent: boolean;
 }

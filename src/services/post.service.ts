@@ -34,7 +34,6 @@ export class PostService {
                 tags: post.tags,
                 text: post.text,
                 timestamp: new Date().getTime(),
-                exclusiveContent: post.exclusiveContent,
                 edited: false,
                 numberOfComments: 0
             });
