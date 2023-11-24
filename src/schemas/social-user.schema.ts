@@ -19,12 +19,6 @@ export class SocialUser {
     follower: Array<string>; // user Id
 
     @Prop({ required: true })
-    subscribers: Array<string>;
-
-    @Prop({ required: true })
-    subscribing: Array<string>;
-
-    @Prop({ required: true })
     numSold: number;
 
     @Prop({ required: true })

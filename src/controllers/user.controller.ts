@@ -33,8 +33,8 @@ export class UserController {
       socialUser: {
         following: socialUser.following || [],
         followers: socialUser.follower || [],
-        subscribers: socialUser.subscribers || [],
-        subscribing: socialUser.subscribing || [],
+        subscribers: [],
+        subscribing: [],
         bookmarks: socialUser?.bookmarks || [],
         numNFTSold: socialUser.numSold || 0,
         numNFTPurchased: socialUser.numPurchased || 0,

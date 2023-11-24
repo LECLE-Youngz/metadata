@@ -42,5 +42,7 @@ export class Post {
     @Prop({ required: true })
     exclusiveContent: boolean;
 
+    @Prop({ required: true })
+    nsfwContent: boolean;
 }
 export const PostSchema = SchemaFactory.createForClass(Post);
