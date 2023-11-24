@@ -414,7 +414,7 @@ export class SocialController {
 
 
     //
-    @Put("/post/:id/bookmark-or-unbookmark")
+    @Put("/post/:id/bookmark")
     async updateBookmark(@Param("id") id: number, @Headers('Authorization') accessToken: string) {
         try {
             if (!accessToken) {
