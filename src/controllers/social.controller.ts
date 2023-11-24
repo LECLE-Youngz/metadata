@@ -401,7 +401,7 @@ export class SocialController {
                 throw new BadRequestException(`You can't follow yourself`);
 
             }
-            return await this.socialUserService.updateFlowingAndFlowerOrUnFlowingAndUnFlower(id, user.id);
+            return await this.socialUserService.updateFlowingAndFlowerOrUnFlowingAndUnFlower(user.id, id);
         }
         catch (err) {
             throw new BadRequestException(err.message);
@@ -414,7 +414,7 @@ export class SocialController {
 
 
     //
-    @Put("/post/:id/bookmark")
+    @Put("/post/:id/bookmark-or-unbookmark")
     async updateBookmark(@Param("id") id: number, @Headers('Authorization') accessToken: string) {
         try {
             if (!accessToken) {
