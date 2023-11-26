@@ -30,6 +30,14 @@ export class CreateNftDto {
     @IsNotEmpty()
     promptBuyer: string[];
 
+    @IsArray()
+    @IsNotEmpty()
+    promptAllower: string[];
+
+    @IsString()
+    @IsNotEmpty()
+    addressCollection: string;
+
     @IsObject()
     @IsNotEmpty()
     meta: Metadata;

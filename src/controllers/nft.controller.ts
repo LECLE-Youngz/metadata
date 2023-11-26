@@ -72,7 +72,7 @@ export class NftController {
         if (existedNft) {
             throw new BadRequestException(`Nft already exists`);
         }
-        await this.dataService.createData(createNft.id, createNft.meta);
+        await this.dataService.createData(createNft.id, createNft.meta, createNft.addressCollection);
         return await this.nftService.createNft(
             createNft.id,
             user.id,

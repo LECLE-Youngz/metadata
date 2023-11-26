@@ -18,9 +18,10 @@ export class DataService {
 
     }
 
-    async createData(id: number, meta: Metadata): Promise<Data> {
+    async createData(id: number, meta: Metadata, addressCollection: string): Promise<Data> {
         return this.dataModel.create({
             id,
+            addressCollection,
             meta,
         });
     }
