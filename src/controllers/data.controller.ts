@@ -37,6 +37,7 @@ export class DataController {
         const mappingData = nfts.map(nft => {
             return {
                 id: nft.id,
+                addressCollection: data.find(d => d.id == nft.id).addressCollection,
                 name: nft.name,
                 description: nft.description,
                 thumbnail: nft.thumbnail,

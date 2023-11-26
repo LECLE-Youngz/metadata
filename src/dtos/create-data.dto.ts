@@ -72,6 +72,10 @@ export class CreateDataDto {
     @IsNotEmpty()
     readonly id: number;
 
+    @IsString()
+    @IsNotEmpty()
+    readonly addressCollection: string;
+
     @IsObject()
     @IsNotEmptyObject()
     @ValidateNested()
