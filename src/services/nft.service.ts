@@ -30,21 +30,21 @@ export class NftService {
         id: number,
         ownerId: string,
         name: string,
-        description: string,
         thumbnail: string,
         price: string,
         promptPrice: string,
         promptBuyer: string[],
+        promptAllower: string[],
     ): Promise<Nft> {
         return this.nftModel.create({
             id,
             ownerId,
             name,
-            description,
             thumbnail,
             price,
             promptPrice,
             promptBuyer,
+            promptAllower
         });
     }
 

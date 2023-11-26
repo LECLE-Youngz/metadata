@@ -11,6 +11,7 @@ import { CreateNftDto } from "src/dtos";
 import { DataService, NftService, UserService, WalletService } from "src/services";
 import { Nft } from "src/schemas";
 import { verifyAccessToken } from "src/auth/google.verifier";
+import gaxios from "gaxios";
 
 @Controller("api/v1/nfts")
 export class NftController {
@@ -27,7 +28,6 @@ export class NftController {
         return {
             id: nfts.id,
             name: nfts.name,
-            description: nfts.description,
             thumbnail: nfts.thumbnail,
             price: nfts.price,
             owner: owner,
@@ -45,7 +45,6 @@ export class NftController {
                 return {
                     id: nft.id,
                     name: nft.name,
-                    description: nft.description,
                     thumbnail: nft.thumbnail,
                     price: nft.price,
                     owner: owner,
@@ -72,16 +71,25 @@ export class NftController {
         if (existedNft) {
             throw new BadRequestException(`Nft already exists`);
         }
-        await this.dataService.createData(createNft.id, createNft.meta, createNft.addressCollection);
+        await this.dataService.createData(createNft.id, createNft.addressCollection, createNft.meta,);
+
+        const wallet = gaxios.request({
+            url: `http://localhost:3000/api/v1/wallets/${user.id}`,
+            method: "GET",
+            headers: {
+                "Authorization": accessToken,
+            },
+        });
+
         return await this.nftService.createNft(
             createNft.id,
             user.id,
             createNft.name,
-            createNft.description,
             createNft.thumbnail,
             createNft.price,
             createNft.promptPrice,
             createNft.promptBuyer,
+            createNft.promptAllower,
         );
     }
 
@@ -92,7 +100,7 @@ export class NftController {
         const nft = await this.nftService.findNftById(id);
         const data = await this.dataService.findDataById(id);
 
-        if (nft.promptPrice === 0) {
+        if (nft.promptPrice == "0") {
             return {
                 id: data.id,
                 name: data.meta,

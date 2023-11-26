@@ -24,7 +24,7 @@ export class DataController {
         if (existedData) {
             throw new BadRequestException("Data already exists");
         }
-        return this.dataService.createData(createData.id, createData.meta);
+        return this.dataService.createData(createData.id, createData.addressCollection, createData.meta);
     }
     @Get("/owner")
     async getDataByOwnerId(@Headers('Authorization') accessToken: string) {
@@ -39,7 +39,6 @@ export class DataController {
                 id: nft.id,
                 addressCollection: data.find(d => d.id == nft.id).addressCollection,
                 name: nft.name,
-                description: nft.description,
                 thumbnail: nft.thumbnail,
                 price: nft.price,
                 promptPrice: nft.promptPrice,
@@ -63,7 +62,7 @@ export class DataController {
             throw new NotFoundException(`Can not find nft with ${id}`);
         }
 
-        if (nft.promptPrice == 0 || nft.ownerId == user.id) {
+        if (nft.promptPrice == "0" || nft.ownerId == user.id) {
             return data;
         }
 

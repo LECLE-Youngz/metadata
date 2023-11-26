@@ -12,10 +12,6 @@ export class CreateNftDto {
 
     @IsString()
     @IsNotEmpty()
-    description: string;
-
-    @IsString()
-    @IsNotEmpty()
     thumbnail: string;
 
     @IsString()
@@ -26,6 +22,10 @@ export class CreateNftDto {
     @IsNotEmpty()
     promptPrice: string;
 
+    @IsString()
+    @IsNotEmpty()
+    addressCollection: string;
+
     @IsArray()
     @IsNotEmpty()
     promptBuyer: string[];
@@ -33,10 +33,6 @@ export class CreateNftDto {
     @IsArray()
     @IsNotEmpty()
     promptAllower: string[];
-
-    @IsString()
-    @IsNotEmpty()
-    addressCollection: string;
 
     @IsObject()
     @IsNotEmpty()

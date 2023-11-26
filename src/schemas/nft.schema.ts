@@ -15,9 +15,6 @@ export class Nft {
     name: string;
 
     @Prop({ required: true })
-    description: string;
-
-    @Prop({ required: true })
     thumbnail: string;
 
     @Prop({ required: true })
