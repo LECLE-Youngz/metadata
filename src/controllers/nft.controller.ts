@@ -73,14 +73,6 @@ export class NftController {
         }
         await this.dataService.createData(createNft.id, createNft.addressCollection, createNft.meta,);
 
-        const wallet = gaxios.request({
-            url: `http://localhost:3000/api/v1/wallets/${user.id}`,
-            method: "GET",
-            headers: {
-                "Authorization": accessToken,
-            },
-        });
-
         return await this.nftService.createNft(
             createNft.id,
             user.id,
