@@ -18,13 +18,13 @@ export class CreateNftDto {
     @IsNotEmpty()
     thumbnail: string;
 
-    @IsNumber()
+    @IsString()
     @IsNotEmpty()
-    price: number;
+    price: string;
 
-    @IsNumber()
+    @IsString()
     @IsNotEmpty()
-    promptPrice: number;
+    promptPrice: string;
 
     @IsArray()
     @IsNotEmpty()

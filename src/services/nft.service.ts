@@ -32,8 +32,8 @@ export class NftService {
         name: string,
         description: string,
         thumbnail: string,
-        price: number,
-        promptPrice: number,
+        price: string,
+        promptPrice: string,
         promptBuyer: string[],
     ): Promise<Nft> {
         return this.nftModel.create({

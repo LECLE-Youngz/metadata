@@ -21,10 +21,10 @@ export class Nft {
     thumbnail: string;
 
     @Prop({ required: true })
-    price: number;
+    price: string;
 
     @Prop({ required: true })
-    promptPrice: number;
+    promptPrice: string;
 
     @Prop({ required: true })
     promptBuyer: string[];
