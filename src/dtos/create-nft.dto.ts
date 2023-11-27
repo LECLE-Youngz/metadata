@@ -12,7 +12,7 @@ export class CreateNftDto {
 
     @IsString()
     @IsNotEmpty()
-    thumbnail: string;
+    image: string;
 
     @IsString()
     @IsNotEmpty()

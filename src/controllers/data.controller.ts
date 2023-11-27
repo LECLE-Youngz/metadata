@@ -39,7 +39,7 @@ export class DataController {
                 id: nft.id,
                 addressCollection: data.find(d => d.id == nft.id).addressCollection,
                 name: nft.name,
-                thumbnail: nft.thumbnail,
+                image: nft.image,
                 price: nft.price,
                 promptPrice: nft.promptPrice,
                 promptBuyer: nft.promptBuyer,
