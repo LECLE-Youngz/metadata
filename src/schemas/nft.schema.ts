@@ -25,6 +25,9 @@ export class Nft {
 
     @Prop({ required: true })
     promptBuyer: string[];
+
+    @Prop({ required: true })
+    promptAllower: string[];
 }
 
 export const NftSchema = SchemaFactory.createForClass(Nft);

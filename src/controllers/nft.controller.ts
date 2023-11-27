@@ -8,7 +8,7 @@ import {
     BadRequestException,
 } from "@nestjs/common";
 import { CreateNftDto } from "src/dtos";
-import { DataService, NftService, UserService, WalletService } from "src/services";
+import { DataService, NftService, PostService, UserService, WalletService } from "src/services";
 import { Nft } from "src/schemas";
 import { verifyAccessToken } from "src/auth/google.verifier";
 import gaxios from "gaxios";
@@ -19,23 +19,10 @@ export class NftController {
     constructor(private readonly nftService: NftService,
         private readonly userService: UserService,
         private readonly dataService: DataService,
+        private readonly postService: PostService
     ) { }
 
-    @Get(":id")
-    async getNftById(@Param("id") id: number) {
-        const nfts = await this.nftService.findNftById(id);
-        const owner = await this.userService.findUserById(nfts.ownerId);
-        return {
-            id: nfts.id,
-            name: nfts.name,
-            thumbnail: nfts.thumbnail,
-            price: nfts.price,
-            owner: owner,
-            promptPrice: nfts.promptPrice,
-            promptBuyer: nfts.promptBuyer,
-        };
 
-    }
     @Get()
     async getAllNfts() {
         const nfts = await this.nftService.findAll();
@@ -50,6 +37,7 @@ export class NftController {
                     owner: owner,
                     promptPrice: nft.promptPrice,
                     promptBuyer: nft.promptBuyer,
+                    promptAllower: nft.promptAllower,
                 };
             })
         );
@@ -105,5 +93,28 @@ export class NftController {
             id: data.id,
             name: data.meta,
         };
+    }
+
+    @Get("/post/:id")
+    async getPostByNftId(@Param("id") id: number) {
+        const nft = await this.nftService.findNftById(id);
+        const post = await this.postService.findPostByOwnerId(nft.ownerId);
+        return post.filter((post) => post.nftId == id);
+    }
+
+    @Get(":id")
+    async getNftById(@Param("id") id: number) {
+        const nfts = await this.nftService.findNftById(id);
+        const owner = await this.userService.findUserById(nfts.ownerId);
+        return {
+            id: nfts.id,
+            name: nfts.name,
+            thumbnail: nfts.thumbnail,
+            price: nfts.price,
+            owner: owner,
+            promptPrice: nfts.promptPrice,
+            promptBuyer: nfts.promptBuyer,
+        };
+
     }
 }
