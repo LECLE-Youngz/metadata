@@ -3,6 +3,11 @@ import { HydratedDocument } from "mongoose";
 
 export type NftDocument = HydratedDocument<Nft>;
 
+export class Attribute {
+    trait_type: string;
+    value: string;
+}
+
 @Schema()
 export class Nft {
     @Prop({ required: true, unique: true, index: true, sparse: true })
@@ -13,6 +18,9 @@ export class Nft {
 
     @Prop({ required: true })
     name: string;
+
+    @Prop({ required: true })
+    description: string;
 
     @Prop({ required: true })
     image: string;
@@ -28,6 +36,9 @@ export class Nft {
 
     @Prop({ required: true })
     promptAllower: string[];
+
+    @Prop({ required: true })
+    attributes: Array<Attribute>;
 }
 
 export const NftSchema = SchemaFactory.createForClass(Nft);

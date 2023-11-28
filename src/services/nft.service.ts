@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
-import { Nft, NftDocument } from "src/schemas";
+import { Attribute, Nft, NftDocument } from "src/schemas";
 
 @Injectable()
 export class NftService {
@@ -30,6 +30,7 @@ export class NftService {
         id: number,
         ownerId: string,
         name: string,
+        description: string,
         image: string,
         price: string,
         promptPrice: string,
@@ -40,15 +41,21 @@ export class NftService {
             id,
             ownerId,
             name,
+            description,
             image,
             price,
             promptPrice,
             promptBuyer,
-            promptAllower
+            promptAllower,
+            attributes: [],
         });
     }
 
     async deleteNft(nftId: string) {
         return this.nftModel.findOneAndDelete({ nftId })
+    }
+
+    async createAttributes(nftId: string, attribute: Array<Attribute>) {
+        return this.nftModel.updateOne({ nftId }, { attribute })
     }
 }

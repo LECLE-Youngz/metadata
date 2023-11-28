@@ -32,6 +32,7 @@ export class NftController {
                 return {
                     id: nft.id,
                     name: nft.name,
+                    description: nft.description,
                     image: nft.image,
                     price: nft.price,
                     owner: owner,
@@ -65,6 +66,7 @@ export class NftController {
             createNft.id,
             user.id,
             createNft.name,
+            createNft.description,
             createNft.image,
             createNft.price,
             createNft.promptPrice,
@@ -109,6 +111,7 @@ export class NftController {
         return {
             id: nfts.id,
             name: nfts.name,
+            description: nfts.description,
             image: nfts.image,
             price: nfts.price,
             owner: owner,
