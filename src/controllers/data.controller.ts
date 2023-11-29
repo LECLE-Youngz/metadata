@@ -24,7 +24,7 @@ export class DataController {
         if (existedData) {
             throw new BadRequestException("Data already exists");
         }
-        return this.dataService.createData(createData.id, createData.addressCollection, createData.meta);
+        return this.dataService.createData(createData.id, createData.meta);
     }
     @Get("/owner")
     async getDataByOwnerId(@Headers('Authorization') accessToken: string) {
@@ -37,7 +37,6 @@ export class DataController {
         const mappingData = nfts.map(nft => {
             return {
                 id: nft.id,
-                addressCollection: data.find(d => d.id == nft.id).addressCollection,
                 name: nft.name,
                 image: nft.image,
                 price: nft.price,

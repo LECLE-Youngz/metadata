@@ -36,6 +36,7 @@ export class NftService {
         promptPrice: string,
         promptBuyer: string[],
         promptAllower: string[],
+        addressCollection: string,
     ): Promise<Nft> {
         return this.nftModel.create({
             id,
@@ -47,6 +48,7 @@ export class NftService {
             promptPrice,
             promptBuyer,
             promptAllower,
+            addressCollection,
             attributes: [],
         });
     }

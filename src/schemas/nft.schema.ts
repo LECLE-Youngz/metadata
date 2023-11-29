@@ -38,6 +38,9 @@ export class Nft {
     promptAllower: string[];
 
     @Prop({ required: true })
+    addressCollection: string;
+
+    @Prop({ required: true })
     attributes: Array<Attribute>;
 }
 

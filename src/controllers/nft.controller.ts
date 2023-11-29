@@ -38,7 +38,9 @@ export class NftController {
                     owner: owner,
                     promptPrice: nft.promptPrice,
                     promptBuyer: nft.promptBuyer,
+                    addressCollection: nft.addressCollection,
                     promptAllower: nft.promptAllower,
+                    attributes: nft.attributes,
                 };
             })
         );
@@ -60,7 +62,7 @@ export class NftController {
         if (existedNft) {
             throw new BadRequestException(`Nft already exists`);
         }
-        await this.dataService.createData(createNft.id, createNft.addressCollection, createNft.meta,);
+        await this.dataService.createData(createNft.id, createNft.meta);
 
         return await this.nftService.createNft(
             createNft.id,
@@ -72,6 +74,7 @@ export class NftController {
             createNft.promptPrice,
             createNft.promptBuyer,
             createNft.promptAllower,
+            createNft.addressCollection,
         );
     }
 
@@ -117,6 +120,9 @@ export class NftController {
             owner: owner,
             promptPrice: nfts.promptPrice,
             promptBuyer: nfts.promptBuyer,
+            addressCollection: nfts.addressCollection,
+            promptAllower: nfts.promptAllower,
+            attributes: nfts.attributes,
         };
 
     }

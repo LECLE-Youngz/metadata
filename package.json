@@ -31,6 +31,7 @@
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
     "elliptic": "^6.5.4",
+    "ethers": "^6.9.0",
     "gaxios": "^6.1.1",
     "google-auth-library": "^9.2.0",
     "mongoose": "^8.0.1",

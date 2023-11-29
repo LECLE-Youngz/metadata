@@ -28,9 +28,6 @@ export class Data {
     id: number;
 
     @Prop({ required: true })
-    addressCollection: string;
-
-    @Prop({ required: true })
     meta: Metadata;
 }
 
