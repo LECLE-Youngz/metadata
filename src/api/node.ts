@@ -13,6 +13,6 @@ export const fetchWalletByAddress = async (address: string): Promise<GaxiosRespo
 
         return response;
     } catch (error) {
-        throw new BadRequestException("Wallet not found");
+        return null
     }
 };

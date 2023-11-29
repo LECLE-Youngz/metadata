@@ -1,7 +1,7 @@
 /* eslint-disable */
 
 
-import { marketplace } from ".";
+import { marketplace } from "./blockchain";
 
 export const getChainlinkDataFeedLatestAnswer = async () => {
     const price = await marketplace().then((res) => res.getChainlinkDataFeedLatestAnswer());

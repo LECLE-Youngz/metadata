@@ -1,6 +1,6 @@
 /* eslint-disable */
 
-import { factory } from ".";
+import { factory } from "./blockchain";
 
 export const getTotalCollection = async () => {
     const total = await factory().then((res) => res.getTotalCollection());

@@ -12,6 +12,8 @@ import { DataService, NftService, PostService, UserService, WalletService } from
 import { Nft } from "src/schemas";
 import { verifyAccessToken } from "src/auth/google.verifier";
 import gaxios from "gaxios";
+import { fetchWalletByAddress, ownerOf } from "src/api";
+import { ResponseWallet } from "src/types";
 
 @Controller("api/v1/nfts")
 export class NftController {
@@ -28,14 +30,31 @@ export class NftController {
         const nfts = await this.nftService.findAll();
         const nftsWithOwners = await Promise.all(
             nfts.map(async (nft) => {
-                const owner = await this.userService.findUserById(nft.ownerId);
+                const addressOwner: string = await ownerOf(nft.id);
+                const wallet = await fetchWalletByAddress(addressOwner);
+                if (!wallet) {
+                    return {
+                        id: nft.id,
+                        name: nft.name,
+                        description: nft.description,
+                        image: nft.image,
+                        price: nft.price,
+                        owner: null,
+                        promptPrice: nft.promptPrice,
+                        promptBuyer: nft.promptBuyer,
+                        addressCollection: nft.addressCollection,
+                        promptAllower: nft.promptAllower,
+                        attributes: nft.attributes,
+                    };
+                }
+                const ownerInfo = await this.userService.findUserByEmail(wallet.data.owner);
                 return {
                     id: nft.id,
                     name: nft.name,
                     description: nft.description,
                     image: nft.image,
                     price: nft.price,
-                    owner: owner,
+                    owner: ownerInfo,
                     promptPrice: nft.promptPrice,
                     promptBuyer: nft.promptBuyer,
                     addressCollection: nft.addressCollection,
@@ -110,14 +129,31 @@ export class NftController {
     @Get(":id")
     async getNftById(@Param("id") id: number) {
         const nfts = await this.nftService.findNftById(id);
-        const owner = await this.userService.findUserById(nfts.ownerId);
+        const addressOwner: string = await ownerOf(id);
+        const wallet = await fetchWalletByAddress(addressOwner);
+        if (!wallet) {
+            return {
+                id: nfts.id,
+                name: nfts.name,
+                description: nfts.description,
+                image: nfts.image,
+                price: nfts.price,
+                owner: null,
+                promptPrice: nfts.promptPrice,
+                promptBuyer: nfts.promptBuyer,
+                addressCollection: nfts.addressCollection,
+                promptAllower: nfts.promptAllower,
+                attributes: nfts.attributes,
+            };
+        }
+        const ownerInfo = await this.userService.findUserByEmail(wallet.data.owner);
         return {
             id: nfts.id,
             name: nfts.name,
             description: nfts.description,
             image: nfts.image,
             price: nfts.price,
-            owner: owner,
+            owner: ownerInfo,
             promptPrice: nfts.promptPrice,
             promptBuyer: nfts.promptBuyer,
             addressCollection: nfts.addressCollection,

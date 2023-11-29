@@ -1,6 +1,6 @@
 /* eslint-disable */
 
-import { collection } from ".";
+import { collection } from "./blockchain";
 
 export const balanceOf = async (address) => {
     const balance = await collection().then((res) => res.balanceOf(address));
