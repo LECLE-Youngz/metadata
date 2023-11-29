@@ -5,6 +5,7 @@ import {
   Param,
 } from "@nestjs/common";
 import gaxios, { GaxiosResponse } from "gaxios";
+import { fetchWalletByAddress } from "src/api";
 
 import { UserService, SocialUserService, NftService } from "src/services";
 import { ResponseWallet } from "src/types";
@@ -27,12 +28,14 @@ export class UserController {
 
   @Get("/address/:address")
   async getWalletByEmail(@Param("address") address: string) {
-    const wallet: GaxiosResponse<ResponseWallet> = await gaxios.request({
-      url: `http://localhost:3001/wallets/${address}`,
-      method: "GET",
-    });
-
+    const wallet: GaxiosResponse<ResponseWallet> = await fetchWalletByAddress(address);
+    if (!wallet.data?.owner) {
+      throw new BadRequestException("Wallet not found");
+    }
     const user = await this.userService.findUserByEmail(wallet.data?.owner);
+    if (!user) {
+      throw new BadRequestException("User not found");
+    }
     return user;
   }
 
