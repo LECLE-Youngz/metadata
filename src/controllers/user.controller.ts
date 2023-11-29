@@ -4,8 +4,10 @@ import {
   Get,
   Param,
 } from "@nestjs/common";
+import gaxios, { GaxiosResponse } from "gaxios";
 
 import { UserService, SocialUserService, NftService } from "src/services";
+import { ResponseWallet } from "src/types";
 
 @Controller("api/v1/users")
 export class UserController {
@@ -14,6 +16,25 @@ export class UserController {
     private readonly socialUserService: SocialUserService,
     private readonly nftService: NftService
   ) { }
+
+
+
+  @Get()
+  async getAllUsers() {
+    const info = await this.userService.findAll();
+    return info.map((user) => user.id);
+  }
+
+  @Get("/address/:address")
+  async getWalletByEmail(@Param("address") address: string) {
+    const wallet: GaxiosResponse<ResponseWallet> = await gaxios.request({
+      url: `http://localhost:3001/wallets/${address}`,
+      method: "GET",
+    });
+
+    const user = await this.userService.findUserByEmail(wallet.data?.owner);
+    return user;
+  }
 
   @Get(":id")
   async getUserById(@Param("id") id: string) {
@@ -48,23 +69,5 @@ export class UserController {
 
     return mappedData;
   }
-
-  @Get()
-  async getAllUsers() {
-    const info = await this.userService.findAll();
-    return info.map((user) => user.id);
-  }
-
-  // get wallet by email 
-  // @Get("/wallet/:email")
-  // async getWalletByEmail(@Param("email") email: string) {
-  //   const user = await this.userService.findUserByEmail(email);
-  //   const wallet = await this.walletService.findWalletById(user.id);
-  //   return {
-  //     id: user.id,
-  //     email: user.email,
-  //     address: wallet.address,
-  //   };
-  // }
 
 }
