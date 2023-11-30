@@ -12,7 +12,7 @@ import { DataService, NftService, PostService, UserService, WalletService } from
 import { Nft } from "src/schemas";
 import { verifyAccessToken } from "src/auth/google.verifier";
 import gaxios from "gaxios";
-import { fetchWalletByAddress, ownerOf } from "src/api";
+import { fetchWalletByAddress, ownerOf, queryNFTsByAddress } from "src/api";
 import { ResponseWallet } from "src/types";
 
 @Controller("api/v1/nfts")
@@ -70,13 +70,17 @@ export class NftController {
 
 
     @Get("/owner/:id")
-    async getNftsByOwnerId(@Param("id") id: string): Promise<Array<Nft>> {
+    async getNftsByOwnerId(@Param("id") id: string): Promise<any> {
         const user = await this.userService.findUserById(id);
         const wallet = await fetchWalletByAddress(user.email);
         if (!wallet) {
             return [];
         }
-        return await this.nftService.findNftsByOwnerId(user.id);
+        const listNft = (await queryNFTsByAddress(wallet.data.address)).map((nft) => Number(nft));
+
+        const listInfoNft = await this.nftService.findNftsByListId(listNft);
+
+        return listInfoNft
     }
 
     @Post()

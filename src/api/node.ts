@@ -1,6 +1,6 @@
 import { BadRequestException } from "@nestjs/common";
 import { GaxiosResponse, request } from "gaxios";
-import { ResponseWallet } from "src/types";
+import { ResponseWallet } from "./types";
 import * as dotenv from "dotenv";
 dotenv.config();
 
