@@ -71,7 +71,12 @@ export class NftController {
 
     @Get("/owner/:id")
     async getNftsByOwnerId(@Param("id") id: string): Promise<Array<Nft>> {
-        return await this.nftService.findNftsByOwnerId(id);
+        const user = await this.userService.findUserById(id);
+        const wallet = await fetchWalletByAddress(user.email);
+        if (!wallet) {
+            return [];
+        }
+        return await this.nftService.findNftsByOwnerId(user.id);
     }
 
     @Post()
