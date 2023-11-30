@@ -12,7 +12,7 @@ query getAllNFT {
   }
 }`;
 
-export const queryListPromptAllower = `
+export const queryPromptAllower = `
 query getListPromptAllower($tokenId: String) {
     promptBoughts(where: { tokenId: $tokenId }) {
         buyer

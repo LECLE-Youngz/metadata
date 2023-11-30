@@ -1,8 +1,8 @@
 /* eslint-disable */
 import { ethers, JsonRpcProvider } from "ethers";
-import marketplaceABI from "src/configs/marketplace/marketplace.json";
-import collectionABI from "src/configs/nexthype/nexthype.json";
-import factoryABI from "src/configs/factory/factory.json";
+import marketplaceABI from "src/configs/Marketplace.sol/NftMarketplace.json";
+import collectionABI from "src/configs/NexthypeNFT.sol/NEXTHYPE.json";
+import factoryABI from "src/configs/GenerativeNFT.sol/GenerativeNFT.json";
 import * as dotenv from "dotenv";
 dotenv.config();
 
