@@ -1,7 +1,7 @@
 /* eslint-disable */
 
 import { marketplace } from "./blockchain";
-
+import BN from "bn.js";
 export const getChainlinkDataFeedLatestAnswer = async () => {
     const price = await marketplace().then((res) => res.getChainlinkDataFeedLatestAnswer());
     return price;
@@ -17,12 +17,12 @@ export const getListing = async (nftAddress, tokenId) => {
     return listing;
 }
 
-export const getPromptPrice = async (nftAddress, tokenId) => {
+export const getPromptPrice = async (nftAddress, tokenId): Promise<Array<BN>> => {
     const price = await marketplace().then((res) => res.getPromptPrice(nftAddress, tokenId));
     return price;
 }
 
-export const getTokenPrice = async (nftAddress, tokenId) => {
+export const getTokenPrice = async (nftAddress, tokenId): Promise<Array<BN>> => {
     const price = await marketplace().then((res) => res.getTokenPrice(nftAddress, tokenId));
     return price;
 }

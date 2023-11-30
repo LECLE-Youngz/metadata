@@ -28,26 +28,16 @@ export class NftService {
 
     async createNft(
         id: number,
-        ownerId: string,
         name: string,
         description: string,
         image: string,
-        price: string,
-        promptPrice: string,
-        promptBuyer: string[],
-        promptAllower: string[],
         addressCollection: string,
     ): Promise<Nft> {
         return this.nftModel.create({
             id,
-            ownerId,
             name,
             description,
             image,
-            price,
-            promptPrice,
-            promptBuyer,
-            promptAllower,
             addressCollection,
             attributes: [],
         });

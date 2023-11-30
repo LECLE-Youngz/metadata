@@ -14,9 +14,6 @@ export class Nft {
     id: number;
 
     @Prop({ required: true })
-    ownerId: string;
-
-    @Prop({ required: true })
     name: string;
 
     @Prop({ required: true })
@@ -24,18 +21,6 @@ export class Nft {
 
     @Prop({ required: true })
     image: string;
-
-    @Prop({ required: true })
-    price: string;
-
-    @Prop({ required: true })
-    promptPrice: string;
-
-    @Prop({ required: true })
-    promptBuyer: string[];
-
-    @Prop({ required: true })
-    promptAllower: string[];
 
     @Prop({ required: true })
     addressCollection: string;
