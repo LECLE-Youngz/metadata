@@ -1,35 +1,24 @@
 import { BadRequestException } from "@nestjs/common";
 import { GaxiosResponse, request } from "gaxios";
 import * as dotenv from "dotenv";
-import { ResponseNftByAddressGraph } from "src/types";
+import { ResponseNftTokenId } from "src/types";
+import { queryNftsByAddress, queryAllNfts } from "./queryGraph";
 dotenv.config();
 
-const APIURL = process.env.THE_GRAPH_API_URL;
-
-const tokensQuery = `
-query getNFT($address: String) {
-  transfers(where: {to: $address}) {
-    tokenId
-  }
-}
-`;
-
-
-
-export async function queryNFTsByAddress(address: string): Promise<string[]> {
+export async function queryNFTsByAddress(address: string): Promise<number[]> {
     try {
-        const response: GaxiosResponse<ResponseNftByAddressGraph> = await request({
-            url: APIURL,
+        const response: GaxiosResponse<ResponseNftTokenId> = await request({
+            url: process.env.THE_GRAPH_API_URL,
             method: 'POST',
             data: {
-                query: tokensQuery,
+                query: queryNftsByAddress,
                 variables: {
                     address: address,
                 },
             },
         });
         const data = response.data;
-        const tokenIdArray = data.data.transfers.map((transfer) => transfer.tokenId);
+        const tokenIdArray = data.data.transfers.map((transfer) => Number(transfer.tokenId));
         return tokenIdArray;
     } catch (err) {
         console.log('Error fetching data: ', err);
@@ -37,3 +26,50 @@ export async function queryNFTsByAddress(address: string): Promise<string[]> {
     }
 }
 
+
+
+export async function queryAllNFTs(): Promise<number[]> {
+    try {
+        const response: GaxiosResponse<ResponseNftTokenId> = await request({
+            url: process.env.THE_GRAPH_API_URL,
+            method: 'POST',
+            data: {
+                query: queryAllNfts, // Assuming queryAllNfts is defined somewhere
+                variables: {},
+            },
+        });
+
+        const data = response.data;
+        // Extract token IDs from the response data
+        const tokenIdArray = data.data.transfers.map((transfer) => Number(transfer.tokenId));
+
+        return tokenIdArray;
+    } catch (err) {
+        console.log('Error fetching data: ', err);
+        throw new BadRequestException('Failed to fetch data from GraphQL API');
+    }
+}
+
+// export async function queryListPromptAllower(tokenId: number): Promise<Array<string>> {
+//     try {
+//         const response: GaxiosResponse<any> = await request({
+//             url: process.env.THE_GRAPH_API_URL,
+//             method: 'POST',
+//             data: {
+//                 query: queryPromptAllower,
+//                 variables: {
+//                     tokenId: tokenId.toString(),
+//                 },
+//             },
+//         });
+
+//         const data = response.data;
+//         // Extract token IDs from the response data
+//         const promptAllower = data.data.promptBoughts.map((promptBought) => promptBought.buyer);
+
+//         return promptAllower;
+//     } catch (err) {
+//         console.log('Error fetching data: ', err);
+//         throw new BadRequestException('Failed to fetch data from GraphQL API');
+//     }
+// }

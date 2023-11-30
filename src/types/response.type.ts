@@ -9,6 +9,10 @@ export type Transfer = {
     tokenId: string;
 }
 
-export type ResponseNftByAddressGraph = {
+export type ResponseNftTokenId = {
     data: { transfers: Transfer[] }
 }
+
+// export type ResponsePromptAllower = {
+//     data: { promptBoughts: string[] }
+// }

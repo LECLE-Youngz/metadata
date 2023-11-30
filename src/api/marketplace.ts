@@ -1,6 +1,5 @@
 /* eslint-disable */
 
-
 import { marketplace } from "./blockchain";
 
 export const getChainlinkDataFeedLatestAnswer = async () => {

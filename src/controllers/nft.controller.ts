@@ -11,9 +11,7 @@ import { CreateNftDto } from "src/dtos";
 import { DataService, NftService, PostService, UserService, WalletService } from "src/services";
 import { Nft } from "src/schemas";
 import { verifyAccessToken } from "src/auth/google.verifier";
-import gaxios from "gaxios";
-import { fetchWalletByAddress, ownerOf, queryNFTsByAddress } from "src/api";
-import { ResponseWallet } from "src/types";
+import { fetchWalletByAddress, ownerOf, queryAllNFTs, queryNFTsByAddress } from "src/api";
 
 @Controller("api/v1/nfts")
 export class NftController {
@@ -32,14 +30,21 @@ export class NftController {
             nfts.map(async (nft) => {
                 const addressOwner: string = await ownerOf(nft.id);
                 const wallet = await fetchWalletByAddress(addressOwner);
-                if (!wallet) {
+                if (wallet) {
+                    const userInfo = await this.userService.findUserByEmail(wallet.data.owner);
                     return {
                         id: nft.id,
                         name: nft.name,
                         description: nft.description,
                         image: nft.image,
                         price: nft.price,
-                        owner: null,
+                        owner: {
+                            id: userInfo.id,
+                            name: userInfo.name,
+                            email: userInfo.email,
+                            picture: userInfo.picture,
+                            address: addressOwner,
+                        },
                         promptPrice: nft.promptPrice,
                         promptBuyer: nft.promptBuyer,
                         addressCollection: nft.addressCollection,
@@ -47,20 +52,6 @@ export class NftController {
                         attributes: nft.attributes,
                     };
                 }
-                const ownerInfo = await this.userService.findUserByEmail(wallet.data.owner);
-                return {
-                    id: nft.id,
-                    name: nft.name,
-                    description: nft.description,
-                    image: nft.image,
-                    price: nft.price,
-                    owner: ownerInfo,
-                    promptPrice: nft.promptPrice,
-                    promptBuyer: nft.promptBuyer,
-                    addressCollection: nft.addressCollection,
-                    promptAllower: nft.promptAllower,
-                    attributes: nft.attributes,
-                };
             })
         );
 
@@ -76,7 +67,7 @@ export class NftController {
         if (!wallet) {
             return [];
         }
-        const listNft = (await queryNFTsByAddress(wallet.data.address)).map((nft) => Number(nft));
+        const listNft = (await queryNFTsByAddress(wallet.data.address))
 
         const listInfoNft = await this.nftService.findNftsByListId(listNft);
 
