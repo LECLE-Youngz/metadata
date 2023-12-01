@@ -46,7 +46,7 @@ export class NftController {
                         image: nft.image,
                         price: {
                             avax: price[0].toString(),
-                            usd: price[0].toString(),
+                            usd: price[1].toString(),
                         },
                         owner: {
                             id: userInfo.id,
@@ -94,7 +94,7 @@ export class NftController {
                 image: nft.image,
                 price: {
                     avax: price[0].toString(),
-                    usd: price[0].toString(),
+                    usd: price[1].toString(),
                 },
                 owner: {
                     id: user.id,
@@ -196,7 +196,7 @@ export class NftController {
             image: nfts.image,
             price: {
                 avax: price[0].toString(),
-                usd: price[0].toString(),
+                usd: price[1].toString(),
 
             },
             owner: ownerInfo,
