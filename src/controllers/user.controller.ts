@@ -11,7 +11,7 @@ import { UserService, SocialUserService, NftService } from "src/services";
 import { ResponseWallet } from "src/types";
 
 import { NftCollection } from "src/types";
-import { queryNFTsByAddress } from "src/api/graph";
+import { queryNFTsByAddress, queryPromptBuyerByTokenAndAddress, queryListAllower, queryAllNFTsByAddressAndCollection } from "src/api/graph";
 import BN from "bn.js"
 
 import { getTokenPrice, getPromptPrice } from "src/api";
@@ -48,81 +48,82 @@ export class UserController {
 
   @Get(":id")
   async getUserById(@Param("id") id: string) {
-    const user = await this.userService.findUserById(id);
-    const socialUser = await this.socialUserService.findSocialUserById(user.id);
-    const wallet = await fetchWalletByAddress(user.email);
-    if (!wallet) {
-      return [];
-    }
-    const listCollection = await this.nftService.getAllListCollection();
+    try {
+      const user = await this.userService.findUserById(id);
+      const socialUser = await this.socialUserService.findSocialUserById(user.id);
+      const wallet = await fetchWalletByAddress(user.email);
+      if (!wallet) {
+        return [];
+      }
 
-    const listNftCollection: NftCollection[] = await Promise.all(
-      listCollection.map(async (addressCollection: string) => {
-        const nfts = await queryNFTsByAddress(wallet.data.address, addressCollection);
-        return nfts.map((id) => ({
-          id: id,
-          addressCollection: addressCollection,
-        }));
+
+
+      // Mapping the data
+      const listNftCollectionByAddress = await queryAllNFTsByAddressAndCollection(wallet.data.address) ?? []
+
+
+
+      const mappingPrice = listNftCollectionByAddress.map(async (nft) => {
+        const price: Array<BN> = await getTokenPrice(nft.contract, String(nft.tokenId))
+        const promptPrice: Array<BN> = await getPromptPrice(nft.contract, String(nft.tokenId))
+        const listBoughts = await queryPromptBuyerByTokenAndAddress(nft.contract, nft.tokenId) ?? [];
+        const listAllower = await queryListAllower(nft.contract, nft.tokenId) ?? [];
+        const nftInfo = await this.nftService.findNftByIdAndAddressCollection(Number(nft.tokenId), nft.contract);
+        return {
+          id: nft.tokenId,
+          name: nftInfo?.name ?? "",
+          description: nftInfo?.description ?? "",
+          image: nftInfo?.image ?? "",
+          price: {
+            avax: price[0].toString(),
+            usd: price[1].toString(),
+          },
+          owner: {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            picture: user.picture,
+            address: user.email,
+          },
+          promptPrice: {
+            avax: promptPrice[0].toString(),
+            usd: promptPrice[1].toString(),
+          },
+          promptBuyer: listBoughts,
+          addressCollection: nft.contract,
+          promptAllower: listAllower,
+          attributes: nftInfo?.attributes ?? [],
+        };
       })
-    ).then((nestedArrays) => nestedArrays.flat());
+      // filter nft with wallet.data.address is owner
 
-    const listInfoNft = await this.nftService.findNftsByListObjectIdWithCollection(listNftCollection);
 
-    const mappingPrice = listInfoNft.map(async (nft) => {
-      const price: Array<BN> = await getTokenPrice(nft.addressCollection, String(nft.id))
-      const promptPrice: Array<BN> = await getPromptPrice(nft.addressCollection, String(nft.id))
-      return {
-        id: nft.id,
-        name: nft.name,
-        description: nft.description,
-        image: nft.image,
-        price: {
-          avax: price[0].toString(),
-          usd: price[1].toString(),
+      const mappedData = {
+        id: user.id,
+        name: user.name,
+        family_name: user.family_name,
+        given_name: user.given_name,
+        email: user.email,
+        locale: user.locale,
+        socialUser: {
+          following: socialUser.following || [],
+          followers: socialUser.follower || [],
+          subscribers: [],
+          subscribing: [],
+          bookmarks: socialUser?.bookmarks || [],
+          numNFTSold: socialUser.numSold || 0,
+          numNFTPurchased: socialUser.numPurchased || 0,
+          numPromptSold: socialUser.numPromptSold || 0,
+          numPromptPurchased: socialUser.numPromptPurchased || 0
         },
-        owner: {
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          picture: user.picture,
-          address: user.email,
-        },
-        promptPrice: {
-          avax: promptPrice[0].toString(),
-          usd: promptPrice[1].toString(),
-        },
-        promptBuyer: [],
-        addressCollection: nft.addressCollection,
-        promptAllower: [],
-        attributes: nft.attributes,
+        picture: user.picture,
+        nfts: await Promise.all(mappingPrice),
       };
-    })
-    // Mapping the data
 
-    const mappedData = {
-      id: user.id,
-      name: user.name,
-      family_name: user.family_name,
-      given_name: user.given_name,
-      email: user.email,
-      locale: user.locale,
-      socialUser: {
-        following: socialUser.following || [],
-        followers: socialUser.follower || [],
-        subscribers: [],
-        subscribing: [],
-        bookmarks: socialUser?.bookmarks || [],
-        numNFTSold: socialUser.numSold || 0,
-        numNFTPurchased: socialUser.numPurchased || 0,
-        numPromptSold: socialUser.numPromptSold || 0,
-        numPromptPurchased: socialUser.numPromptPurchased || 0
-      },
-      picture: user.picture,
-      nft: mappingPrice ? mappingPrice : [],
-
-    };
-
-    return mappedData;
+      return mappedData;
+    }
+    catch (err) {
+      throw new BadRequestException(err.message)
+    }
   }
-
 }

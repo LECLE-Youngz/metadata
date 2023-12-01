@@ -13,7 +13,7 @@ import { CreateNftDto } from "src/dtos";
 import { DataService, NftService, PostService, UserService, WalletService } from "src/services";
 import { Nft } from "src/schemas";
 import { verifyAccessToken } from "src/auth/google.verifier";
-import { fetchWalletByAddress, getPromptPrice, getTokenPrice, ownerOf, queryAllNFTs, queryNFTsByAddress, queryListBoughts } from "src/api";
+import { fetchWalletByAddress, getPromptPrice, getTokenPrice, ownerOf, queryAllNFTs, queryNFTsByAddress, queryListAllower, queryPromptBuyerByTokenAndAddress } from "src/api";
 
 import * as dotenv from "dotenv";
 dotenv.config();
@@ -35,12 +35,14 @@ export class NftController {
         const nfts = await this.nftService.findAll();
         const nftsWithOwners = await Promise.all(
             nfts.map(async (nft) => {
-                const addressOwner: string = await ownerOf(nft.id);
+                const addressOwner: string = await ownerOf(nft.id, nft.addressCollection);
                 const wallet = await fetchWalletByAddress(addressOwner);
                 if (wallet) {
                     const userInfo = await this.userService.findUserByEmail(wallet.data.owner);
                     const price: Array<BN> = await getTokenPrice(nft.addressCollection, String(nft.id))
                     const promptPrice: Array<BN> = await getPromptPrice(nft.addressCollection, String(nft.id))
+                    const listAllower = await queryListAllower(nft.addressCollection, nft.id);
+                    const listBoughts = await queryPromptBuyerByTokenAndAddress(nft.addressCollection, nft.id);
                     return {
                         id: nft.id,
                         name: nft.name,
@@ -61,9 +63,9 @@ export class NftController {
                             avax: promptPrice[0].toString(),
                             usd: promptPrice[1].toString(),
                         },
-                        promptBuyer: [],
+                        promptBuyer: listBoughts,
                         addressCollection: nft.addressCollection,
-                        promptAllower: [],
+                        promptAllower: listAllower,
                         attributes: nft.attributes,
                     };
                 }
@@ -99,6 +101,9 @@ export class NftController {
         const mappingPrice = listInfoNft.map(async (nft) => {
             const price: Array<BN> = await getTokenPrice(nft.addressCollection, String(nft.id))
             const promptPrice: Array<BN> = await getPromptPrice(nft.addressCollection, String(nft.id))
+            const listAllower = await queryListAllower(nft.addressCollection, nft.id);
+            const listBoughts = await queryPromptBuyerByTokenAndAddress(nft.addressCollection, nft.id);
+
             return {
                 id: nft.id,
                 name: nft.name,
@@ -119,9 +124,9 @@ export class NftController {
                     avax: promptPrice[0].toString(),
                     usd: promptPrice[1].toString(),
                 },
-                promptBuyer: [],
+                promptBuyer: listBoughts,
                 addressCollection: nft.addressCollection,
-                promptAllower: [],
+                promptAllower: listAllower,
                 attributes: nft.attributes,
             };
         })
@@ -133,7 +138,7 @@ export class NftController {
     async createNft(@Body() createNft: CreateNftDto, @Headers('Authorization') accessToken: string): Promise<Nft> {
         const user = await verifyAccessToken(accessToken);
         const wallet = await fetchWalletByAddress(user.email);
-        const addressOwner: string = await ownerOf(createNft.id);
+        const addressOwner: string = await ownerOf(createNft.id, createNft.addressCollection);
         if (addressOwner !== wallet.data.address) {
             throw new BadRequestException(`You are not owner of this nft`);
         }
@@ -141,27 +146,28 @@ export class NftController {
         if (existedNft) {
             throw new BadRequestException(`Nft already exists`);
         }
-        await this.dataService.createData(createNft.id, createNft.addressCollection, createNft.meta);
+        await this.dataService.createData(createNft.id, createNft.addressCollection.toLowerCase(), createNft.meta);
 
         return await this.nftService.createNft(
             createNft.id,
             createNft.name,
             createNft.description,
             createNft.image,
-            createNft.addressCollection,
+            createNft.addressCollection.toLowerCase(),
         );
     }
 
     // Data Service
 
     @Get("/data/:id/collection/:addressCollection")
-    async getDataById(@Param("id") id: number, @Param("addressCollection") addressCollection: string, @Headers('Authorization') accessToken: string) {
-        const nft = await this.nftService.findNftByIdAndAddressCollection(id, addressCollection);
-        const data = await this.dataService.findDataById(id);
+    async getDataById(@Param("id") id: number, @Param("addressCollection") addressCollectionRaw: string, @Headers('Authorization') accessToken: string) {
+        const addressCollection = addressCollectionRaw.toLowerCase();
+        const nft = await this.nftService.findNftByIdAndAddressCollection(id, addressCollection.toLowerCase());
+        const data = await this.dataService.findDataByIdAndAddressCollection(id, addressCollection.toLowerCase());
         if (!data) {
             throw new BadRequestException(`Data does not exist`);
         }
-        const promptPrice: Array<BN> = await getPromptPrice(nft.addressCollection, String(nft.id))
+        const promptPrice: Array<BN> = await getPromptPrice(nft.addressCollection.toLowerCase(), String(nft.id))
         if (promptPrice[0].toString() === "0") {
             return {
                 id: data.id,
@@ -174,7 +180,7 @@ export class NftController {
         if (!wallet) {
             throw new BadRequestException(`Wallet does not exist`);
         }
-        const listBoughts = await queryListBoughts(nft.addressCollection, nft.id);
+        const listBoughts = await queryListAllower(nft.addressCollection, nft.id);
         // check wallet.data.address in listBoughts
         if (listBoughts.find(bought => bought != wallet.data.address)) {
             throw new BadRequestException(`You are not the owner of this data`);
@@ -187,8 +193,9 @@ export class NftController {
     }
 
     @Get("/post/:id/collection/:addressCollection")
-    async getPostByNftId(@Param("id") id: number, @Param("addressCollection") addressCollection: string) {
-        const addressOwner: string = await ownerOf(id);
+    async getPostByNftId(@Param("id") id: number, @Param("addressCollection") addressCollectionRaw: string) {
+        const addressCollection = addressCollectionRaw.toLowerCase();
+        const addressOwner: string = await ownerOf(id, addressCollection);
         const wallet = await fetchWalletByAddress(addressOwner);
         const user = await this.userService.findUserByEmail(wallet.data.owner);
         const post = await this.postService.findPostByOwnerId(user.id);
@@ -196,12 +203,13 @@ export class NftController {
     }
 
     @Get(":id/collection/:addressCollection")
-    async getNftById(@Param("id") id: number, @Param("addressCollection") addressCollection: string) {
+    async getNftById(@Param("id") id: number, @Param("addressCollection") addressCollectionRaw: string) {
+        const addressCollection = addressCollectionRaw.toLowerCase();
         const nfts = await this.nftService.findNftByIdAndAddressCollection(id, addressCollection);
         if (!nfts) {
             throw new BadRequestException(`Nft does not exist`);
         }
-        const addressOwner: string = await ownerOf(id);
+        const addressOwner: string = await ownerOf(id, addressCollection);
         const wallet = await fetchWalletByAddress(addressOwner);
         if (!wallet) {
             throw new BadRequestException(`Wallet does not exist`);
@@ -209,6 +217,9 @@ export class NftController {
         const price: Array<BN> = await getTokenPrice(nfts.addressCollection, String(nfts.id))
         const promptPrice: Array<BN> = await getPromptPrice(nfts.addressCollection, String(nfts.id))
         const ownerInfo = await this.userService.findUserByEmail(wallet.data.owner);
+        const listAllower = await queryListAllower(nfts.addressCollection, nfts.id);
+        const listBoughts = await queryPromptBuyerByTokenAndAddress(nfts.addressCollection, nfts.id);
+
         return {
             id: nfts.id,
             name: nfts.name,
@@ -224,9 +235,9 @@ export class NftController {
                 avax: promptPrice[0].toString(),
                 usd: promptPrice[1].toString(),
             },
-            promptBuyer: [],
+            promptBuyer: listBoughts,
             addressCollection: nfts.addressCollection,
-            promptAllower: [],
+            promptAllower: listAllower,
             attributes: nfts.attributes,
         };
 

@@ -16,28 +16,22 @@ import { Data, User } from "src/schemas";
 //   import { getCurrentPromptBuyer, getCurrentPromptPrice } from "src/utils/blockchain";
 import { verifyAccessToken } from "src/auth/google.verifier";
 import BN from "bn.js"
-import { fetchWalletByAddress, getPromptPrice, getTokenPrice, ownerOf, queryListBoughts } from "src/api";
+import { fetchWalletByAddress, getPromptPrice, getTokenPrice, ownerOf, queryListAllower, queryNFTsByAddress, queryPromptAllowerByTokenAndAddress } from "src/api";
+import { NftCollection } from "src/types";
 
 @Controller("api/v1/data")
 export class DataController {
     constructor(private readonly dataService: DataService, private readonly nftService: NftService) { }
-    @Post()
-    async createData(@Body() createData: CreateDataDto): Promise<Data> {
-        const existedData = await this.dataService.findDataById(createData.id);
-        if (existedData) {
-            throw new BadRequestException("Data already exists");
-        }
-        return this.dataService.createData(createData.id, createData.addressCollection, createData.meta);
-    }
 
-    @Get(":id")
-    async getDataById(@Param("id") id: number, @Headers('Authorization') accessToken: string): Promise<Data> {
+    @Get(":id/collection/:addressCollection")
+    async getDataById(@Param("id") id: number, @Param("addressCollection") addressCollectionRaw: string, @Headers('Authorization') accessToken: string): Promise<Data> {
+        const addressCollection = addressCollectionRaw.toLowerCase();
         const user = await verifyAccessToken(accessToken);
         const wallet = await fetchWalletByAddress(user.email);
         if (!wallet) {
             throw new NotFoundException(`Can not find wallet with ${user.email}`);
         }
-        const data = await this.dataService.findDataById(id);
+        const data = await this.dataService.findDataByIdAndAddressCollection(id, addressCollection);
         if (!data) {
             throw new NotFoundException(`Can not find data with ${id}`);
         }
@@ -50,13 +44,27 @@ export class DataController {
         if (promptPrice[0].toString() === "0") {
             return data;
         }
-        const listBoughts = await queryListBoughts(nft.addressCollection, nft.id);
-        // check wallet.data.address in listBoughts
+        const listBoughts = await queryListAllower(nft.addressCollection, nft.id);
+
         if (listBoughts.find(bought => bought != wallet.data.address)) {
             throw new BadRequestException(`You are not the owner of this data`);
         }
         return data;
     }
+
+    @Get("/owner")
+    async getOwnerById(@Headers('Authorization') accessToken: string) {
+        const user = await verifyAccessToken(accessToken);
+        const wallet = await fetchWalletByAddress(user.email);
+        if (!wallet) {
+            throw new NotFoundException(`Can not find wallet with ${user.email}`);
+        }
+
+        const listData = await queryPromptAllowerByTokenAndAddress(wallet.data.address);
+        const listDataInfo = await this.dataService.findDataByListIdAndCollection(listData.map(data => ({ id: data.tokenId, addressCollection: data.contract })));
+        return listDataInfo;
+    }
+
 
 
 }

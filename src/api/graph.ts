@@ -1,9 +1,9 @@
 import { BadRequestException } from "@nestjs/common";
 import { GaxiosResponse, request } from "gaxios";
 import * as dotenv from "dotenv";
-import { ResponseNftTokenId, QueryResponseBought, ItemBought, PromptBought } from "src/types";
-import { queryNftsByAddress, queryAllNfts, queryPromptBoughts, } from "./queryGraph";
-
+import { ResponseNftTokenId, QueryResponseBought, ExportNftCollection, ResponseListNftAndCollection, ResponseListPromptByAddress } from "src/types";
+import { queryNftsByAddress, queryAllNfts, queryPromptBoughts, queryPromptAllowsByAddress, queryAllCollectionByAddress } from "./queryGraph";
+import { Transfer } from "src/types/response.type";
 
 dotenv.config();
 
@@ -21,11 +21,17 @@ export async function queryNFTsByAddress(address: string, collection: string): P
             },
         });
         const data = response.data;
-        const tokenIdArray = data.data.transfers.map((transfer) => Number(transfer.tokenId));
+        const minusResult: Transfer[] =
+            data.data.transfersTo && data.data.transfersFrom
+                ? data.data.transfersTo.filter(
+                    (transferTo: Transfer) => !data.data.transfersFrom.some((transferFrom: Transfer) => transferFrom.tokenId === transferTo.tokenId)
+                )
+                : [];
+        const tokenIdArray = minusResult.map((transfer) => Number(transfer.tokenId));
         return tokenIdArray;
     } catch (err) {
         console.log('Error fetching data: ', err);
-        throw new BadRequestException('Failed to fetch data from GraphQL API');
+        throw new BadRequestException('Failed to fetch data from GraphQL API, failed to queryNFTsByAddress');
     }
 }
 
@@ -49,11 +55,11 @@ export async function queryAllNFTs(): Promise<number[]> {
         return tokenIdArray;
     } catch (err) {
         console.log('Error fetching data: ', err);
-        throw new BadRequestException('Failed to fetch data from GraphQL API');
+        throw new BadRequestException('Failed to fetch data from GraphQL API, failed to queryAllNFTs');
     }
 }
 
-export async function queryListBoughts(addressCollection: string, tokenId: number): Promise<Array<string>> {
+export async function queryListAllower(addressCollection: string, tokenId: number): Promise<Array<string>> {
     try {
         const response: GaxiosResponse<any> = await request({
             url: process.env.THE_GRAPH_API_URL,
@@ -69,14 +75,119 @@ export async function queryListBoughts(addressCollection: string, tokenId: numbe
 
         const data: QueryResponseBought = response.data;
         // Extract token IDs from the response data
-        const promptBuyer = data.promptBoughts.map((prompt) => prompt.buyer);
-        const itemBuyer = data.itemBoughts.map((item) => item.buyer);
-        const transferBuyer = data.transfers.map((transfer) => transfer.to);
+        const promptBuyer = data.data.promptBoughts.map((prompt) => prompt.buyer);
+        const itemBuyer = data.data.itemBoughts.map((item) => item.buyer);
+        const transferBuyer = data.data.transfers.map((transfer) => transfer.to);
 
         // filter duplicate
         return [...promptBuyer, ...itemBuyer, ...transferBuyer];
     } catch (err) {
         console.log('Error fetching data: ', err);
+        throw new BadRequestException('Failed to fetch data from GraphQL API, failed to queryPromptAllowerByTokenAndAddress');
+    }
+}
+
+
+export async function queryPromptBuyerByTokenAndAddress(addressCollection: string, tokenId: number): Promise<Array<string>> {
+    try {
+        const response: GaxiosResponse<any> = await request({
+            url: process.env.THE_GRAPH_API_URL,
+            method: 'POST',
+            data: {
+                query: queryPromptBoughts,
+                variables: {
+                    tokenId: tokenId.toString(),
+                    address: addressCollection,
+                },
+            },
+        });
+
+        const data: QueryResponseBought = response.data;
+        // Extract token IDs from the response data
+        const promptBuyer = data.data.promptBoughts.map((prompt) => prompt.buyer);
+
+        // filter duplicate
+        return [...promptBuyer];
+    } catch (err) {
+        console.log('Error fetching data: ', err);
+        throw new BadRequestException('Failed to fetch data from GraphQL API, failed to queryPromptBuyerByTokenAndAddress');
+    }
+}
+
+export async function queryAllNFTsByAddressAndCollection(address: string): Promise<Array<ExportNftCollection>> {
+    try {
+        const response: GaxiosResponse<ResponseListNftAndCollection> = await request({
+            url: process.env.THE_GRAPH_API_URL,
+            method: 'POST',
+            data: {
+                query: queryAllCollectionByAddress,
+                variables: {
+                    address: address,
+                },
+            },
+        });
+        const data = response.data;
+        const minusResult: Transfer[] =
+            data.data.transfersTo && data.data.transfersFrom
+                ? data.data.transfersTo.filter(
+                    (transferTo: Transfer) => !data.data.transfersFrom.some((transferFrom: Transfer) => transferFrom.tokenId.toLocaleLowerCase() === transferTo.tokenId.toLocaleLowerCase())
+                )
+                : [];
+
+        const final = minusResult.map((transfer) => {
+            return {
+                tokenId: Number(transfer.tokenId),
+                contract: transfer.contract,
+            }
+        });
+        return final;
+
+    }
+    catch (err) {
+        console.log('Error fetching data: ', err);
         throw new BadRequestException('Failed to fetch data from GraphQL API');
+    }
+}
+
+export async function queryPromptAllowerByTokenAndAddress(address: string): Promise<Array<ExportNftCollection>> {
+    try {
+        const response: GaxiosResponse<ResponseListPromptByAddress> = await request({
+            url: process.env.THE_GRAPH_API_URL,
+            method: 'POST',
+            data: {
+                query: queryPromptAllowsByAddress,
+                variables: {
+                    address: address,
+                },
+            },
+        });
+
+        const data: QueryResponseBought = response.data;
+
+        const promptBuyer = data.data.promptBoughts.map((prompt) => {
+            return {
+                tokenId: Number(prompt.tokenId),
+                contract: prompt.nftAddress,
+            }
+        });
+        const itemBuyer = data.data.itemBoughts.map((item) => {
+            return {
+                tokenId: Number(item.tokenId),
+                contract: item.nftAddress,
+            }
+        });
+        const transferBuyer = data.data.transfers.map((transfer) => {
+            return {
+                tokenId: Number(transfer.tokenId),
+                contract: transfer.contract,
+            }
+        });
+
+        // filter duplicate
+        return [...promptBuyer, ...itemBuyer, ...transferBuyer];
+
+    } catch (err) {
+        console.log('Error fetching data: ', err);
+        throw new BadRequestException('Failed to fetch data from GraphQL API, failed to queryPromptAllowerByTokenAndAddress');
     }
 }

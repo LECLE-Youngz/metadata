@@ -18,9 +18,9 @@ export const marketplace = async () => {
     return contract;
 };
 
-export const collection = async () => {
+export const collection = async (addressCollection: string) => {
     const contract = new ethers.Contract(
-        process.env.COLLECTION_ADDRESS,
+        addressCollection,
         collectionABI.abi as any,
         provider
     );
