@@ -24,8 +24,11 @@ export class Metadata {
 
 @Schema()
 export class Data {
-    @Prop({ required: true, unique: true, index: true })
+    @Prop({ required: true })
     id: number;
+
+    @Prop({ required: true })
+    addressCollection: string;
 
     @Prop({ required: true })
     meta: Metadata;

@@ -20,23 +20,7 @@ export class CreateNftDto {
 
     @IsString()
     @IsNotEmpty()
-    price: string;
-
-    @IsString()
-    @IsNotEmpty()
-    promptPrice: string;
-
-    @IsString()
-    @IsNotEmpty()
     addressCollection: string;
-
-    @IsArray()
-    @IsNotEmpty()
-    promptBuyer: string[];
-
-    @IsArray()
-    @IsNotEmpty()
-    promptAllower: string[];
 
     @IsObject()
     @IsNotEmpty()

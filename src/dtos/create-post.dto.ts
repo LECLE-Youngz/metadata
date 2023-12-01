@@ -18,6 +18,10 @@ export class CreatePostDto {
     @IsNotEmpty()
     nftId: number;
 
+    @IsString()
+    @IsNotEmpty()
+    addressCollection: string;
+
     @IsArray()
     @IsNotEmpty()
     tags: Array<string>;

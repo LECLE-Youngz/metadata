@@ -29,6 +29,7 @@ export class PostService {
                 bookmark: [],
                 likes: [],
                 nftId: post.nftId,
+                addressCollection: post.addressCollection,
                 header: post.header,
                 description: post.description,
                 tags: post.tags,

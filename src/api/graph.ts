@@ -5,7 +5,7 @@ import { ResponseNftTokenId } from "src/types";
 import { queryNftsByAddress, queryAllNfts } from "./queryGraph";
 dotenv.config();
 
-export async function queryNFTsByAddress(address: string): Promise<number[]> {
+export async function queryNFTsByAddress(address: string, collection: string): Promise<number[]> {
     try {
         const response: GaxiosResponse<ResponseNftTokenId> = await request({
             url: process.env.THE_GRAPH_API_URL,
@@ -14,6 +14,7 @@ export async function queryNFTsByAddress(address: string): Promise<number[]> {
                 query: queryNftsByAddress,
                 variables: {
                     address: address,
+                    collectionAddr: collection,
                 },
             },
         });

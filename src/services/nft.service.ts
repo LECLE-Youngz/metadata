@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 import { Attribute, Nft, NftDocument } from "src/schemas";
+import { NftCollection } from "src/types";
 
 @Injectable()
 export class NftService {
@@ -14,17 +15,14 @@ export class NftService {
         return this.nftModel.find();
     }
 
-    async findNftById(id: number): Promise<Nft> {
-        return this.nftModel.findOne({ id });
+    async findNftByIdAndAddressCollection(id: number, address: string): Promise<Nft> {
+        return this.nftModel.findOne({ id, addressCollection: address });
     }
 
-    async findNftsByListId(id: number[]): Promise<Array<Nft>> {
-        return this.nftModel.find({ id: { $in: id } });
+    async findNftsByListObjectIdWithCollection(nftCollection: Array<NftCollection>): Promise<Array<Nft>> {
+        return this.nftModel.find({ id: { $in: nftCollection.map(nft => nft.id) }, addressCollection: nftCollection.map(nft => nft.addressCollection) });
     }
 
-    async findNftsByOwnerId(ownerId: string): Promise<Array<Nft>> {
-        return this.nftModel.find({ ownerId });
-    }
 
     async createNft(
         id: number,
@@ -49,5 +47,9 @@ export class NftService {
 
     async createAttributes(nftId: string, attribute: Array<Attribute>) {
         return this.nftModel.updateOne({ nftId }, { attribute })
+    }
+
+    async getAllListCollection(): Promise<Array<String>> {
+        return this.nftModel.distinct("addressCollection");
     }
 }

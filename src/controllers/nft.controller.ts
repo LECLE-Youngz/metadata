@@ -7,6 +7,8 @@ import {
     Headers,
     BadRequestException,
 } from "@nestjs/common";
+import { NftCollection } from "src/types";
+
 import { CreateNftDto } from "src/dtos";
 import { DataService, NftService, PostService, UserService, WalletService } from "src/services";
 import { Nft } from "src/schemas";
@@ -80,9 +82,19 @@ export class NftController {
         if (!wallet) {
             return [];
         }
-        const listNft = (await queryNFTsByAddress(wallet.data.address))
+        const listCollection = await this.nftService.getAllListCollection();
 
-        const listInfoNft = await this.nftService.findNftsByListId(listNft);
+        const listNftCollection: NftCollection[] = await Promise.all(
+            listCollection.map(async (addressCollection: string) => {
+                const nfts = await queryNFTsByAddress(wallet.data.address, addressCollection);
+                return nfts.map((id) => ({
+                    id: id,
+                    addressCollection: addressCollection,
+                }));
+            })
+        ).then((nestedArrays) => nestedArrays.flat());
+
+        const listInfoNft = await this.nftService.findNftsByListObjectIdWithCollection(listNftCollection);
 
         const mappingPrice = listInfoNft.map(async (nft) => {
             const price: Array<BN> = await getTokenPrice(nft.addressCollection, String(nft.id))
@@ -125,11 +137,11 @@ export class NftController {
         if (addressOwner !== wallet.data.address) {
             throw new BadRequestException(`You are not owner of this nft`);
         }
-        const existedNft = await this.nftService.findNftById(createNft.id);
+        const existedNft = await this.nftService.findNftByIdAndAddressCollection(createNft.id, createNft.addressCollection);
         if (existedNft) {
             throw new BadRequestException(`Nft already exists`);
         }
-        await this.dataService.createData(createNft.id, createNft.meta);
+        await this.dataService.createData(createNft.id, createNft.addressCollection, createNft.meta);
 
         return await this.nftService.createNft(
             createNft.id,
@@ -142,9 +154,9 @@ export class NftController {
 
     // Data Service
 
-    @Get("/data/:id")
-    async getDataById(@Param("id") id: number, @Headers('Authorization') accessToken: string) {
-        const nft = await this.nftService.findNftById(id);
+    @Get("/data/:id/collection/:addressCollection")
+    async getDataById(@Param("id") id: number, @Param("addressCollection") addressCollection: string, @Headers('Authorization') accessToken: string) {
+        const nft = await this.nftService.findNftByIdAndAddressCollection(id, addressCollection);
         const data = await this.dataService.findDataById(id);
         if (!data) {
             throw new BadRequestException(`Data does not exist`);
@@ -166,18 +178,18 @@ export class NftController {
         };
     }
 
-    @Get("/post/:id")
-    async getPostByNftId(@Param("id") id: number) {
+    @Get("/post/:id/collection/:addressCollection")
+    async getPostByNftId(@Param("id") id: number, @Param("addressCollection") addressCollection: string) {
         const addressOwner: string = await ownerOf(id);
         const wallet = await fetchWalletByAddress(addressOwner);
         const user = await this.userService.findUserByEmail(wallet.data.owner);
         const post = await this.postService.findPostByOwnerId(user.id);
-        return post.filter((post) => post.nftId == id);
+        return post.filter((post) => post.nftId == id && post.addressCollection == addressCollection);
     }
 
-    @Get(":id")
-    async getNftById(@Param("id") id: number) {
-        const nfts = await this.nftService.findNftById(id);
+    @Get(":id/collection/:addressCollection")
+    async getNftById(@Param("id") id: number, @Param("addressCollection") addressCollection: string) {
+        const nfts = await this.nftService.findNftByIdAndAddressCollection(id, addressCollection);
         if (!nfts) {
             throw new BadRequestException(`Nft does not exist`);
         }

@@ -82,7 +82,7 @@ export class SocialController {
             const posts = await this.postService.findPostByOwnerId(user.id);
             const mapPost = await Promise.all(posts.map(async (post) => {
                 const comment = await this.commentService.findCommentByPostId(post.id);
-                const nft = await this.nftService.findNftById(post.nftId);
+                const nft = await this.nftService.findNftByIdAndAddressCollection(post.nftId, post.addressCollection);
                 const listOwnerComment = await Promise.all(comment.map(async (comment) => {
                     const ownerComment = await this.userService.findUserById(comment.ownerId);
                     const replyComment = await this.commentService.findReplyCommentByCommentId(comment.id);
@@ -141,7 +141,7 @@ export class SocialController {
             const posts = await this.postService.findPostByOwnerId(id);
             const mapPost = await Promise.all(posts.map(async (post) => {
                 const comment = await this.commentService.findCommentByPostId(post.id);
-                const nft = await this.nftService.findNftById(post.nftId);
+                const nft = await this.nftService.findNftByIdAndAddressCollection(post.nftId, post.addressCollection);
                 const ownerPost = await this.userService.findUserById(post.ownerId);
                 const listOwnerComment = await Promise.all(comment.map(async (comment) => {
                     const ownerComment = await this.userService.findUserById(comment.ownerId);
@@ -433,7 +433,7 @@ export class SocialController {
     async getSocialById(@Param("id") id: number) {
         const post = await this.postService.findPostById(id);
         const comment = await this.commentService.findCommentByPostId(post.id);
-        const nft = await this.nftService.findNftById(post.nftId);
+        const nft = await this.nftService.findNftByIdAndAddressCollection(post.nftId, post.addressCollection);
         const ownerPost = await this.userService.findUserById(post.ownerId);
         const listOwnerComment = await Promise.all(comment.map(async (comment) => {
             const ownerComment = await this.userService.findUserById(comment.ownerId);

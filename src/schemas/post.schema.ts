@@ -33,6 +33,9 @@ export class Post {
     @Prop({ required: true })
     nftId: number;
 
+    @Prop({ required: true })
+    addressCollection: string;
+
     @Prop({ default: [] })
     bookmark: Array<string>;
 

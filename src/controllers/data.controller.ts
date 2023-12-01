@@ -26,37 +26,9 @@ export class DataController {
         if (existedData) {
             throw new BadRequestException("Data already exists");
         }
-        return this.dataService.createData(createData.id, createData.meta);
+        return this.dataService.createData(createData.id, createData.addressCollection, createData.meta);
     }
-    @Get("/owner")
-    async getDataByOwnerId(@Headers('Authorization') accessToken: string) {
-        const User = await verifyAccessToken(accessToken);
-        const nfts = await this.nftService.findNftsByOwnerId(User.id);
-        const nftIds = nfts.map(nft => nft.id);
-        // TODO: Blockchain verification with User.address and nftIds
-        // return data mapping with nft
-        const data = await this.dataService.findDataByListId(nftIds);
-        const mappingData = nfts.map(async nft => {
-            const price: Array<BN> = await getTokenPrice(nft.addressCollection, String(nft.id));
-            const promptPrice: Array<BN> = await getPromptPrice(nft.addressCollection, String(nft.id));
-            return {
-                id: nft.id,
-                name: nft.name,
-                image: nft.image,
-                price: {
-                    avax: price[0].toString(),
-                    usd: price[1].toString(),
-                },
-                promptPrice: {
-                    avax: promptPrice[0].toString(),
-                    usd: promptPrice[1].toString(),
-                },
-                promptBuyer: [],
-                meta: data.find(d => d.id == nft.id).meta
-            }
-        });
-        return mappingData
-    }
+
     @Get(":id")
     async getDataById(@Param("id") id: number, @Headers('Authorization') accessToken: string): Promise<Data> {
         const user = await verifyAccessToken(accessToken);
@@ -69,7 +41,7 @@ export class DataController {
             throw new NotFoundException(`Can not find data with ${id}`);
         }
 
-        const nft = await this.nftService.findNftById(id);
+        const nft = await this.nftService.findNftByIdAndAddressCollection(id, data.addressCollection);
         if (!nft) {
             throw new NotFoundException(`Can not find nft with ${id}`);
         }
