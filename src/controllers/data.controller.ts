@@ -16,7 +16,8 @@ import { Data, User } from "src/schemas";
 //   import { getCurrentPromptBuyer, getCurrentPromptPrice } from "src/utils/blockchain";
 import { verifyAccessToken } from "src/auth/google.verifier";
 import BN from "bn.js"
-import { fetchWalletByAddress, getPromptPrice, getTokenPrice, ownerOf } from "src/api";
+import { fetchWalletByAddress, getPromptPrice, getTokenPrice, ownerOf, queryListBoughts } from "src/api";
+
 @Controller("api/v1/data")
 export class DataController {
     constructor(private readonly dataService: DataService, private readonly nftService: NftService) { }
@@ -49,11 +50,11 @@ export class DataController {
         if (promptPrice[0].toString() === "0") {
             return data;
         }
-        const addressOwner: string = await ownerOf(nft.id);
-        // if (addressOwner !== wallet.data.address) {
-        //     throw new BadRequestException(`You are not owner of this nft`);
-
-        // }
+        const listBoughts = await queryListBoughts(nft.addressCollection, nft.id);
+        // check wallet.data.address in listBoughts
+        if (listBoughts.find(bought => bought != wallet.data.address)) {
+            throw new BadRequestException(`You are not the owner of this data`);
+        }
         return data;
     }
 

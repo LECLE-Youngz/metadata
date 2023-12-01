@@ -13,7 +13,7 @@ import { CreateNftDto } from "src/dtos";
 import { DataService, NftService, PostService, UserService, WalletService } from "src/services";
 import { Nft } from "src/schemas";
 import { verifyAccessToken } from "src/auth/google.verifier";
-import { fetchWalletByAddress, getPromptPrice, getTokenPrice, ownerOf, queryAllNFTs, queryNFTsByAddress } from "src/api";
+import { fetchWalletByAddress, getPromptPrice, getTokenPrice, ownerOf, queryAllNFTs, queryNFTsByAddress, queryListBoughts } from "src/api";
 
 import * as dotenv from "dotenv";
 dotenv.config();
@@ -170,10 +170,18 @@ export class NftController {
         }
 
         const user = await verifyAccessToken(accessToken);
-        // check address wallet in nodes network
-        // check if user is owner of data in blockchain 
+        const wallet = await fetchWalletByAddress(user.email);
+        if (!wallet) {
+            throw new BadRequestException(`Wallet does not exist`);
+        }
+        const listBoughts = await queryListBoughts(nft.addressCollection, nft.id);
+        // check wallet.data.address in listBoughts
+        if (listBoughts.find(bought => bought != wallet.data.address)) {
+            throw new BadRequestException(`You are not the owner of this data`);
+        }
         return {
             id: data.id,
+            addressCollection: data.addressCollection,
             name: data.meta,
         };
     }

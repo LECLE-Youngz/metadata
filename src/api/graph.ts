@@ -1,8 +1,10 @@
 import { BadRequestException } from "@nestjs/common";
 import { GaxiosResponse, request } from "gaxios";
 import * as dotenv from "dotenv";
-import { ResponseNftTokenId } from "src/types";
-import { queryNftsByAddress, queryAllNfts } from "./queryGraph";
+import { ResponseNftTokenId, QueryResponseBought, ItemBought, PromptBought } from "src/types";
+import { queryNftsByAddress, queryAllNfts, queryPromptBoughts, } from "./queryGraph";
+
+
 dotenv.config();
 
 export async function queryNFTsByAddress(address: string, collection: string): Promise<number[]> {
@@ -51,26 +53,30 @@ export async function queryAllNFTs(): Promise<number[]> {
     }
 }
 
-// export async function queryListPromptAllower(tokenId: number): Promise<Array<string>> {
-//     try {
-//         const response: GaxiosResponse<any> = await request({
-//             url: process.env.THE_GRAPH_API_URL,
-//             method: 'POST',
-//             data: {
-//                 query: queryPromptAllower,
-//                 variables: {
-//                     tokenId: tokenId.toString(),
-//                 },
-//             },
-//         });
+export async function queryListBoughts(addressCollection: string, tokenId: number): Promise<Array<string>> {
+    try {
+        const response: GaxiosResponse<any> = await request({
+            url: process.env.THE_GRAPH_API_URL,
+            method: 'POST',
+            data: {
+                query: queryPromptBoughts,
+                variables: {
+                    tokenId: tokenId.toString(),
+                    address: addressCollection,
+                },
+            },
+        });
 
-//         const data = response.data;
-//         // Extract token IDs from the response data
-//         const promptAllower = data.data.promptBoughts.map((promptBought) => promptBought.buyer);
+        const data: QueryResponseBought = response.data;
+        // Extract token IDs from the response data
+        const promptBuyer = data.promptBoughts.map((prompt) => prompt.buyer);
+        const itemBuyer = data.itemBoughts.map((item) => item.buyer);
+        const transferBuyer = data.transfers.map((transfer) => transfer.to);
 
-//         return promptAllower;
-//     } catch (err) {
-//         console.log('Error fetching data: ', err);
-//         throw new BadRequestException('Failed to fetch data from GraphQL API');
-//     }
-// }
+        // filter duplicate
+        return [...promptBuyer, ...itemBuyer, ...transferBuyer];
+    } catch (err) {
+        console.log('Error fetching data: ', err);
+        throw new BadRequestException('Failed to fetch data from GraphQL API');
+    }
+}
