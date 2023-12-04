@@ -41,5 +41,8 @@ export class Post {
 
     @Prop({ default: [] })
     tags: Array<string>;
+
+    @Prop({ required: true })
+    exlusiveConent: boolean;
 }
 export const PostSchema = SchemaFactory.createForClass(Post);

@@ -119,6 +119,7 @@ export class SocialController {
                     text: post.text,
                     header: post.header,
                     description: post.description,
+                    exlusiveConent: post.exlusiveConent,
                     bookmark: post.bookmark,
                     likes: post.likes,
                     listComment: listOwnerComment,
@@ -167,6 +168,7 @@ export class SocialController {
                         timestamp: comment.timestamp,
                         listReplyComment: mapReplyCmt,
                         likes: comment.likes,
+
                         ownerComment: {
                             id: ownerComment.id,
                             name: ownerComment.name,
@@ -180,6 +182,7 @@ export class SocialController {
                     text: post.text,
                     header: post.header,
                     description: post.description,
+                    exlusiveConent: post.exlusiveConent,
                     bookmark: post.bookmark,
                     likes: post.likes,
                     listComment: listOwnerComment,
@@ -471,6 +474,7 @@ export class SocialController {
             postId: post.id,
             text: post.text,
             header: post.header,
+            exlusiveConent: post.exlusiveConent,
             description: post.description,
             bookmark: post.bookmark,
             likes: post.likes,

@@ -36,6 +36,7 @@ export class PostService {
                 text: post.text,
                 timestamp: new Date().getTime(),
                 edited: false,
+                exlusiveConent: post.exlusiveConent,
                 numberOfComments: 0
             });
     }
@@ -47,7 +48,8 @@ export class PostService {
             text: updatePostDto.text,
             tags: updatePostDto.tags,
             nftId: updatePostDto.nftId,
-            edited: true
+            edited: true,
+            exlusiveConent: updatePostDto.exlusiveConent,
         })
     }
 
