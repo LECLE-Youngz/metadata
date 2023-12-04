@@ -28,5 +28,5 @@ export class CreatePostDto {
 
     @IsBoolean()
     @IsNotEmpty()
-    exlusiveConent: boolean;
+    exClusiveContent: boolean;
 }

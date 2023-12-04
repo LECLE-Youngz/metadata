@@ -24,5 +24,5 @@ export class UpdatePostDto {
 
     @IsBoolean()
     @IsNotEmpty()
-    exlusiveConent: boolean;
+    exClusiveContent: boolean;
 }

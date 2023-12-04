@@ -45,11 +45,10 @@ export class DataController {
             return data;
         }
         const listBoughts = await queryListAllower(nft.addressCollection, nft.id);
-
-        if (listBoughts.find(bought => bought.toLocaleLowerCase() != wallet.data.address.toLowerCase())) {
-            throw new BadRequestException(`You are not the owner of this data`);
+        if (listBoughts.find(bought => bought.toLocaleLowerCase() == wallet.data.address.toLowerCase())) {
+            return data;
         }
-        return data;
+        throw new BadRequestException(`You must be a prompt buyer to view this data`);
     }
 
     @Get("/owner")
