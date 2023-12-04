@@ -52,4 +52,12 @@ export class NftService {
     async getAllListCollection(): Promise<Array<String>> {
         return this.nftModel.distinct("addressCollection");
     }
+
+    async getNftByAddressCollection(addressCollection: string): Promise<Array<number>> {
+        return this.nftModel.distinct("id", { addressCollection });
+    }
+
+    async getAllCollection(): Promise<Array<String>> {
+        return this.nftModel.distinct("addressCollection");
+    }
 }

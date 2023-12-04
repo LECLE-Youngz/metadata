@@ -202,6 +202,21 @@ export class NftController {
         return post.filter((post) => post.nftId == id && post.addressCollection == addressCollection);
     }
 
+    // Collection Service
+
+    @Get("/collection/:addressCollection")
+    async getNftsByCollection(@Param("addressCollection") addressCollectionRaw: string) {
+        const addressCollection = addressCollectionRaw.toLowerCase();
+        const listNftId = await this.nftService.getNftByAddressCollection(addressCollection);
+        return listNftId;
+    }
+
+    @Get("/collection")
+    async getAllCollection() {
+        const listCollection = await this.nftService.getAllCollection();
+        return listCollection;
+    }
+
     @Get(":id/collection/:addressCollection")
     async getNftById(@Param("id") id: number, @Param("addressCollection") addressCollectionRaw: string) {
         const addressCollection = addressCollectionRaw.toLowerCase();
