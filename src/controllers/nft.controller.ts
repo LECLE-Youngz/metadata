@@ -168,19 +168,24 @@ export class NftController {
         if (!wallet) {
             throw new BadRequestException(`Wallet does not exist`);
         }
-        // return Array<{id: Array<number> , addresscollectin: string}>
         const listNftId = await queryAllNFTsByAddressAndCollection(wallet.data.address);
-        // filter and combine list with same address collection
-        const listCollection = listNftId.reduce((acc, cur) => {
-            const index = acc.findIndex((item) => item.addressCollection === cur.contract);
-            if (index === -1) {
-                acc.push({ addressCollection: cur.contract, id: [cur.tokenId] });
+        const infoNft = await this.nftService.findNftsByListObjectIdWithCollection(listNftId.map(nft => ({ id: nft.tokenId, addressCollection: nft.contract })));
+
+        // combine list nft with same address collection with type Array<{Array<Nft>, addressCollection>
+        const listNftWithCollection = infoNft.reduce((acc, nft) => {
+            const existedCollection = acc.find((collection) => collection.addressCollection === nft.addressCollection);
+            if (existedCollection) {
+                existedCollection.nfts.push(nft);
             } else {
-                acc[index].id.push(cur.tokenId);
+                acc.push({
+                    addressCollection: nft.addressCollection,
+                    nfts: [nft],
+                });
             }
             return acc;
         }, []);
-        return listCollection;
+
+        return listNftWithCollection;
     }
 
     @Get("/owner/:id")
