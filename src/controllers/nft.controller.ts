@@ -175,11 +175,17 @@ export class NftController {
         const listNftWithCollection = infoNft.reduce((acc, nft) => {
             const existedCollection = acc.find((collection) => collection.addressCollection === nft.addressCollection);
             if (existedCollection) {
-                existedCollection.nfts.push(nft);
+                existedCollection.nfts.push({
+                    id: nft.id,
+                    image: nft.image,
+                });
             } else {
                 acc.push({
                     addressCollection: nft.addressCollection,
-                    nfts: [nft],
+                    nfts: [{
+                        id: nft.id,
+                        image: nft.image,
+                    }],
                 });
             }
             return acc;
