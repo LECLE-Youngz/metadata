@@ -2,7 +2,8 @@
 import { ethers, JsonRpcProvider } from "ethers";
 import marketplaceABI from "src/configs/Marketplace.sol/NftMarketplace.json";
 import collectionABI from "src/configs/NexthypeNFT.sol/NEXTHYPE.json";
-import factoryABI from "src/configs/GenerativeNFT.sol/GenerativeNFT.json";
+import factoryABI from "src/configs/GenerativeNFTFactory.sol/GenerativeNFTFactory.json";
+import generativeABI from "src/configs/GenerativeNFT.sol/GenerativeNFT.json";
 import * as dotenv from "dotenv";
 dotenv.config();
 
@@ -38,3 +39,8 @@ export const factory = async () => {
     return contract;
 }
 
+export const generative = async (address) => {
+    const contract = new ethers.Contract(address, generativeABI.abi, provider);
+
+    return contract;
+};

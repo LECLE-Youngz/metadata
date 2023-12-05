@@ -13,7 +13,7 @@ import { CreateNftDto } from "src/dtos";
 import { DataService, NftService, PostService, UserService, WalletService } from "src/services";
 import { Nft } from "src/schemas";
 import { verifyAccessToken } from "src/auth/google.verifier";
-import { fetchWalletByAddress, getPromptPrice, getTokenPrice, ownerOf, queryAllNFTs, queryNFTsByAddress, queryListAllower, queryPromptBuyerByTokenAndAddress, queryAllNFTsByAddressAndCollection, queryAllCollectionFactory } from "src/api";
+import { fetchWalletByAddress, getPromptPrice, getTokenPrice, ownerOf, queryAllNFTs, queryNFTsByAddress, queryListAllower, queryPromptBuyerByTokenAndAddress, queryAllNFTsByAddressAndCollection, queryAllCollectionFactory, ownerCollection } from "src/api";
 
 import * as dotenv from "dotenv";
 dotenv.config();
@@ -172,8 +172,12 @@ export class NftController {
         const infoNft = await this.nftService.findNftsByListObjectIdWithCollection(listNftId.map(nft => ({ id: nft.tokenId, addressCollection: nft.contract })));
 
         // combine list nft with same address collection with type Array<{Array<Nft>, addressCollection>
-        const listNftWithCollection = infoNft.reduce((acc, nft) => {
+        const listNftWithCollection = await infoNft.reduce(async (accPromise, nft) => {
+            const acc = await accPromise;
+            const owner = await ownerCollection(nft.addressCollection);
+
             const existedCollection = acc.find((collection) => collection.addressCollection === nft.addressCollection);
+
             if (existedCollection) {
                 existedCollection.nfts.push({
                     id: nft.id,
@@ -186,10 +190,13 @@ export class NftController {
                         id: nft.id,
                         image: nft.image,
                     }],
+                    owner: owner,
                 });
             }
+
             return acc;
-        }, []);
+        }, Promise.resolve([]));
+
 
         return listNftWithCollection;
     }
