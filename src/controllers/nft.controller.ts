@@ -159,10 +159,7 @@ export class NftController {
 
     @Get("/collection")
     async getAllCollection() {
-        const listCollection = await queryAllCollectionFactory();
-        const nextHypeCollection = process.env.COLLECTION_ADDRESS.toLowerCase();
-        const listCollectionWithNextHype = listCollection.concat(nextHypeCollection);
-        return listCollectionWithNextHype;
+        return await queryAllCollectionFactory();
     }
     @Get("/owner/collection")
     async getMyCollection(@Headers('Authorization') accessToken: string) {
