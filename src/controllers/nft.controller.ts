@@ -13,12 +13,13 @@ import { CreateNftDto } from "src/dtos";
 import { DataService, NftService, PostService, UserService, WalletService } from "src/services";
 import { Nft } from "src/schemas";
 import { verifyAccessToken } from "src/auth/google.verifier";
-import { fetchWalletByAddress, getPromptPrice, getTokenPrice, ownerOf, queryAllNFTs, queryNFTsByAddress, queryListAllower, queryPromptBuyerByTokenAndAddress } from "src/api";
+import { fetchWalletByAddress, getPromptPrice, getTokenPrice, ownerOf, queryAllNFTs, queryNFTsByAddress, queryListAllower, queryPromptBuyerByTokenAndAddress, queryAllNFTsByAddressAndCollection } from "src/api";
 
 import * as dotenv from "dotenv";
 dotenv.config();
 
 import BN from "bn.js"
+import { queryAllCollectionByAddress } from "src/api/queryGraph";
 
 @Controller("api/v1/nfts")
 export class NftController {
@@ -77,62 +78,7 @@ export class NftController {
 
 
 
-    @Get("/owner/:id")
-    async getNftsByOwnerId(@Param("id") id: string): Promise<any> {
-        const user = await this.userService.findUserById(id);
-        const wallet = await fetchWalletByAddress(user.email);
-        if (!wallet) {
-            return [];
-        }
-        const listCollection = await this.nftService.getAllListCollection();
 
-        const listNftCollection: NftCollection[] = await Promise.all(
-            listCollection.map(async (addressCollection: string) => {
-                const nfts = await queryNFTsByAddress(wallet.data.address, addressCollection);
-                return nfts.map((id) => ({
-                    id: id,
-                    addressCollection: addressCollection,
-                }));
-            })
-        ).then((nestedArrays) => nestedArrays.flat());
-
-        const listInfoNft = await this.nftService.findNftsByListObjectIdWithCollection(listNftCollection);
-
-        const mappingPrice = listInfoNft.map(async (nft) => {
-            const price: Array<BN> = await getTokenPrice(nft.addressCollection, String(nft.id))
-            const promptPrice: Array<BN> = await getPromptPrice(nft.addressCollection, String(nft.id))
-            const listAllower = await queryListAllower(nft.addressCollection, nft.id);
-            const listBoughts = await queryPromptBuyerByTokenAndAddress(nft.addressCollection, nft.id);
-
-            return {
-                id: nft.id,
-                name: nft.name,
-                description: nft.description,
-                image: nft.image,
-                price: {
-                    avax: price[0].toString(),
-                    usd: price[1].toString(),
-                },
-                owner: {
-                    id: user.id,
-                    name: user.name,
-                    email: user.email,
-                    picture: user.picture,
-                    address: user.email,
-                },
-                promptPrice: {
-                    avax: promptPrice[0].toString(),
-                    usd: promptPrice[1].toString(),
-                },
-                promptBuyer: listBoughts,
-                addressCollection: nft.addressCollection,
-                promptAllower: listAllower,
-                attributes: nft.attributes,
-            };
-        })
-
-        return mappingPrice
-    }
 
     @Post()
     async createNft(@Body() createNft: CreateNftDto, @Headers('Authorization') accessToken: string): Promise<Nft> {
@@ -215,6 +161,84 @@ export class NftController {
     async getAllCollection() {
         const listCollection = await this.nftService.getAllCollection();
         return listCollection;
+    }
+    @Get("/owner/collection")
+    async getMyCollection(@Headers('Authorization') accessToken: string) {
+        const user = await verifyAccessToken(accessToken);
+        const wallet = await fetchWalletByAddress(user.email);
+        if (!wallet) {
+            throw new BadRequestException(`Wallet does not exist`);
+        }
+        // return Array<{id: Array<number> , addresscollectin: string}>
+        const listNftId = await queryAllNFTsByAddressAndCollection(wallet.data.address);
+        // filter and combine list with same address collection
+        const listCollection = listNftId.reduce((acc, cur) => {
+            const index = acc.findIndex((item) => item.addressCollection === cur.contract);
+            if (index === -1) {
+                acc.push({ addressCollection: cur.contract, id: [cur.tokenId] });
+            } else {
+                acc[index].id.push(cur.tokenId);
+            }
+            return acc;
+        }, []);
+        return listCollection;
+    }
+
+    @Get("/owner/:id")
+    async getNftsByOwnerId(@Param("id") id: string): Promise<any> {
+        const user = await this.userService.findUserById(id);
+        const wallet = await fetchWalletByAddress(user.email);
+        if (!wallet) {
+            return [];
+        }
+        const listCollection = await this.nftService.getAllListCollection();
+
+        const listNftCollection: NftCollection[] = await Promise.all(
+            listCollection.map(async (addressCollection: string) => {
+                const nfts = await queryNFTsByAddress(wallet.data.address, addressCollection);
+                return nfts.map((id) => ({
+                    id: id,
+                    addressCollection: addressCollection,
+                }));
+            })
+        ).then((nestedArrays) => nestedArrays.flat());
+
+        const listInfoNft = await this.nftService.findNftsByListObjectIdWithCollection(listNftCollection);
+
+        const mappingPrice = listInfoNft.map(async (nft) => {
+            const price: Array<BN> = await getTokenPrice(nft.addressCollection, String(nft.id))
+            const promptPrice: Array<BN> = await getPromptPrice(nft.addressCollection, String(nft.id))
+            const listAllower = await queryListAllower(nft.addressCollection, nft.id);
+            const listBoughts = await queryPromptBuyerByTokenAndAddress(nft.addressCollection, nft.id);
+
+            return {
+                id: nft.id,
+                name: nft.name,
+                description: nft.description,
+                image: nft.image,
+                price: {
+                    avax: price[0].toString(),
+                    usd: price[1].toString(),
+                },
+                owner: {
+                    id: user.id,
+                    name: user.name,
+                    email: user.email,
+                    picture: user.picture,
+                    address: user.email,
+                },
+                promptPrice: {
+                    avax: promptPrice[0].toString(),
+                    usd: promptPrice[1].toString(),
+                },
+                promptBuyer: listBoughts,
+                addressCollection: nft.addressCollection,
+                promptAllower: listAllower,
+                attributes: nft.attributes,
+            };
+        })
+
+        return mappingPrice
     }
 
     @Get(":id/collection/:addressCollection")
