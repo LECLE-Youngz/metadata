@@ -13,7 +13,7 @@ import { CreateNftDto } from "src/dtos";
 import { DataService, NftService, PostService, UserService, WalletService } from "src/services";
 import { Nft } from "src/schemas";
 import { verifyAccessToken } from "src/auth/google.verifier";
-import { fetchWalletByAddress, getPromptPrice, getTokenPrice, ownerOf, queryAllNFTs, queryNFTsByAddress, queryListAllower, queryPromptBuyerByTokenAndAddress, queryAllNFTsByAddressAndCollection } from "src/api";
+import { fetchWalletByAddress, getPromptPrice, getTokenPrice, ownerOf, queryAllNFTs, queryNFTsByAddress, queryListAllower, queryPromptBuyerByTokenAndAddress, queryAllNFTsByAddressAndCollection, queryAllCollectionFactory } from "src/api";
 
 import * as dotenv from "dotenv";
 dotenv.config();
@@ -159,8 +159,10 @@ export class NftController {
 
     @Get("/collection")
     async getAllCollection() {
-        const listCollection = await this.nftService.getAllCollection();
-        return listCollection;
+        const listCollection = await queryAllCollectionFactory();
+        const nextHypeCollection = process.env.COLLECTION_ADDRESS.toLowerCase();
+        const listCollectionWithNextHype = listCollection.concat(nextHypeCollection);
+        return listCollectionWithNextHype;
     }
     @Get("/owner/collection")
     async getMyCollection(@Headers('Authorization') accessToken: string) {

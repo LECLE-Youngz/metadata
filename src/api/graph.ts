@@ -2,8 +2,8 @@ import { BadRequestException } from "@nestjs/common";
 import { GaxiosResponse, request } from "gaxios";
 import * as dotenv from "dotenv";
 import { ResponseNftTokenId, QueryResponseBought, ExportNftCollection, ResponseListNftAndCollection, ResponseListPromptByAddress } from "src/types";
-import { queryNftsByAddress, queryAllNfts, queryPromptBoughts, queryPromptAllowsByAddress, queryAllCollectionByAddress } from "./queryGraph";
-import { Transfer } from "src/types/response.type";
+import { queryNftsByAddress, queryAllNfts, queryPromptBoughts, queryPromptAllowsByAddress, queryAllCollectionByAddress, queryAllCollection } from "./queryGraph";
+import { ResponseListCollection, Transfer } from "src/types/response.type";
 
 dotenv.config();
 
@@ -189,5 +189,27 @@ export async function queryPromptAllowerByTokenAndAddress(address: string): Prom
     } catch (err) {
         console.log('Error fetching data: ', err);
         throw new BadRequestException('Failed to fetch data from GraphQL API, failed to queryPromptAllowerByTokenAndAddress');
+    }
+}
+
+export async function queryAllCollectionFactory(): Promise<Array<string>> {
+    try {
+        const response: GaxiosResponse<any> = await request({
+            url: process.env.THE_GRAPH_API_URL,
+            method: 'POST',
+            data: {
+                query: queryAllCollection,
+                variables: {},
+            },
+        });
+
+        const data: ResponseListCollection = response.data;
+        // Extract token IDs from the response data
+        const collectionArray = data.data.erc721TokenCreateds.map((collection) => collection.tokenAddress);
+        return collectionArray;
+
+    } catch (err) {
+        console.log('Error fetching data: ', err);
+        throw new BadRequestException('Failed to fetch data from GraphQL API, failed to queryAllCollection');
     }
 }

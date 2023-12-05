@@ -73,3 +73,11 @@ export type ExportNftCollection = {
     tokenId: number;
     contract: string;
 }
+
+export type ResponseListCollection = {
+    data: {
+        erc721TokenCreateds: {
+            tokenAddress: string;
+        }[]
+    }
+}

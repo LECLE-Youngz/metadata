@@ -83,3 +83,11 @@ query getPromptBoughts($address: String) {
   }
   }
 `;
+
+export const queryAllCollection = `
+query getAllCollection {
+    erc721TokenCreateds {
+        tokenAddress
+    }
+  }
+`;
