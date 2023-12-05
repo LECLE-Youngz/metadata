@@ -23,6 +23,10 @@ export class NftService {
         return this.nftModel.find({ id: { $in: nftCollection.map(nft => nft.id) }, addressCollection: nftCollection.map(nft => nft.addressCollection) });
     }
 
+    async findListNftIdByAddressCollection(addressCollection: string): Promise<Array<number>> {
+        return this.nftModel.distinct("id", { addressCollection });
+    }
+
 
     async createNft(
         id: number,

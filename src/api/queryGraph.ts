@@ -112,3 +112,10 @@ query getAllCollectionByDeployer($address: String) {
 }
 `
 
+export const queryDeplpoyerByCollection = `
+query getDeployerByCollection($address: String) {
+    erc721TokenCreateds(where: {tokenAddress: $address}) {
+        owner
+    }
+}
+`

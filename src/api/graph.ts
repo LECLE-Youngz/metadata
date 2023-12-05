@@ -2,8 +2,8 @@ import { BadRequestException } from "@nestjs/common";
 import { GaxiosResponse, request } from "gaxios";
 import * as dotenv from "dotenv";
 import { ResponseNftTokenId, QueryResponseBought, ExportNftCollection, ResponseListNftAndCollection, ResponseListPromptByAddress } from "src/types";
-import { queryNftsByAddress, queryAllNfts, queryPromptBoughts, queryPromptAllowsByAddress, queryAllCollectionByDeployer, queryAllCollectionByAddress, queryAllCollection } from "./queryGraph";
-import { ExportCollectionAndOwner, ResponseListCollection, ResponseListCollectionAndOwner, Transfer } from "src/types/response.type";
+import { queryNftsByAddress, queryAllNfts, queryPromptBoughts, queryPromptAllowsByAddress, queryAllCollectionByDeployer, queryAllCollectionByAddress, queryAllCollection, queryDeplpoyerByCollection } from "./queryGraph";
+import { ExportCollectionAndOwner, ExportOwner, ResponseListCollection, ResponseListCollectionAndOwner, ResponseOwner, Transfer } from "src/types/response.type";
 
 dotenv.config();
 
@@ -237,5 +237,26 @@ export async function queryAllCollectionByDeployerAPI(address: string): Promise<
     } catch (err) {
         console.log('Error fetching data: ', err);
         throw new BadRequestException('Failed to fetch data from GraphQL API, failed to queryAllCollectionByDeployerAPI');
+    }
+}
+
+export async function queryAllCollectionByAddressAPI(address: string): Promise<string> {
+    try {
+        const response: GaxiosResponse<any> = await request({
+            url: process.env.THE_GRAPH_API_URL,
+            method: 'POST',
+            data: {
+                query: queryDeplpoyerByCollection,
+                variables: {
+                    address: address,
+                },
+            },
+        });
+        const data: ResponseOwner = response.data;
+        return data.data.erc721TokenCreateds[0].owner;
+
+    } catch (err) {
+        console.log('Error fetching data: ', err);
+        throw new BadRequestException('Failed to fetch data from GraphQL API, failed to queryAllCollectionByAddressAPI');
     }
 }

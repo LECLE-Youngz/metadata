@@ -86,11 +86,22 @@ export type ResponseListCollectionAndOwner = {
         erc721TokenCreateds: {
             tokenAddress: string;
         }[],
-        owner: string;
     }
 }
 
 export type ExportCollectionAndOwner = {
     tokenAddress: string;
     owner: string;
+}
+
+export type ExportOwner = {
+    owner: string;
+}
+
+export type ResponseOwner = {
+    data: {
+        erc721TokenCreateds: [{
+            owner: string;
+        }]
+    }
 }
