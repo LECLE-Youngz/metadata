@@ -91,3 +91,24 @@ query getAllCollection {
     }
   }
 `;
+
+// get list tokenId and address deployer by address collection
+
+export const queryDeployerByCollection = ` 
+query getDeployerByCollection($address: String) {
+    erc721TokenCreateds(where: {tokenAddress: $address}) {
+        owner
+    }
+}
+`
+
+// get all collection by deployer
+export const queryAllCollectionByDeployer = `
+query getAllCollectionByDeployer($address: String) {
+    erc721TokenCreateds(where: {owner: $address}) {
+        tokenAddress
+        owner
+    }
+}
+`
+

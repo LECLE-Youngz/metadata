@@ -49,20 +49,14 @@ export class UserController {
   @Get(":id")
   async getUserById(@Param("id") id: string) {
     try {
-      const user = await this.userService.findUserById(id);
+      const user = await this.userService.findUserById(id) ?? await this.userService.findUserByEmail(id);
       const socialUser = await this.socialUserService.findSocialUserById(user.id);
       const wallet = await fetchWalletByAddress(user.email);
       if (!wallet) {
         return [];
       }
-
-
-
       // Mapping the data
       const listNftCollectionByAddress = await queryAllNFTsByAddressAndCollection(wallet.data.address) ?? []
-
-
-
       const mappingPrice = listNftCollectionByAddress.map(async (nft) => {
         const price: Array<BN> = await getTokenPrice(nft.contract, String(nft.tokenId))
         const promptPrice: Array<BN> = await getPromptPrice(nft.contract, String(nft.tokenId))

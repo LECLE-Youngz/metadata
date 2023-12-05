@@ -13,7 +13,7 @@ import { CreateNftDto } from "src/dtos";
 import { DataService, NftService, PostService, UserService, WalletService } from "src/services";
 import { Nft } from "src/schemas";
 import { verifyAccessToken } from "src/auth/google.verifier";
-import { fetchWalletByAddress, getPromptPrice, getTokenPrice, ownerOf, queryAllNFTs, queryNFTsByAddress, queryListAllower, queryPromptBuyerByTokenAndAddress, queryAllNFTsByAddressAndCollection, queryAllCollectionFactory, ownerCollection } from "src/api";
+import { fetchWalletByAddress, getPromptPrice, getTokenPrice, ownerOf, queryAllNFTs, queryNFTsByAddress, queryListAllower, queryPromptBuyerByTokenAndAddress, queryAllNFTsByAddressAndCollection, queryAllCollectionFactory, ownerCollection, queryAllCollectionByDeployerAPI } from "src/api";
 
 import * as dotenv from "dotenv";
 dotenv.config();
@@ -151,23 +151,13 @@ export class NftController {
     // Collection Service
 
     @Get("/collection/:addressCollection")
-    async getNftsByCollection(@Param("addressCollection") addressCollectionRaw: string) {
-        const addressCollection = addressCollectionRaw.toLowerCase();
-        const listNftId = await this.nftService.getNftByAddressCollection(addressCollection);
-        return listNftId;
-    }
-
-    @Get("/collection")
-    async getAllCollection() {
-        return await queryAllCollectionFactory();
-    }
-    @Get("/owner/collection")
-    async getMyCollection(@Headers('Authorization') accessToken: string) {
+    async getNftsByCollection(@Param("addressCollection") addressCollectionRaw: string, @Headers('Authorization') accessToken: string) {
         const user = await verifyAccessToken(accessToken);
         const wallet = await fetchWalletByAddress(user.email);
         if (!wallet) {
             throw new BadRequestException(`Wallet does not exist`);
         }
+        const addressCollection = addressCollectionRaw.toLowerCase();
         const listNftId = await queryAllNFTsByAddressAndCollection(wallet.data.address);
         const infoNft = await this.nftService.findNftsByListObjectIdWithCollection(listNftId.map(nft => ({ id: nft.tokenId, addressCollection: nft.contract })));
 
@@ -175,6 +165,7 @@ export class NftController {
         const listNftWithCollection = await infoNft.reduce(async (accPromise, nft) => {
             const acc = await accPromise;
             const owner = await ownerCollection(nft.addressCollection);
+
 
             const existedCollection = acc.find((collection) => collection.addressCollection === nft.addressCollection);
 
@@ -199,6 +190,22 @@ export class NftController {
 
 
         return listNftWithCollection;
+        return listNftId;
+    }
+
+    @Get("/collection")
+    async getAllCollection() {
+        return await queryAllCollectionFactory();
+    }
+    @Get("/owner/collection")
+    async getMyCollection(@Headers('Authorization') accessToken: string) {
+        const user = await verifyAccessToken(accessToken);
+        const wallet = await fetchWalletByAddress(user.email);
+        if (!wallet) {
+            throw new BadRequestException(`Wallet does not exist`);
+        }
+        const listNftId = await queryAllCollectionByDeployerAPI(wallet.data.address);
+        return listNftId;
     }
 
     @Get("/owner/:id")

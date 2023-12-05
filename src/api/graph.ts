@@ -2,8 +2,8 @@ import { BadRequestException } from "@nestjs/common";
 import { GaxiosResponse, request } from "gaxios";
 import * as dotenv from "dotenv";
 import { ResponseNftTokenId, QueryResponseBought, ExportNftCollection, ResponseListNftAndCollection, ResponseListPromptByAddress } from "src/types";
-import { queryNftsByAddress, queryAllNfts, queryPromptBoughts, queryPromptAllowsByAddress, queryAllCollectionByAddress, queryAllCollection } from "./queryGraph";
-import { ResponseListCollection, Transfer } from "src/types/response.type";
+import { queryNftsByAddress, queryAllNfts, queryPromptBoughts, queryPromptAllowsByAddress, queryAllCollectionByDeployer, queryAllCollectionByAddress, queryAllCollection } from "./queryGraph";
+import { ExportCollectionAndOwner, ResponseListCollection, ResponseListCollectionAndOwner, Transfer } from "src/types/response.type";
 
 dotenv.config();
 
@@ -211,5 +211,31 @@ export async function queryAllCollectionFactory(): Promise<Array<string>> {
     } catch (err) {
         console.log('Error fetching data: ', err);
         throw new BadRequestException('Failed to fetch data from GraphQL API, failed to queryAllCollection');
+    }
+}
+
+export async function queryAllCollectionByDeployerAPI(address: string): Promise<Array<string>> {
+    try {
+        const response: GaxiosResponse<any> = await request({
+            url: process.env.THE_GRAPH_API_URL,
+            method: 'POST',
+            data: {
+                query: queryAllCollectionByDeployer,
+                variables: {
+                    address: address,
+                },
+            },
+        });
+
+        const data: ResponseListCollectionAndOwner = response.data;
+
+        const collectionArray = data.data.erc721TokenCreateds.map((collection) => {
+            return collection.tokenAddress
+        });
+        return collectionArray;
+
+    } catch (err) {
+        console.log('Error fetching data: ', err);
+        throw new BadRequestException('Failed to fetch data from GraphQL API, failed to queryAllCollectionByDeployerAPI');
     }
 }
