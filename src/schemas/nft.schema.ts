@@ -10,7 +10,7 @@ export class Attribute {
 
 @Schema()
 export class Nft {
-    @Prop({ required: true, unique: true, index: true, sparse: true })
+    @Prop({ required: true, index: true })
     id: number;
 
     @Prop({ required: true })

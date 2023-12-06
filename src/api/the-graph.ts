@@ -2,8 +2,8 @@ import { BadRequestException } from "@nestjs/common";
 import { GaxiosResponse, request } from "gaxios";
 import * as dotenv from "dotenv";
 import { ResponseNftTokenId, QueryResponseBought, ExportNftCollection, ResponseListNftAndCollection, ResponseListPromptByAddress } from "src/types";
-import { queryNftsByAddress, queryAllNfts, queryPromptBoughts, queryPromptAllowsByAddress, queryAllCollectionByDeployer, queryAllCollectionByAddress, queryAllCollection, queryDeplpoyerByCollection } from "./queryGraph";
-import { ExportCollectionAndOwner, ExportOwner, ResponseListCollection, ResponseListCollectionAndOwner, ResponseOwner, Transfer } from "src/types/response.type";
+import { getAllSubscriber, getAllSubscribing, queryNftsByAddress, queryAllNfts, queryPromptBoughts, queryPromptAllowsByAddress, queryAllCollectionByDeployer, queryAllCollectionByAddress, queryAllCollection, queryDeplpoyerByCollection } from "./queryGraph";
+import { ResponseListCollection, ResponseListCollectionAndOwner, ResponseOwner, Transfer, ResponseListSubscriber, ResponseListSubscribing, ExportSubscribing } from "src/types/response.type";
 
 dotenv.config();
 
@@ -258,5 +258,55 @@ export async function queryAllCollectionByAddressAPI(address: string): Promise<s
     } catch (err) {
         console.log('Error fetching data: ', err);
         throw new BadRequestException('Failed to fetch data from GraphQL API, failed to queryAllCollectionByAddressAPI');
+    }
+}
+
+export async function querySubscriberAPI(address: string): Promise<Array<string>> {
+    try {
+        const response: GaxiosResponse<any> = await request({
+            url: process.env.THE_GRAPH_API_URL,
+            method: 'POST',
+            data: {
+                query: getAllSubscriber,
+                variables: {
+                    address: address,
+                },
+            },
+        });
+        const data: ResponseListSubscriber = response.data;
+        const subscriberArray = data.data.premiumMemberSubscribeds.map((subscriber) => {
+            return subscriber.subscriber;
+        });
+        return subscriberArray;
+
+    } catch (err) {
+        console.log('Error fetching data: ', err);
+        throw new BadRequestException('Failed to fetch data from GraphQL API');
+    }
+}
+export async function querySubscribingAPI(address: string): Promise<Array<ExportSubscribing>> {
+    try {
+        const response: GaxiosResponse<any> = await request({
+            url: process.env.THE_GRAPH_API_URL,
+            method: 'POST',
+            data: {
+                query: getAllSubscribing,
+                variables: {
+                    address: address,
+                },
+            },
+        });
+        const data: ResponseListSubscribing = response.data;
+        const subscribingArray = data.data.premiumNFTTransfers.map((subscribing) => {
+            return {
+                contract: subscribing.contract,
+                tokenId: subscribing.tokenId,
+            }
+        });
+        return subscribingArray;
+
+    } catch (err) {
+        console.log('Error fetching data: ', err);
+        throw new BadRequestException('Failed to fetch data from GraphQL API');
     }
 }

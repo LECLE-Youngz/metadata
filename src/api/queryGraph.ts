@@ -119,3 +119,20 @@ query getDeployerByCollection($address: String) {
     }
 }
 `
+
+
+export const getAllSubscriber = `
+query getAllSubscriber($creatorAddr: String) {
+  premiumMemberSubscribeds(where: {creator: $creatorAddr}) {
+    subscriber
+  }
+}
+`
+export const getAllSubscribing = `
+query getAllSubscribing($userAddr: String) {
+  premiumNFTTransfers(where: {to: userAddr}) {
+    contract
+    tokenId
+  }
+}
+`

@@ -105,3 +105,27 @@ export type ResponseOwner = {
         }]
     }
 }
+// subscriber and subscribing
+
+export type ResponseListSubscriber = {
+    data: {
+        premiumMemberSubscribeds: {
+            subscriber: string;
+        }[]
+    }
+}
+
+export type ResponseListSubscribing = {
+    data: {
+        premiumNFTTransfers: {
+            contract: string;
+            tokenId: string;
+        }[]
+    }
+}
+
+export type ExportSubscribing = {
+    contract: string;
+    tokenId: string;
+}
+
