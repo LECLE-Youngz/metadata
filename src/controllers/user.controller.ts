@@ -11,7 +11,7 @@ import { UserService, SocialUserService, NftService } from "src/services";
 import { ResponseWallet } from "src/types";
 
 import { NftCollection } from "src/types";
-import { queryNFTsByAddress, queryPromptBuyerByTokenAndAddress, queryListAllower, queryAllNFTsByAddressAndCollection } from "src/api/the-graph";
+import { queryNFTsByAddress, queryPromptBuyerByTokenAndAddress, queryListAllower, queryAllNFTsByAddressAndCollection, querySubscriberAPI, querySubscribingAPI } from "src/api/the-graph";
 import BN from "bn.js"
 
 import { getTokenPrice, getPromptPrice } from "src/api";
@@ -91,7 +91,8 @@ export class UserController {
       })
       // filter nft with wallet.data.address is owner
 
-
+      const listSubscribing = await querySubscribingAPI(wallet.data.address) ?? [];
+      const listSubscriber = await querySubscriberAPI(wallet.data.address) ?? [];
       const mappedData = {
         id: user.id,
         name: user.name,
@@ -102,8 +103,8 @@ export class UserController {
         socialUser: {
           following: socialUser.following || [],
           followers: socialUser.follower || [],
-          subscribers: [],
-          subscribing: [],
+          subscribers: listSubscriber || [],
+          subscribing: listSubscribing || [],
           bookmarks: socialUser?.bookmarks || [],
           numNFTSold: socialUser.numSold || 0,
           numNFTPurchased: socialUser.numPurchased || 0,

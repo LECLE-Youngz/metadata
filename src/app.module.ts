@@ -15,9 +15,7 @@ import {
   Post,
   PostSchema,
   SocialUser,
-  SocialUserSchema,
-  Wallet,
-  WalletSchema,
+  SocialUserSchema
 } from "./schemas";
 import configuration from "src/configs/configuration";
 
@@ -42,7 +40,6 @@ import configuration from "src/configs/configuration";
       { name: Comment.name, schema: CommentSchema },
       { name: Post.name, schema: PostSchema },
       { name: SocialUser.name, schema: SocialUserSchema },
-      { name: Wallet.name, schema: WalletSchema },
     ]),
     ConfigModule
   ],

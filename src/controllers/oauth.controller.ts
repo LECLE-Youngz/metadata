@@ -4,11 +4,9 @@ import {
 } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { OAuth2Client } from "google-auth-library";
-import { GetTokenResponse } from "google-auth-library/build/src/auth/oauth2client";
-import { SocialUserService, UserService, WalletService } from "src/services";
-import { SocialUser, User } from "src/schemas";
+import { SocialUserService, UserService } from "src/services";
+import { User } from "src/schemas";
 import { verifyAccessToken } from "src/auth/google.verifier";
-import { request as gaxios } from 'gaxios';
 
 @Controller("api/v1/oauth")
 export class OauthController {

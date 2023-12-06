@@ -10,17 +10,15 @@ import {
 import { NftCollection } from "src/types";
 
 import { CreateNftDto } from "src/dtos";
-import { DataService, NftService, PostService, UserService, WalletService } from "src/services";
+import { DataService, NftService, PostService, UserService } from "src/services";
 import { Nft } from "src/schemas";
 import { verifyAccessToken } from "src/auth/google.verifier";
-import { fetchWalletByAddress, getPromptPrice, getTokenPrice, ownerOf, queryAllNFTs, queryNFTsByAddress, queryListAllower, queryPromptBuyerByTokenAndAddress, queryAllNFTsByAddressAndCollection, queryAllCollectionFactory, ownerCollection, queryAllCollectionByDeployerAPI, queryAllCollectionByAddressAPI } from "src/api";
+import { fetchWalletByAddress, getPromptPrice, getTokenPrice, ownerOf, querySubscribingAPI, querySubscriberAPI, queryNFTsByAddress, queryListAllower, queryPromptBuyerByTokenAndAddress, queryAllNFTsByAddressAndCollection, queryAllCollectionFactory, ownerCollection, queryAllCollectionByDeployerAPI, queryAllCollectionByAddressAPI } from "src/api";
 
 import * as dotenv from "dotenv";
 dotenv.config();
 
 import BN from "bn.js"
-import { queryAllCollectionByAddress } from "src/api/queryGraph";
-
 import Web3 from "web3";
 
 @Controller("api/v1/nfts")
