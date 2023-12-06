@@ -9,7 +9,7 @@ import { fetchWalletByAddress } from "src/api";
 
 import { UserService, SocialUserService, NftService } from "src/services";
 import { ResponseWallet } from "src/types";
-
+import Web3 from "web3";
 import { NftCollection } from "src/types";
 import { queryNFTsByAddress, queryPromptBuyerByTokenAndAddress, queryListAllower, queryAllNFTsByAddressAndCollection, querySubscriberAPI, querySubscribingAPI, getCreatorStatusAPI } from "src/api/the-graph";
 import BN from "bn.js"
@@ -95,6 +95,14 @@ export class UserController {
 
       const listSubscribing = await querySubscribingAPI(wallet.data.address) ?? [];
       const listSubscriber = await querySubscriberAPI(wallet.data.address) ?? [];
+      // transfer listsSubscriber to userId
+      const mappingSubscriber = Promise.all(
+        listSubscriber.map(async (subscriber) => {
+          const wallet = await fetchWalletByAddress(Web3.utils.toChecksumAddress(subscriber));
+          const user = await this.userService.findUserByEmail(wallet.data.owner);
+          return user.id;
+        })
+      );
       const mappedData = {
         id: user.id,
         name: user.name,
@@ -105,7 +113,7 @@ export class UserController {
         socialUser: {
           following: socialUser.following || [],
           followers: socialUser.follower || [],
-          subscribers: statusCreator ? listSubscriber : null,
+          subscribers: statusCreator ? await mappingSubscriber : null,
           subscribing: listSubscribing || [],
           bookmarks: socialUser?.bookmarks || [],
           numNFTSold: socialUser.numSold || 0,

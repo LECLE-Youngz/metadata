@@ -15,7 +15,7 @@ import { PostService, CommentService, SocialUserService, UserService, NftService
 
 import { verifyAccessToken } from "src/auth/google.verifier";
 import { CreateCommentDto, UpdatePostDto } from "src/dtos";
-import { fetchWalletByAddress, querySubscribingAPI } from "src/api";
+import { fetchWalletByAddress, querySubscriberAPI, querySubscribingAPI } from "src/api";
 import { queryDeployerByCollection } from "src/api/queryGraph";
 
 @Controller("api/v1/socials")
@@ -396,10 +396,14 @@ export class SocialController {
         if (!wallet.data.address) {
             throw new BadRequestException(`You don't have wallet in node api`);
         }
-        if (post.exclusiveContent === true && post.ownerId !== user.id) {
 
-            const listSubscribing = await querySubscribingAPI(wallet.data.address) ?? [];
-            if (!listSubscribing.includes({ tokenId: post.nftId.toString(), contract: post.addressCollection.toLowerCase() })) {
+        if (post.exclusiveContent === true && post.ownerId !== user.id) {
+            const walletOwnerPost = await fetchWalletByAddress(ownerPost.email);
+            if (!walletOwnerPost.data.address) {
+                throw new BadRequestException(`Owner don't have wallet in node api`);
+            }
+            const listSubscribers = await querySubscriberAPI(walletOwnerPost.data.address) ?? [];
+            if (listSubscribers.includes(wallet.data.address)) {
                 const listOwnerComment = await Promise.all(comment.map(async (comment) => {
                     const ownerComment = await this.userService.findUserById(comment.ownerId);
                     const replyComment = await this.commentService.findReplyCommentByCommentId(comment.id);
@@ -451,6 +455,10 @@ export class SocialController {
                         picture: ownerPost.picture,
                     }
                 }
+            }
+            else {
+                throw new BadRequestException(`You don't have permission`);
+
             }
         }
         const listOwnerComment = await Promise.all(comment.map(async (comment) => {
