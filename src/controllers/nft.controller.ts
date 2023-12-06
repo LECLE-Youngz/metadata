@@ -158,7 +158,19 @@ export class NftController {
 
     @Get("/collection")
     async getAllCollection() {
-        return await queryAllCollectionFactory();
+        const allCollection = await queryAllCollectionFactory();
+        // get Owner of collection and check info in database
+        const listCollection = await Promise.all(
+            allCollection.map(async (addressCollection: string) => {
+                const deployer = await queryAllCollectionByAddressAPI(addressCollection);
+                const addressCheckSum = await Web3.utils.toChecksumAddress(deployer)
+                const wallet = await fetchWalletByAddress(addressCheckSum);
+                if (wallet.data.address) {
+                    return addressCollection;
+                }
+            })
+        );
+        return listCollection.filter((collection) => collection != undefined);
     }
     @Get("/collection/:addressCollection")
     async getNftsByCollection(@Param("addressCollection") addressCollectionRaw: string) {
@@ -167,30 +179,32 @@ export class NftController {
         if (addressCollection === process.env.COLLECTION_ADDRESS) {
             throw new BadRequestException(`This is a next hype collection`);
         }
-        const listNftId = await this.nftService.findListNftIdByAddressCollection(addressCollection);
-        const listInfoNft = await this.nftService.findNftsByListObjectIdWithCollection(listNftId.map(id => ({ id, addressCollection })));
         const deployer = await queryAllCollectionByAddressAPI(addressCollection);
-        const addressCheckSum = Web3.utils.toChecksumAddress(deployer)
+        const addressCheckSum = await Web3.utils.toChecksumAddress(deployer)
         const wallet = await fetchWalletByAddress(addressCheckSum);
-        if (!wallet) {
-            throw new BadRequestException(`Wallet does not exist`);
+
+        const listNftId = await this.nftService.findListNftIdByAddressCollection(addressCollection) ?? [];
+        const listInfoNft = await this.nftService.findNftsByListObjectIdWithCollection(listNftId.map(id => ({ id, addressCollection }))) ?? [];
+
+        if (!wallet.data.address) {
+            throw new BadRequestException(`Wallet does not exist in Node`);
         }
         const userInfo = await this.userService.findUserByEmail(wallet.data.owner);
-
         return {
             user: {
-                id: userInfo.id,
-                name: userInfo.name,
-                email: userInfo.email,
-                picture: userInfo.picture,
+                id: userInfo.id ?? "",
+                name: userInfo.name ?? "",
+                email: userInfo.email ?? "",
+                picture: userInfo.picture ?? "",
                 address: deployer
             },
             nft: listInfoNft.map(nft => ({
                 id: nft.id,
                 image: nft.image,
-            })),
+            })) ?? [],
 
         }
+
     }
     @Get("/owner/collection")
     async getMyCollection(@Headers('Authorization') accessToken: string) {
