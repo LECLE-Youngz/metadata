@@ -136,3 +136,7 @@ query getAllSubscribing($userAddr: String) {
   }
 }
 `
+
+export const queryEnableCreator = `
+
+`
