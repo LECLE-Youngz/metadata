@@ -270,7 +270,7 @@ export async function querySubscriberAPI(address: string): Promise<Array<string>
             data: {
                 query: getAllSubscriber,
                 variables: {
-                    address: address,
+                    creatorAddr: address,
                 },
             },
         });
