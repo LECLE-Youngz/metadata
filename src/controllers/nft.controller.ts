@@ -158,19 +158,7 @@ export class NftController {
 
     @Get("/collection")
     async getAllCollection() {
-        const allCollection = await queryAllCollectionFactory();
-        // get Owner of collection and check info in database
-        const listCollection = await Promise.all(
-            allCollection.map(async (addressCollection: string) => {
-                const deployer = await queryAllCollectionByAddressAPI(addressCollection);
-                const addressCheckSum = await Web3.utils.toChecksumAddress(deployer)
-                const wallet = await fetchWalletByAddress(addressCheckSum);
-                if (wallet.data.address) {
-                    return addressCollection;
-                }
-            })
-        );
-        return listCollection.filter((collection) => collection != undefined);
+        return await queryAllCollectionFactory();
     }
     @Get("/collection/:addressCollection")
     async getNftsByCollection(@Param("addressCollection") addressCollectionRaw: string) {
