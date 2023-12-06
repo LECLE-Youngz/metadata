@@ -130,7 +130,7 @@ query getAllSubscriber($creatorAddr: String) {
 `
 export const getAllSubscribing = `
 query getAllSubscribing($userAddr: String) {
-  premiumNFTTransfers(where: {to: userAddr}) {
+  premiumNFTTransfers(where: {to: $userAddr}) {
     contract
     tokenId
   }

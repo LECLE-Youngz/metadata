@@ -5,6 +5,7 @@ import { ResponseNftTokenId, QueryResponseBought, ExportNftCollection, ResponseL
 import { getAllSubscriber, getAllSubscribing, queryNftsByAddress, queryAllNfts, queryPromptBoughts, queryPromptAllowsByAddress, queryAllCollectionByDeployer, queryAllCollectionByAddress, queryAllCollection, queryDeplpoyerByCollection } from "./queryGraph";
 import { ResponseListCollection, ResponseListCollectionAndOwner, ResponseOwner, Transfer, ResponseListSubscriber, ResponseListSubscribing, ExportSubscribing } from "src/types/response.type";
 
+import Web3 from "web3";
 dotenv.config();
 
 export async function queryNFTsByAddress(address: string, collection: string): Promise<number[]> {
@@ -281,7 +282,7 @@ export async function querySubscriberAPI(address: string): Promise<Array<string>
 
     } catch (err) {
         console.log('Error fetching data: ', err);
-        throw new BadRequestException('Failed to fetch data from GraphQL API');
+        throw new BadRequestException('Failed to fetch data from GraphQL API, failed to querySubscriberAPI');
     }
 }
 export async function querySubscribingAPI(address: string): Promise<Array<ExportSubscribing>> {
@@ -292,7 +293,7 @@ export async function querySubscribingAPI(address: string): Promise<Array<Export
             data: {
                 query: getAllSubscribing,
                 variables: {
-                    address: address,
+                    userAddr: Web3.utils.toChecksumAddress(address),
                 },
             },
         });
@@ -307,6 +308,6 @@ export async function querySubscribingAPI(address: string): Promise<Array<Export
 
     } catch (err) {
         console.log('Error fetching data: ', err);
-        throw new BadRequestException('Failed to fetch data from GraphQL API');
+        throw new BadRequestException('Failed to fetch data from GraphQL API, failed to querySubscribingAPI');
     }
 }

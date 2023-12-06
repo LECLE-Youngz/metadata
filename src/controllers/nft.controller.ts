@@ -175,11 +175,43 @@ export class NftController {
 
         const listNftId = await this.nftService.findListNftIdByAddressCollection(addressCollection) ?? [];
         const listInfoNft = await this.nftService.findNftsByListObjectIdWithCollection(listNftId.map(id => ({ id, addressCollection }))) ?? [];
-
         if (!wallet.data.address) {
             throw new BadRequestException(`Wallet does not exist in Node`);
         }
         const userInfo = await this.userService.findUserByEmail(wallet.data.owner);
+
+        const mappingPrice = await Promise.all(listInfoNft.map(async (nft) => {
+            const price: Array<BN> = await getTokenPrice(nft.addressCollection, String(nft.id))
+            const promptPrice: Array<BN> = await getPromptPrice(nft.addressCollection, String(nft.id))
+            const listAllower = await queryListAllower(nft.addressCollection, nft.id);
+            const listBoughts = await queryPromptBuyerByTokenAndAddress(nft.addressCollection, nft.id);
+            return {
+                id: nft.id,
+                name: nft.name,
+                description: nft.description,
+                image: nft.image,
+                price: {
+                    avax: price[0].toString(),
+                    usd: price[1].toString(),
+                },
+                owner: {
+                    id: userInfo.id,
+                    name: userInfo.name,
+                    email: userInfo.email,
+                    picture: userInfo.picture,
+                    address: wallet.data.address,
+                },
+                promptPrice: {
+                    avax: promptPrice[0].toString(),
+                    usd: promptPrice[1].toString(),
+                },
+                promptBuyer: listBoughts,
+                addressCollection: nft.addressCollection,
+                promptAllower: listAllower,
+                attributes: nft.attributes,
+            };
+        }));
+
         return {
             user: {
                 id: userInfo.id ?? "",
@@ -188,13 +220,8 @@ export class NftController {
                 picture: userInfo.picture ?? "",
                 address: deployer
             },
-            nft: listInfoNft.map(nft => ({
-                id: nft.id,
-                image: nft.image,
-            })) ?? [],
-
-        }
-
+            nft: mappingPrice,
+        };
     }
     @Get("/owner/collection")
     async getMyCollection(@Headers('Authorization') accessToken: string) {
