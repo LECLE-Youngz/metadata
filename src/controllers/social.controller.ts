@@ -403,7 +403,7 @@ export class SocialController {
                 throw new BadRequestException(`Owner don't have wallet in node api`);
             }
             const listSubscribers = await querySubscriberAPI(walletOwnerPost.data.address) ?? [];
-            if (listSubscribers.includes(wallet.data.address)) {
+            if (!listSubscribers.includes(wallet.data.address.toLowerCase())) {
                 const listOwnerComment = await Promise.all(comment.map(async (comment) => {
                     const ownerComment = await this.userService.findUserById(comment.ownerId);
                     const replyComment = await this.commentService.findReplyCommentByCommentId(comment.id);
@@ -456,10 +456,7 @@ export class SocialController {
                     }
                 }
             }
-            else {
-                throw new BadRequestException(`You don't have permission`);
 
-            }
         }
         const listOwnerComment = await Promise.all(comment.map(async (comment) => {
             const ownerComment = await this.userService.findUserById(comment.ownerId);
