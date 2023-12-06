@@ -13,7 +13,7 @@ import { CreateNftDto } from "src/dtos";
 import { DataService, NftService, PostService, UserService } from "src/services";
 import { Nft } from "src/schemas";
 import { verifyAccessToken } from "src/auth/google.verifier";
-import { fetchWalletByAddress, getPromptPrice, getTokenPrice, ownerOf, querySubscribingAPI, querySubscriberAPI, queryNFTsByAddress, queryListAllower, queryPromptBuyerByTokenAndAddress, queryAllNFTsByAddressAndCollection, queryAllCollectionFactory, ownerCollection, queryAllCollectionByDeployerAPI, queryAllCollectionByAddressAPI } from "src/api";
+import { fetchWalletByAddress, getPromptPrice, getTokenPrice, ownerOf, querySubscribingAPI, querySubscriberAPI, queryNFTsByAddress, queryListAllower, queryPromptBuyerByTokenAndAddress, queryAllNFTsByAddressAndCollection, queryAllCollectionFactory, ownerCollection, queryAllCollectionByDeployerAPI, queryAllCollectionByAddressAPI, getTokenAddressByUserAddress } from "src/api";
 
 import * as dotenv from "dotenv";
 dotenv.config();
@@ -289,6 +289,21 @@ export class NftController {
         })
 
         return mappingPrice
+    }
+
+    @Get("/premium/user/:id")
+    async getTokenAddress(@Param("id") id: string) {
+        try {
+            const user = await this.userService.findUserById(id);
+            const wallet = await fetchWalletByAddress(user.email);
+            if (!wallet.data.address) {
+                throw new BadRequestException(`Wallet does not exist`);
+            }
+            return await getTokenAddressByUserAddress(wallet.data.address);
+        }
+        catch (error) {
+            throw new BadRequestException(error.message);
+        }
     }
 
     @Get(":id/collection/:addressCollection")

@@ -334,3 +334,24 @@ export async function getCreatorStatusAPI(address: string): Promise<boolean> {
 
 }
 
+export async function getTokenAddressByUserAddress(address: string): Promise<string> {
+    try {
+        const response: GaxiosResponse<any> = await request({
+            url: process.env.THE_GRAPH_API_URL,
+            method: 'POST',
+            data: {
+                query: queryCreatorStatus,
+                variables: {
+                    address: address,
+                },
+            },
+        });
+        const data: ResponseCreatorStatus = response.data;
+        return data.data.premiumTokenCreateds[0]?.tokenAddress ?? "";
+    } catch (err) {
+        console.log('Error fetching data: ', err);
+        throw new BadRequestException('Failed to fetch data from GraphQL API');
+    }
+
+}
+
