@@ -129,3 +129,10 @@ export type ExportSubscribing = {
     tokenId: string;
 }
 
+export type ResponseCreatorStatus = {
+    data: {
+        premiumTokenCreateds: {
+            tokenAddress: string;
+        }[]
+    }
+}

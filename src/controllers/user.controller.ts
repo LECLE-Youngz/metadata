@@ -11,7 +11,7 @@ import { UserService, SocialUserService, NftService } from "src/services";
 import { ResponseWallet } from "src/types";
 
 import { NftCollection } from "src/types";
-import { queryNFTsByAddress, queryPromptBuyerByTokenAndAddress, queryListAllower, queryAllNFTsByAddressAndCollection, querySubscriberAPI, querySubscribingAPI } from "src/api/the-graph";
+import { queryNFTsByAddress, queryPromptBuyerByTokenAndAddress, queryListAllower, queryAllNFTsByAddressAndCollection, querySubscriberAPI, querySubscribingAPI, getCreatorStatusAPI } from "src/api/the-graph";
 import BN from "bn.js"
 
 import { getTokenPrice, getPromptPrice } from "src/api";
@@ -55,6 +55,8 @@ export class UserController {
       if (!wallet) {
         return [];
       }
+      const statusCreator = await getCreatorStatusAPI(wallet.data.address)
+
       // Mapping the data
       const listNftCollectionByAddress = await queryAllNFTsByAddressAndCollection(wallet.data.address) ?? []
       const mappingPrice = listNftCollectionByAddress.map(async (nft) => {
@@ -103,7 +105,7 @@ export class UserController {
         socialUser: {
           following: socialUser.following || [],
           followers: socialUser.follower || [],
-          subscribers: listSubscriber || [],
+          subscribers: statusCreator ? listSubscriber : null,
           subscribing: listSubscribing || [],
           bookmarks: socialUser?.bookmarks || [],
           numNFTSold: socialUser.numSold || 0,

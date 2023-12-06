@@ -137,6 +137,10 @@ query getAllSubscribing($userAddr: String) {
 }
 `
 
-export const queryEnableCreator = `
-
+export const queryCreatorStatus = `
+query getCreatorStatus($address: String) {
+  premiumTokenCreateds(where: {owner: $address}) {
+    tokenAddress
+  }
+}
 `
