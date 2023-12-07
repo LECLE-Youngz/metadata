@@ -7,7 +7,7 @@ import {
     Headers,
     BadRequestException,
 } from "@nestjs/common";
-import { NftCollection } from "src/types";
+import { ExportSubscribing, NftCollection } from "src/types";
 
 import { CreateNftDto } from "src/dtos";
 import { DataService, NftService, PostService, UserService } from "src/services";
@@ -289,6 +289,31 @@ export class NftController {
         })
 
         return mappingPrice
+    }
+
+    @Get("/subscribing")
+    async getSubscribingByListUserId(@Body() listUserId: Array<string>) {
+        try {
+            const results = await Promise.all(
+                listUserId.map(async (userId) => {
+                    const user = await this.userService.findUserById(userId);
+                    const wallet = await fetchWalletByAddress(user.email);
+
+                    if (wallet.data.address) {
+                        const listSubscribing: Array<ExportSubscribing> = await querySubscribingAPI(wallet.data.address);
+                        return {
+                            userId: userId,
+                            listSubscribing: listSubscribing,
+                        };
+                    }
+                })
+            );
+
+            return results;
+        } catch (error) {
+            console.error("Error in getSubscribingByListUserId:", error);
+            return { error: "Internal server error" };
+        }
     }
 
     @Get("/premium/user/:id")
