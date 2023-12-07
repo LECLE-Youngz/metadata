@@ -22,7 +22,7 @@ export class SocialUserService {
         return this.socialUserModel.create(
             {
                 id, bookMarks: [], following: [], follower: [],
-                numSold: 0, numPurchased: 0, numPromptSold: 0, numPromptPurchased: 0, listPurchasedByCreator: []
+                numSold: 0, numPurchased: 0, numPromptSold: 0, numPromptPurchased: 0, listPurchasedByCreator: { count: 0, address: [] }
             });
 
     }

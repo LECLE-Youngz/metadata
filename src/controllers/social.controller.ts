@@ -523,7 +523,10 @@ export class SocialController {
 
     @Put("/increase-nft/:creatorId")
     async increaseSoldAndPurchased(@Param("creatorId") creatorId: string, @Headers('Authorization') accessToken: string) {
+
         const userBuyer = await verifyAccessToken(accessToken);
+        // TODO: check blockchain
+
         await this.socialUserService.increaseNumSoldAndNumPurchase(userBuyer.id, creatorId);
         const socialUserBuyer = await this.socialUserService.findSocialById(userBuyer.id);
         const userCreator = await this.userService.findUserById(creatorId);
@@ -531,12 +534,10 @@ export class SocialController {
         if (!walletCreator.data.address) {
             throw new BadRequestException(`Creator don't have wallet in node api`);
         }
-        const index = socialUserBuyer.listPurchasedByCreator.find(
-            item => item.address.toLowerCase() === walletCreator.data.address.toLowerCase()
-        )
-        if (index.count === 0) {
+        const res = await this.socialUserService.increaseListPurchasedByCreator(userBuyer.id, creatorId);
+        if (res?.number === 5) {
             await this.mailerService.sendMail({
-                to: userCreator.email,
+                to: userBuyer.email,
                 subject: "You have 5 buyers",
                 text: "You have 5 buyers"
             })
@@ -558,7 +559,6 @@ export class SocialController {
 
     @Get("/creator/:addressCreator/buyer/:addressBuyer")
     async getNftsByCreatorAddress(@Param("addressCreator") addressCreator: string, @Param("addressBuyer") addressBuyer): Promise<any> {
-        // TODO: check blockchain
         const walletBuyer = await fetchWalletByAddress(addressBuyer);
         if (!walletBuyer.data.address) {
             throw new BadRequestException(`You don't have wallet in node api`);
