@@ -15,8 +15,8 @@ import { PostService, CommentService, SocialUserService, UserService, NftService
 
 import { verifyAccessToken } from "src/auth/google.verifier";
 import { CreateCommentDto, UpdatePostDto } from "src/dtos";
-import { fetchWalletByAddress, querySubscriberAPI, querySubscribingAPI } from "src/api";
-import { queryDeployerByCollection } from "src/api/queryGraph";
+import { fetchWalletByAddress, ownerOf, querySubscriberAPI, querySubscribingAPI } from "src/api";
+import { queryOwnerByIdNCollection } from "src/api/queryGraph";
 
 @Controller("api/v1/socials")
 export class SocialController {
@@ -59,14 +59,16 @@ export class SocialController {
             const user = await verifyAccessToken(accessToken);
             const wallet = await fetchWalletByAddress(user.email);
             if (!wallet.data.address) {
-                throw new BadRequestException(`You don't have permission`);
+                throw new BadRequestException(`You don't have wallet in node api`);
             }
             const address = wallet.data.address.toLowerCase();
 
 
-            // TODO: check nftId of user on blockchain
+            const ownerNft = await ownerOf(createPost.nftId, createPost.addressCollection);
 
-
+            if (ownerNft.toLowerCase() !== address) {
+                throw new BadRequestException(`You don't have this nft`);
+            }
             return await this.postService.createPost(user.id, createPost);
         } catch (err) {
             throw new BadRequestException(err.message);

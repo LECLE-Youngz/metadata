@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
-import { SocialUser, SocialUserDocument } from "src/schemas";
+import { Count, SocialUser, SocialUserDocument } from "src/schemas";
 import { PostService } from "./post.service";
 
 @Injectable()
@@ -20,10 +20,10 @@ export class SocialUserService {
         id: string, bookMarks: Array<number>,
         following: Array<string>,
         follower: Array<string>,
-        numSold: number,
-        numPurchased: number,
-        numPromptSold: number,
-        numPromptPurchased: number
+        numSold: Count,
+        numPurchased: Count,
+        numPromptSold: Count,
+        numPromptPurchased: Count
     ): Promise<SocialUser> {
         return this.socialUserModel.create(
             {

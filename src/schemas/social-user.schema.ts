@@ -3,6 +3,15 @@ import { Document } from "mongoose";
 
 export type SocialUserDocument = Document & SocialUser;
 
+export class AddressGroupCount {
+    address: string;
+    count: number;
+}
+
+export class Count {
+    total: number;
+    listCountByAddress: Array<AddressGroupCount>;
+}
 
 @Schema()
 export class SocialUser {
@@ -19,16 +28,16 @@ export class SocialUser {
     follower: Array<string>; // user Id
 
     @Prop({ required: true })
-    numSold: number;
+    numSold: Count;
 
     @Prop({ required: true })
-    numPurchased: number;
+    numPurchased: Count;
 
     @Prop({ required: true })
-    numPromptSold: number;
+    numPromptSold: Count;
 
     @Prop({ required: true })
-    numPromptPurchased: number;
+    numPromptPurchased: Count;
 }
 
 export const SocialUserSchema = SchemaFactory.createForClass(SocialUser);

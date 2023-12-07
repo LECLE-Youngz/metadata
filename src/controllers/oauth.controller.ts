@@ -37,7 +37,12 @@ export class OauthController {
 
             if (!existedUser) {
                 await this.userService.createUser(user);
-                const socialUser = await this.socialUserService.createSocialUser(user.id, [], [], [], 0, 0, 0, 0);
+                const socialUser = await this.socialUserService.createSocialUser(
+                    user.id, [], [], [],
+                    { total: 0, listCountByAddress: [] },
+                    { total: 0, listCountByAddress: [] },
+                    { total: 0, listCountByAddress: [] },
+                    { total: 0, listCountByAddress: [] });
                 return {
                     user: {
                         id: user.id,
@@ -72,7 +77,12 @@ export class OauthController {
                     await this.userService.updateUser(user);
 
                 if (!socialUser)
-                    await this.socialUserService.createSocialUser(user.id, [], [], [], 0, 0, 0, 0);
+                    await this.socialUserService.createSocialUser(
+                        user.id, [], [], [],
+                        { total: 0, listCountByAddress: [] },
+                        { total: 0, listCountByAddress: [] },
+                        { total: 0, listCountByAddress: [] },
+                        { total: 0, listCountByAddress: [] });
 
                 return {
                     user: {
