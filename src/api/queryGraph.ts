@@ -144,3 +144,10 @@ query getCreatorStatus($address: String) {
   }
 }
 `
+
+export const queryExclusiveNFTCreated = `
+query getExclusiveNFTCreated($address: String) {
+  exclusiveNFTCreateds(where: {owner: $address}) {
+    tokenAddress
+    }
+}`

@@ -2,7 +2,7 @@ import { BadRequestException } from "@nestjs/common";
 import { GaxiosResponse, request } from "gaxios";
 import * as dotenv from "dotenv";
 import { ResponseNftTokenId, QueryResponseBought, ExportNftCollection, ResponseListNftAndCollection, ResponseListPromptByAddress } from "src/types";
-import { getAllSubscriber, getAllSubscribing, queryNftsByAddress, queryCreatorStatus, queryAllNfts, queryPromptBoughts, queryPromptAllowsByAddress, queryAllCollectionByDeployer, queryAllCollectionByAddress, queryAllCollection, queryDeplpoyerByCollection } from "./queryGraph";
+import { getAllSubscriber, getAllSubscribing, queryNftsByAddress, queryCreatorStatus, queryAllNfts, queryPromptBoughts, queryPromptAllowsByAddress, queryAllCollectionByDeployer, queryAllCollectionByAddress, queryAllCollection, queryDeplpoyerByCollection, queryExclusiveNFTCreated } from "./queryGraph";
 import { ResponseListCollection, ResponseListCollectionAndOwner, ResponseOwner, Transfer, ResponseListSubscriber, ResponseListSubscribing, ExportSubscribing, ResponseCreatorStatus } from "src/types/response.type";
 
 import Web3 from "web3";
@@ -355,3 +355,23 @@ export async function getTokenAddressByUserAddress(address: string): Promise<str
 
 }
 
+export async function getExclusiveNFTCollection(address: string): Promise<string> {
+    try {
+        const response: GaxiosResponse<any> = await request({
+            url: process.env.THE_GRAPH_API_URL,
+            method: 'POST',
+            data: {
+                query: queryExclusiveNFTCreated,
+                variables: {
+                    address: address,
+                },
+            },
+        });
+        const data: ResponseCreatorStatus = response.data;
+        return data.data.premiumTokenCreateds[0]?.tokenAddress ?? "";
+    } catch (err) {
+        console.log('Error fetching data: ', err);
+        throw new BadRequestException('Failed to fetch data from GraphQL API');
+    }
+
+}

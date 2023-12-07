@@ -16,7 +16,7 @@ import { Data, User } from "src/schemas";
 //   import { getCurrentPromptBuyer, getCurrentPromptPrice } from "src/utils/blockchain";
 import { verifyAccessToken } from "src/auth/google.verifier";
 import BN from "bn.js"
-import { fetchWalletByAddress, getPromptPrice, getTokenPrice, ownerOf, queryListAllower, queryNFTsByAddress, queryPromptAllowerByTokenAndAddress, queryPromptBuyerByTokenAndAddress } from "src/api";
+import { fetchWalletByAddress, getPromptPrice, getTokenPrice, ownerOf, queryListAllower, queryNFTsByAddress, queryPromptAllowerByTokenAndAddress, queryPromptBuyerByTokenAndAddress, querySubscribingAPI } from "src/api";
 import { NftCollection } from "src/types";
 
 @Controller("api/v1/data")
@@ -45,6 +45,10 @@ export class DataController {
             return data;
         }
         const listBoughts = await queryListAllower(nft.addressCollection, nft.id);
+        const listTokenSub = await querySubscribingAPI(wallet.data.address);
+        if (listTokenSub.find(token => token.contract == nft.addressCollection && token.tokenId == String(nft.id))) {
+            return data;
+        }
         if (listBoughts.find(bought => bought.toLocaleLowerCase() == wallet.data.address.toLowerCase())) {
             return data;
         }

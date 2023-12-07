@@ -10,10 +10,10 @@ import {
 import { ExportSubscribing, NftCollection } from "src/types";
 
 import { CreateNftDto } from "src/dtos";
-import { DataService, NftService, PostService, UserService } from "src/services";
+import { DataService, ENftService, NftService, PostService, UserService } from "src/services";
 import { Nft } from "src/schemas";
 import { verifyAccessToken } from "src/auth/google.verifier";
-import { fetchWalletByAddress, getPromptPrice, getTokenPrice, ownerOf, querySubscribingAPI, querySubscriberAPI, queryNFTsByAddress, queryListAllower, queryPromptBuyerByTokenAndAddress, queryAllNFTsByAddressAndCollection, queryAllCollectionFactory, ownerCollection, queryAllCollectionByDeployerAPI, queryAllCollectionByAddressAPI, getTokenAddressByUserAddress } from "src/api";
+import { fetchWalletByAddress, getPromptPrice, getTokenPrice, ownerOf, querySubscribingAPI, querySubscriberAPI, queryNFTsByAddress, queryListAllower, queryPromptBuyerByTokenAndAddress, queryAllNFTsByAddressAndCollection, queryAllCollectionFactory, ownerCollection, queryAllCollectionByDeployerAPI, queryAllCollectionByAddressAPI, getTokenAddressByUserAddress, getExclusiveNFTCollection } from "src/api";
 
 import * as dotenv from "dotenv";
 dotenv.config();
@@ -27,7 +27,8 @@ export class NftController {
     constructor(private readonly nftService: NftService,
         private readonly userService: UserService,
         private readonly dataService: DataService,
-        private readonly postService: PostService
+        private readonly postService: PostService,
+        private readonly eNftService: ENftService,
     ) { }
 
 
@@ -93,15 +94,26 @@ export class NftController {
             if (existedNft) {
                 throw new BadRequestException(`Nft already exists`);
             }
-            await this.dataService.createData(createNft.id, createNft.addressCollection.toLowerCase(), createNft.meta);
+            if (!createNft.eNft) {
+                await this.dataService.createData(createNft.id, createNft.addressCollection.toLowerCase(), createNft.meta);
 
-            return await this.nftService.createNft(
-                createNft.id,
-                createNft.name,
-                createNft.description,
-                createNft.image,
-                createNft.addressCollection.toLowerCase(),
-            );
+                return await this.nftService.createNft(
+                    createNft.id,
+                    createNft.name,
+                    createNft.description,
+                    createNft.image,
+                    createNft.addressCollection.toLowerCase(),
+                );
+            } else {
+                return await this.eNftService.createENft(
+                    createNft.id,
+                    createNft.name,
+                    createNft.description,
+                    createNft.image,
+                    createNft.addressCollection.toLowerCase(),
+                    createNft.meta
+                );
+            }
         } catch (error) {
             throw new BadRequestException(error.message);
         }
@@ -325,6 +337,21 @@ export class NftController {
                 throw new BadRequestException(`Wallet does not exist`);
             }
             return await getTokenAddressByUserAddress(wallet.data.address);
+        }
+        catch (error) {
+            throw new BadRequestException(error.message);
+        }
+    }
+
+    @Get("/exclusive/user:id")
+    async getExclusiveByUserId(@Param("id") id: string) {
+        try {
+            const user = await this.userService.findUserById(id);
+            const wallet = await fetchWalletByAddress(user.email);
+            if (!wallet.data.address) {
+                throw new BadRequestException(`Wallet does not exist`);
+            }
+            return await getExclusiveNFTCollection(wallet.data.address);
         }
         catch (error) {
             throw new BadRequestException(error.message);

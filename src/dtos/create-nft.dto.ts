@@ -25,4 +25,8 @@ export class CreateNftDto {
     @IsObject()
     @IsNotEmpty()
     meta: Metadata;
+
+    @IsBoolean()
+    @IsNotEmpty()
+    eNft: boolean;
 }
