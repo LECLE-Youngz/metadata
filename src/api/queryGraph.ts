@@ -17,7 +17,7 @@ query getAllNFT {
 }`;
 
 export const queryPromptBoughts = `
-query getPromptBoughts($address: String, $tokenId: String, $userAddr: String) {
+query getPromptBoughts($address: String, $tokenId: String) {
     promptBoughts(where: {nftAddress: $address, tokenId: $tokenId}) {
         buyer
     }
@@ -25,9 +25,6 @@ query getPromptBoughts($address: String, $tokenId: String, $userAddr: String) {
         buyer
     }
     transfers(where: {from: "0x0000000000000000000000000000000000000000", contract: $address, tokenId: $tokenId}) {
-        to
-    }
-    promptNFTSubscribers(where: {from: $userAddr, contract: $address, tokenId: $tokenId}) {
         to
     }
   }
