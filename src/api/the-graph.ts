@@ -3,7 +3,7 @@ import { GaxiosResponse, request } from "gaxios";
 import * as dotenv from "dotenv";
 import { ResponseNftTokenId, QueryResponseBought, ExportNftCollection, ResponseListNftAndCollection, ResponseListPromptByAddress } from "src/types";
 import { getAllSubscriber, getAllSubscribing, queryNftsByAddress, queryCreatorStatus, queryAllNfts, queryPromptBoughts, queryPromptAllowsByAddress, queryAllCollectionByDeployer, queryAllCollectionByAddress, queryAllCollection, queryDeplpoyerByCollection, queryExclusiveNFTCreated } from "./queryGraph";
-import { ResponseListCollection, ResponseListCollectionAndOwner, ResponseOwner, Transfer, ResponseListSubscriber, ResponseListSubscribing, ExportSubscribing, ResponseCreatorStatus } from "src/types/response.type";
+import { ResponseListCollection, ResponseListCollectionAndOwner, ResponseOwner, Transfer, ResponseListSubscriber, ResponseListSubscribing, ExportSubscribing, ResponseCreatorStatus, ResponseExclusiveNFTCreateds } from "src/types/response.type";
 
 import Web3 from "web3";
 dotenv.config();
@@ -367,8 +367,8 @@ export async function getExclusiveNFTCollection(address: string): Promise<string
                 },
             },
         });
-        const data: ResponseCreatorStatus = response.data;
-        return data.data.premiumTokenCreateds[0]?.tokenAddress ?? "";
+        const data: ResponseExclusiveNFTCreateds = response.data;
+        return data.data.exclusiveNFTCreateds[0]?.tokenAddress ?? null;
     } catch (err) {
         console.log('Error fetching data: ', err);
         throw new BadRequestException('Failed to fetch data from GraphQL API');

@@ -136,3 +136,10 @@ export type ResponseCreatorStatus = {
         }[]
     }
 }
+export type ResponseExclusiveNFTCreateds = {
+    data: {
+        exclusiveNFTCreateds: {
+            tokenAddress: string;
+        }[]
+    }
+}
