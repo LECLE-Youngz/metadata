@@ -11,7 +11,7 @@ import {
 } from "@nestjs/common";
 import { CreatePostDto } from "src/dtos/create-post.dto";
 
-import { PostService, CommentService, SocialUserService, UserService, NftService } from "src/services";
+import { PostService, CommentService, SocialUserService, UserService, NftService, MailerService } from "src/services";
 
 import { verifyAccessToken } from "src/auth/google.verifier";
 import { CreateCommentDto, UpdatePostDto } from "src/dtos";
@@ -25,7 +25,8 @@ export class SocialController {
         private readonly commentService: CommentService,
         private readonly userService: UserService,
         private readonly nftService: NftService,
-        private readonly socialUserService: SocialUserService
+        private readonly socialUserService: SocialUserService,
+        private readonly mailerService: MailerService
     ) { }
 
     //post social
@@ -520,10 +521,11 @@ export class SocialController {
         return listPost.map(post => post.id);
     }
 
-    @Put("/increase-sold/:buyerId/increase-purchased/:creatorId")
-    async increaseSoldAndPurchased(@Param("buyerId") buyerId: string, @Param("creatorId") creatorId: string) {
-        await this.socialUserService.increaseNumSoldAndNumPurchase(buyerId, creatorId);
-        const socialUserBuyer = await this.socialUserService.findSocialById(buyerId);
+    @Put("/increase-nft/:creatorId")
+    async increaseSoldAndPurchased(@Param("creatorId") creatorId: string, @Headers('Authorization') accessToken: string) {
+        const userBuyer = await verifyAccessToken(accessToken);
+        await this.socialUserService.increaseNumSoldAndNumPurchase(userBuyer.id, creatorId);
+        const socialUserBuyer = await this.socialUserService.findSocialById(userBuyer.id);
         const userCreator = await this.userService.findUserById(creatorId);
         const walletCreator = await fetchWalletByAddress(userCreator.email);
         if (!walletCreator.data.address) {
@@ -532,17 +534,23 @@ export class SocialController {
         const index = socialUserBuyer.listPurchasedByCreator.find(
             item => item.address.toLowerCase() === walletCreator.data.address.toLowerCase()
         )
-        if (index.count === 5) {
-            // TODO: send email to buyer
+        if (index.count === 0) {
+            await this.mailerService.sendMail({
+                to: userCreator.email,
+                subject: "You have 5 buyers",
+                text: "You have 5 buyers"
+            })
         }
         return {
             status: "success"
         }
     }
 
-    @Put("/increase-prompt-sold/:buyerId/increase-prompt-purchased/:creatorId")
-    async increasePromptSoldAndPurchased(@Param("buyerId") buyerId: string, @Param("creatorId") creatorId: string) {
-        await this.socialUserService.increaseNumPromptSoldAndNumPromptPurchase(buyerId, creatorId);
+    @Put("/increase-prompt/:creatorId")
+    async increasePromptSoldAndPurchased(@Param("creatorId") creatorId: string, @Headers('Authorization') accessToken: string) {
+        // TODO: check blockchain
+        const userBuyer = await verifyAccessToken(accessToken);
+        await this.socialUserService.increaseNumPromptSoldAndNumPromptPurchase(userBuyer.id, creatorId);
         return {
             status: "success"
         }
@@ -550,6 +558,7 @@ export class SocialController {
 
     @Get("/creator/:addressCreator/buyer/:addressBuyer")
     async getNftsByCreatorAddress(@Param("addressCreator") addressCreator: string, @Param("addressBuyer") addressBuyer): Promise<any> {
+        // TODO: check blockchain
         const walletBuyer = await fetchWalletByAddress(addressBuyer);
         if (!walletBuyer.data.address) {
             throw new BadRequestException(`You don't have wallet in node api`);

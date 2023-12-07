@@ -32,7 +32,7 @@ export class MailerService {
         const { to, text, html, subject } = inputs;
         try {
             const res = await this.transporter.sendMail({
-                from: 'UIT wallet <no-reply@uit.com>',
+                from: 'Next hype <no-reply@lecle.com>',
                 to, subject,
                 ...html ? { html } : { text }
             });
