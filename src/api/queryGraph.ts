@@ -27,6 +27,9 @@ query getPromptBoughts($address: String, $tokenId: String, $userAddr: String) {
     transfers(where: {from: "0x0000000000000000000000000000000000000000", contract: $address, tokenId: $tokenId}) {
         to
     }
+    promptNFTSubscribers(where: {from: $userAddr, contract: $address, tokenId: $tokenId}) {
+        to
+    }
   }
 `;
 // Query all nft by collection address
