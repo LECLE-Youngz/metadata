@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
-import { Count, SocialUser, SocialUserDocument } from "src/schemas";
+import { AddressCount, SocialUser, SocialUserDocument } from "src/schemas";
 import { PostService } from "./post.service";
 
 @Injectable()
@@ -17,20 +17,14 @@ export class SocialUserService {
 
 
     async createSocialUser(
-        id: string, bookMarks: Array<number>,
-        following: Array<string>,
-        follower: Array<string>,
-        numSold: Count,
-        numPurchased: Count,
-        numPromptSold: Count,
-        numPromptPurchased: Count
+        id: string
     ): Promise<SocialUser> {
         return this.socialUserModel.create(
             {
-                id, bookMarks, following, follower,
-                numSold, numPurchased, numPromptSold, numPromptPurchased
-            }
-        );
+                id, bookMarks: [], following: [], follower: [],
+                numSold: 0, numPurchased: 0, numPromptSold: 0, numPromptPurchased: 0, listPurchasedByCreator: []
+            });
+
     }
 
 
@@ -88,5 +82,53 @@ export class SocialUserService {
     async findListBookmarkById(id: string): Promise<Array<number>> {
         const socialUser = await this.socialUserModel.findOne({ id })
         return socialUser.bookmarks;
+    }
+
+    async findSocialById(id: string): Promise<SocialUser> {
+        return this.socialUserModel.findOne({ id })
+    }
+
+    async increaseListPurchasedByCreator(addressBuyer: string, addressCreator: string): Promise<any> {
+        const socialUserBuyer = await this.socialUserModel.findOne({ id: addressBuyer })
+        const socialUserCreator = await this.socialUserModel.findOne({ id: addressCreator })
+        if (!socialUserBuyer || !socialUserCreator) {
+            return {
+                status: "error"
+            }
+        }
+        const listPurchasedByCreator: Array<AddressCount> = socialUserCreator.listPurchasedByCreator;
+        const index = listPurchasedByCreator.findIndex(item => item.address === addressBuyer);
+        if (index === -1) {
+            listPurchasedByCreator.push({ address: addressBuyer, count: 1 });
+        } else {
+            listPurchasedByCreator[index].count++;
+        }
+        await this.socialUserModel.updateOne({ id: addressCreator }, { listPurchasedByCreator })
+        return {
+            addressBuyer: addressBuyer,
+            addressCreator: addressCreator,
+            number: listPurchasedByCreator[index].count
+        }
+    }
+
+    async increaseNumSoldAndNumPurchase(idUserBuyer: string, idUserSold: string): Promise<string> {
+        try {
+            await this.socialUserModel.updateOne({ id: idUserBuyer }, { $inc: { numPurchased: 1 } })
+            await this.socialUserModel.updateOne({ id: idUserSold }, { $inc: { numSold: 1 } })
+            return "success";
+        } catch (error) {
+            return "error";
+        }
+    }
+
+    async increaseNumPromptSoldAndNumPromptPurchase(idUserBuyer: string, idUserSold: string): Promise<string> {
+        try {
+            await this.socialUserModel.updateOne({ id: idUserBuyer }, { $inc: { numPromptPurchased: 1 } })
+            await this.socialUserModel.updateOne({ id: idUserSold }, { $inc: { numPromptSold: 1 } })
+            return "success";
+        }
+        catch (error) {
+            return "error";
+        }
     }
 }

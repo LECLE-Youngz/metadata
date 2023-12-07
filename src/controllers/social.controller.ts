@@ -519,4 +519,56 @@ export class SocialController {
         const listPost = await this.postService.findPostByListId(listPostId);
         return listPost.map(post => post.id);
     }
+
+    @Put("/increase-sold/:buyerId/increase-purchased/:creatorId")
+    async increaseSoldAndPurchased(@Param("buyerId") buyerId: string, @Param("creatorId") creatorId: string) {
+        await this.socialUserService.increaseNumSoldAndNumPurchase(buyerId, creatorId);
+        const socialUserBuyer = await this.socialUserService.findSocialById(buyerId);
+        const userCreator = await this.userService.findUserById(creatorId);
+        const walletCreator = await fetchWalletByAddress(userCreator.email);
+        if (!walletCreator.data.address) {
+            throw new BadRequestException(`Creator don't have wallet in node api`);
+        }
+        const index = socialUserBuyer.listPurchasedByCreator.find(
+            item => item.address.toLowerCase() === walletCreator.data.address.toLowerCase()
+        )
+        if (index.count === 5) {
+            // TODO: send email to buyer
+        }
+        return {
+            status: "success"
+        }
+    }
+
+    @Put("/increase-prompt-sold/:buyerId/increase-prompt-purchased/:creatorId")
+    async increasePromptSoldAndPurchased(@Param("buyerId") buyerId: string, @Param("creatorId") creatorId: string) {
+        await this.socialUserService.increaseNumPromptSoldAndNumPromptPurchase(buyerId, creatorId);
+        return {
+            status: "success"
+        }
+    }
+
+    @Get("/creator/:addressCreator/buyer/:addressBuyer")
+    async getNftsByCreatorAddress(@Param("addressCreator") addressCreator: string, @Param("addressBuyer") addressBuyer): Promise<any> {
+        const walletBuyer = await fetchWalletByAddress(addressBuyer);
+        if (!walletBuyer.data.address) {
+            throw new BadRequestException(`You don't have wallet in node api`);
+        }
+        const userBuyer = await this.userService.findUserByEmail(walletBuyer.data.owner);
+        const socialUserBuyer = await this.socialUserService.findSocialById(userBuyer.id);
+        const listPurchasedByCreator = socialUserBuyer.listPurchasedByCreator;
+        const index = listPurchasedByCreator.findIndex(item => item.address === addressCreator);
+        if (index === -1) {
+            return {
+                addressBuyer: addressBuyer,
+                addressCreator: addressCreator,
+                numBuy: 0
+            }
+        }
+        return {
+            addressBuyer: addressBuyer,
+            addressCreator: addressCreator,
+            numBuy: listPurchasedByCreator[index].count
+        }
+    }
 }

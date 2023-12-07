@@ -37,12 +37,7 @@ export class OauthController {
 
             if (!existedUser) {
                 await this.userService.createUser(user);
-                const socialUser = await this.socialUserService.createSocialUser(
-                    user.id, [], [], [],
-                    { total: 0, listCountByAddress: [] },
-                    { total: 0, listCountByAddress: [] },
-                    { total: 0, listCountByAddress: [] },
-                    { total: 0, listCountByAddress: [] });
+                const socialUser = await this.socialUserService.createSocialUser(user.id);
                 return {
                     user: {
                         id: user.id,
@@ -68,21 +63,17 @@ export class OauthController {
             }
             else {
 
-                const socialUser = await this.socialUserService.findSocialUserById(user.id);
+                let socialUser = await this.socialUserService.findSocialUserById(user.id);
+                if (!socialUser) {
+                    socialUser = await this.socialUserService.createSocialUser(user.id);
+                }
+                socialUser = await this.socialUserService.findSocialUserById(user.id);
 
                 if (existedUser.picture !== user.picture || existedUser.name !== user.name ||
                     existedUser.locale !== user.locale || existedUser.verified_email !== user.verified_email ||
                     existedUser.family_name !== user.family_name || existedUser.given_name !== user.given_name
                 )
                     await this.userService.updateUser(user);
-
-                if (!socialUser)
-                    await this.socialUserService.createSocialUser(
-                        user.id, [], [], [],
-                        { total: 0, listCountByAddress: [] },
-                        { total: 0, listCountByAddress: [] },
-                        { total: 0, listCountByAddress: [] },
-                        { total: 0, listCountByAddress: [] });
 
                 return {
                     user: {
