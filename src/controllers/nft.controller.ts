@@ -343,7 +343,7 @@ export class NftController {
         }
     }
 
-    @Get("/exclusive/user:id")
+    @Get("/exclusive/user/:id")
     async getExclusiveByUserId(@Param("id") id: string) {
         try {
             const user = await this.userService.findUserById(id);
