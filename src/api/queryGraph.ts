@@ -151,3 +151,25 @@ query getExclusiveNFTCreated($address: String) {
     tokenAddress
     }
 }`
+
+export const queryVerifyTransferNft = `
+query getVerified($seller: String, $buyer: String, $tokenId: String, $collection: String,) {
+  itemBoughts(where: {nftAddress: $collection, tokenId: $tokenId, buyer: $buyer}) {
+    nftPrice
+  }
+  itemListeds(where: {nftAddress: $collection, tokenId: $tokenId, seller: $seller}) {
+    nftPrice
+  }
+}
+`
+
+export const queryVerifyTransferPrompt = `
+query getVerified($seller: String, $buyer: String, $tokenId: String, $collection: String,) {
+  promptBoughts(where: {nftAddress: $collection, tokenId: $tokenId, buyer: $buyer}) {
+    nftPrice
+  }
+  itemListeds(where: {nftAddress: $collection, tokenId: $tokenId, seller: $seller}) {
+    nftPrice
+  }
+}
+`

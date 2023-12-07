@@ -5,3 +5,4 @@ export * from "./create-comment.dto";
 export * from "./oauth.dto";
 export * from "./update-post.dto";
 export * from "./mailer.dto";
+export * from "./update-num.dto";

@@ -14,8 +14,8 @@ import { CreatePostDto } from "src/dtos/create-post.dto";
 import { PostService, CommentService, SocialUserService, UserService, NftService, MailerService } from "src/services";
 
 import { verifyAccessToken } from "src/auth/google.verifier";
-import { CreateCommentDto, UpdatePostDto } from "src/dtos";
-import { fetchWalletByAddress, ownerOf, querySubscriberAPI, querySubscribingAPI } from "src/api";
+import { CreateCommentDto, UpdateNumNftDto, UpdateNumPromptDto, UpdatePostDto } from "src/dtos";
+import { fetchWalletByAddress, ownerOf, querySubscriberAPI, querySubscribingAPI, verifyTransferNftAPI, verifyTransferPromptAPI } from "src/api";
 import { queryOwnerByIdNCollection } from "src/api/queryGraph";
 
 @Controller("api/v1/socials")
@@ -522,17 +522,23 @@ export class SocialController {
     }
 
     @Put("/increase-nft/:creatorId")
-    async increaseSoldAndPurchased(@Param("creatorId") creatorId: string, @Headers('Authorization') accessToken: string) {
+    async increaseSoldAndPurchased(@Param("creatorId") creatorId: string, @Headers('Authorization') accessToken: string, @Body() body: UpdateNumNftDto) {
 
         const userBuyer = await verifyAccessToken(accessToken);
-        // TODO: check blockchain
 
         await this.socialUserService.increaseNumSoldAndNumPurchase(userBuyer.id, creatorId);
-        const socialUserBuyer = await this.socialUserService.findSocialById(userBuyer.id);
+        const walletBuyer = await fetchWalletByAddress(userBuyer.email);
+        if (!walletBuyer.data.address) {
+            throw new BadRequestException(`You don't have wallet in node api`);
+        }
         const userCreator = await this.userService.findUserById(creatorId);
         const walletCreator = await fetchWalletByAddress(userCreator.email);
         if (!walletCreator.data.address) {
             throw new BadRequestException(`Creator don't have wallet in node api`);
+        }
+        const verify = await verifyTransferNftAPI(walletCreator.data.address, walletBuyer.data.address, body.addressCollection, body.nftId.toString());
+        if (!verify) {
+            throw new BadRequestException(`You don't have this nft`);
         }
         const res = await this.socialUserService.increaseListPurchasedByCreator(userBuyer.id, creatorId);
         if (res?.number === 5) {
@@ -548,9 +554,22 @@ export class SocialController {
     }
 
     @Put("/increase-prompt/:creatorId")
-    async increasePromptSoldAndPurchased(@Param("creatorId") creatorId: string, @Headers('Authorization') accessToken: string) {
+    async increasePromptSoldAndPurchased(@Param("creatorId") creatorId: string, @Headers('Authorization') accessToken: string, @Body() body: UpdateNumPromptDto) {
         // TODO: check blockchain
         const userBuyer = await verifyAccessToken(accessToken);
+        const walletBuyer = await fetchWalletByAddress(userBuyer.email);
+        if (!walletBuyer.data.address) {
+            throw new BadRequestException(`You don't have wallet in node api`);
+        }
+        const userCreator = await this.userService.findUserById(creatorId);
+        const walletCreator = await fetchWalletByAddress(userCreator.email);
+        if (!walletCreator.data.address) {
+            throw new BadRequestException(`Creator don't have wallet in node api`);
+        }
+        const verify = await verifyTransferPromptAPI(walletCreator.data.address, walletBuyer.data.address, body.addressCollection, body.nftId.toString());
+        if (!verify) {
+            throw new BadRequestException(`You don't have this nft`);
+        }
         await this.socialUserService.increaseNumPromptSoldAndNumPromptPurchase(userBuyer.id, creatorId);
         return {
             status: "success"

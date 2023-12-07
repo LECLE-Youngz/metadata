@@ -143,3 +143,17 @@ export type ResponseExclusiveNFTCreateds = {
         }[]
     }
 }
+
+export type ResponseVerifyTransferNft = {
+    data: {
+        itemBoughts: any,
+        itemListeds: any,
+    }
+}
+
+export type ResponseVerifyTransferPrompt = {
+    data: {
+        promptBoughts: any,
+        itemListeds: any
+    }
+}

@@ -1,9 +1,41 @@
 import { BadRequestException } from "@nestjs/common";
 import { GaxiosResponse, request } from "gaxios";
 import * as dotenv from "dotenv";
-import { ResponseNftTokenId, QueryResponseBought, ExportNftCollection, ResponseListNftAndCollection, ResponseListPromptByAddress } from "src/types";
-import { getAllSubscriber, getAllSubscribing, queryNftsByAddress, queryCreatorStatus, queryAllNfts, queryPromptBoughts, queryPromptAllowsByAddress, queryAllCollectionByDeployer, queryAllCollectionByAddress, queryAllCollection, queryDeplpoyerByCollection, queryExclusiveNFTCreated } from "./queryGraph";
-import { ResponseListCollection, ResponseListCollectionAndOwner, ResponseOwner, Transfer, ResponseListSubscriber, ResponseListSubscribing, ExportSubscribing, ResponseCreatorStatus, ResponseExclusiveNFTCreateds } from "src/types/response.type";
+import {
+    ResponseNftTokenId,
+    QueryResponseBought,
+    ExportNftCollection,
+    ResponseListNftAndCollection,
+    ResponseListPromptByAddress
+} from "src/types";
+import {
+    queryVerifyTransferPrompt,
+    getAllSubscriber,
+    getAllSubscribing,
+    queryNftsByAddress,
+    queryCreatorStatus,
+    queryAllNfts,
+    queryPromptBoughts,
+    queryPromptAllowsByAddress,
+    queryAllCollectionByDeployer,
+    queryAllCollectionByAddress,
+    queryAllCollection,
+    queryDeplpoyerByCollection,
+    queryExclusiveNFTCreated,
+    queryVerifyTransferNft
+} from "./queryGraph";
+import {
+    ResponseListCollection,
+    ResponseListCollectionAndOwner,
+    ResponseOwner, Transfer,
+    ResponseListSubscriber,
+    ResponseListSubscribing,
+    ExportSubscribing,
+    ResponseCreatorStatus,
+    ResponseExclusiveNFTCreateds,
+    ResponseVerifyTransferNft,
+    ResponseVerifyTransferPrompt
+} from "src/types/response.type";
 
 import Web3 from "web3";
 dotenv.config();
@@ -374,4 +406,50 @@ export async function getExclusiveNFTCollection(address: string): Promise<string
         throw new BadRequestException('Failed to fetch data from GraphQL API');
     }
 
+}
+
+export async function verifyTransferNftAPI(addressSeller: string, addressBuyer: string, tokenId: string, collection: string): Promise<boolean> {
+    try {
+        const response: GaxiosResponse<ResponseVerifyTransferNft> = await request({
+            url: process.env.THE_GRAPH_API_URL,
+            method: 'POST',
+            data: {
+                query: queryVerifyTransferNft,
+                variables: {
+                    seller: addressSeller,
+                    buyer: addressBuyer,
+                    tokenId: tokenId,
+                    collection: collection,
+                },
+            },
+        });
+        const data: ResponseVerifyTransferNft = response.data;
+        return data.data.itemBoughts.length > 0 && data.data.itemListeds.length > 0;
+    } catch (err) {
+        console.log('Error fetching data: ', err);
+        throw new BadRequestException('Failed to fetch data from GraphQL API');
+    }
+}
+
+export async function verifyTransferPromptAPI(addressSeller: string, addressBuyer: string, tokenId: string, collection: string): Promise<boolean> {
+    try {
+        const response: GaxiosResponse<ResponseVerifyTransferPrompt> = await request({
+            url: process.env.THE_GRAPH_API_URL,
+            method: 'POST',
+            data: {
+                query: queryVerifyTransferPrompt,
+                variables: {
+                    seller: addressSeller,
+                    buyer: addressBuyer,
+                    tokenId: tokenId,
+                    collection: collection,
+                },
+            },
+        });
+        const data: ResponseVerifyTransferPrompt = response.data;
+        return data.data.itemListeds.length > 0 && data.data.promptBoughts.length > 0;
+    } catch (err) {
+        console.log('Error fetching data: ', err);
+        throw new BadRequestException('Failed to fetch data from GraphQL API');
+    }
 }
