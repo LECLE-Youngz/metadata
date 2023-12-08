@@ -541,7 +541,7 @@ export class SocialController {
         //     throw new BadRequestException(`You don't have this nft`);
         // }
         const res = await this.socialUserService.increaseListPurchasedByCreator(userBuyer.id, creatorId);
-        if (res?.number === 2) {
+        if (res?.number === 3) {
             await this.mailerService.sendMail({
                 to: userBuyer.email,
                 subject: "You have 5 buyers",
