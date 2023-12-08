@@ -536,10 +536,10 @@ export class SocialController {
         if (!walletCreator.data.address) {
             throw new BadRequestException(`Creator don't have wallet in node api`);
         }
-        const verify = await verifyTransferNftAPI(walletCreator.data.address, walletBuyer.data.address, body.addressCollection, body.nftId.toString());
-        if (!verify) {
-            throw new BadRequestException(`You don't have this nft`);
-        }
+        // const verify = await verifyTransferNftAPI(walletCreator.data.address, walletBuyer.data.address, body.addressCollection, body.nftId.toString());
+        // if (!verify) {
+        //     throw new BadRequestException(`You don't have this nft`);
+        // }
         const res = await this.socialUserService.increaseListPurchasedByCreator(userBuyer.id, creatorId);
         if (res?.number === 2) {
             await this.mailerService.sendMail({
@@ -566,10 +566,10 @@ export class SocialController {
         if (!walletCreator.data.address) {
             throw new BadRequestException(`Creator don't have wallet in node api`);
         }
-        const verify = await verifyTransferPromptAPI(walletCreator.data.address, walletBuyer.data.address, body.addressCollection, body.nftId.toString());
-        if (!verify) {
-            throw new BadRequestException(`You don't have this nft`);
-        }
+        // const verify = await verifyTransferPromptAPI(walletCreator.data.address, walletBuyer.data.address, body.addressCollection, body.nftId.toString());
+        // if (!verify) {
+        //     throw new BadRequestException(`You don't have this nft`);
+        // }
         await this.socialUserService.increaseNumPromptSoldAndNumPromptPurchase(userBuyer.id, creatorId);
         return {
             status: "success"
