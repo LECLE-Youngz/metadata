@@ -1,5 +1,4 @@
 import { Injectable, Logger } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
 import * as nodemailer from 'nodemailer';
 
 interface NormalEmailParams {
@@ -36,11 +35,6 @@ export class MailerService {
                 to, subject,
                 ...html ? { html } : { text }
             });
-            // if (await res[0].toJSON().statusCode === 202) { // SendGrid
-            //   return true;
-            // } else {
-            //   return false;
-            // }
             if (res) return true;
             return false;
         } catch (err) {

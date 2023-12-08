@@ -95,7 +95,7 @@ export class ENftController {
             if (!walletUser.data.owner) {
                 throw new BadRequestException(`Wallet does not exist`);
             }
-            const listSubscriber = await querySubscriberAPI(addressCollection);
+            const listSubscriber = await querySubscriberAPI(deployer);
             if (listSubscriber.includes(walletUser.data.address.toLocaleLowerCase()) || walletUser.data.address.toLocaleLowerCase() === deployer.toLocaleLowerCase()) {
                 const price: Array<BN> = await getTokenPrice(nft.addressCollection, String(nft.id))
                 return {
