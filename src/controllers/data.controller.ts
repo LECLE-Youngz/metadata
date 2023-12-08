@@ -77,7 +77,6 @@ export class DataController {
                 image: nft.image,
                 attributes: nft.attributes,
                 owner: user,
-                eNft: false,
             }
         }))
         return listDataWithNft;
