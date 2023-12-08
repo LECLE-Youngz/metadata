@@ -11,7 +11,7 @@ import { UserService, SocialUserService, NftService } from "src/services";
 import { ResponseWallet } from "src/types";
 import Web3 from "web3";
 import { NftCollection } from "src/types";
-import { queryNFTsByAddress, queryPromptBuyerByTokenAndAddress, queryListAllower, queryAllNFTsByAddressAndCollection, querySubscriberAPI, querySubscribingAPI, getCreatorStatusAPI } from "src/api/the-graph";
+import { queryPromptBuyerByTokenAndAddress, queryListAllower, queryAllNFTsByAddressAndCollection, querySubscriberAPI, querySubscribingAPI, getCreatorStatusAPI } from "src/api/the-graph";
 import BN from "bn.js"
 
 import { getTokenPrice, getPromptPrice } from "src/api";

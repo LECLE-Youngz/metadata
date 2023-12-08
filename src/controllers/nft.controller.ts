@@ -77,10 +77,6 @@ export class NftController {
         return nftsWithOwners
     }
 
-
-
-
-
     @Post()
     async createNft(@Body() createNft: CreateNftDto, @Headers('Authorization') accessToken: string): Promise<Nft> {
         try {
@@ -165,9 +161,6 @@ export class NftController {
     }
 
     // Collection Service
-
-
-
 
 
     @Get("/collection")
@@ -255,6 +248,8 @@ export class NftController {
         }
         const listCollection = await this.nftService.getAllListCollection();
 
+        // console.log(listCollection);
+
         const listNftCollection: NftCollection[] = await Promise.all(
             listCollection.map(async (addressCollection: string) => {
                 const nfts = await queryNFTsByAddress(wallet.data.address, addressCollection);
@@ -262,16 +257,17 @@ export class NftController {
                     id: id,
                     addressCollection: addressCollection,
                 }));
+
             })
         ).then((nestedArrays) => nestedArrays.flat());
-
         const listInfoNft = await this.nftService.findNftsByListObjectIdWithCollection(listNftCollection);
-
-        const mappingPrice = listInfoNft.map(async (nft) => {
-            const price: Array<BN> = await getTokenPrice(nft.addressCollection, String(nft.id))
-            const promptPrice: Array<BN> = await getPromptPrice(nft.addressCollection, String(nft.id))
-            const listAllower = await queryListAllower(nft.addressCollection, nft.id);
-            const listBoughts = await queryPromptBuyerByTokenAndAddress(nft.addressCollection, nft.id);
+        const mappingPrice = await Promise.all(listInfoNft.map(async (nft) => {
+            const [price, promptPrice, listAllower, listBoughts] = await Promise.all([
+                getTokenPrice(nft.addressCollection, String(nft.id)),
+                getPromptPrice(nft.addressCollection, String(nft.id)),
+                queryListAllower(nft.addressCollection, nft.id),
+                queryPromptBuyerByTokenAndAddress(nft.addressCollection, nft.id),
+            ]);
 
             return {
                 id: nft.id,
@@ -298,10 +294,12 @@ export class NftController {
                 promptAllower: listAllower,
                 attributes: nft.attributes,
             };
-        })
+        }));
 
-        return mappingPrice
+        return mappingPrice;
     }
+
+    @Get("/owner")
 
     @Get("/subscribing")
     async getSubscribingByListUserId(@Body() listUserId: Array<string>) {
