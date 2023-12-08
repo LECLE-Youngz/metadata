@@ -16,7 +16,7 @@ import { Data, User } from "src/schemas";
 //   import { getCurrentPromptBuyer, getCurrentPromptPrice } from "src/utils/blockchain";
 import { verifyAccessToken } from "src/auth/google.verifier";
 import BN from "bn.js"
-import { fetchWalletByAddress, getPromptPrice, getTokenPrice, ownerOf, queryListAllower, queryPromptAllowerByTokenAndAddress, queryPromptBuyerByTokenAndAddress, querySubscribingAPI } from "src/api";
+import { fetchWalletByAddress, getCollectionByDeployer, getPromptPrice, getTokenPrice, ownerOf, queryListAllower, queryPromptAllowerByTokenAndAddress, queryPromptBuyerByTokenAndAddress, querySubscribingAPI } from "src/api";
 
 @Controller("api/v1/data")
 export class DataController {
@@ -77,9 +77,27 @@ export class DataController {
                 image: nft.image,
                 attributes: nft.attributes,
                 owner: user,
+                eNft: false,
             }
         }))
-        return listDataWithNft;
+
+        const addressENft = await getCollectionByDeployer(wallet.data.address);
+        const listDataENft = await this.eNftService.getENftByAddressCollection(addressENft);
+        const listDataInfoENft = await this.eNftService.findENftsByListObjectIdWithCollection(listDataENft.map(data => ({ id: data, addressCollection: addressENft })));
+        const listDataWithENft = await Promise.all(listDataInfoENft.map(async nft => {
+            return {
+                id: nft.id,
+                addressCollection: nft.addressCollection,
+                name: nft.name,
+                description: nft.description,
+                meta: nft.meta,
+                image: nft.image,
+                attributes: nft.attributes,
+                owner: user,
+                eNft: true,
+            }
+        }))
+        return [...listDataWithENft, ...listDataWithNft];
     }
 
 
