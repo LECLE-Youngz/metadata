@@ -68,6 +68,8 @@ export class DataController {
 
         const listDataWithNft = await Promise.all(listDataInfo.map(async data => {
             const nft = listNft.find(nft => nft.id === data.id && nft.addressCollection === data.addressCollection);
+            const price = await getTokenPrice(data.addressCollection, String(data.id));
+            const promptPrice = await getPromptPrice(data.addressCollection, String(data.id));
             return {
                 id: nft.id,
                 addressCollection: nft.addressCollection,
@@ -76,6 +78,14 @@ export class DataController {
                 meta: data.meta,
                 image: nft.image,
                 attributes: nft.attributes,
+                price: {
+                    avax: price[0].toString(),
+                    usd: price[1].toString(),
+                },
+                promptPrice: {
+                    avax: promptPrice[0].toString(),
+                    usd: promptPrice[1].toString(),
+                },
                 owner: user,
                 eNft: false,
             }
@@ -85,6 +95,8 @@ export class DataController {
         const listDataENft = await this.eNftService.getENftByAddressCollection(addressENft);
         const listDataInfoENft = await this.eNftService.findENftsByListObjectIdWithCollection(listDataENft.map(data => ({ id: data, addressCollection: addressENft })));
         const listDataWithENft = await Promise.all(listDataInfoENft.map(async nft => {
+            const price = await getTokenPrice(nft.addressCollection, String(nft.id));
+            const promptPrice = await getPromptPrice(nft.addressCollection, String(nft.id));
             return {
                 id: nft.id,
                 addressCollection: nft.addressCollection,
@@ -93,6 +105,14 @@ export class DataController {
                 meta: nft.meta,
                 image: nft.image,
                 attributes: nft.attributes,
+                price: {
+                    avax: price[0].toString(),
+                    usd: price[1].toString(),
+                },
+                promptPrice: {
+                    avax: promptPrice[0].toString(),
+                    usd: promptPrice[1].toString(),
+                },
                 owner: user,
                 eNft: true,
             }
