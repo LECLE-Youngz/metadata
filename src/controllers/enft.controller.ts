@@ -13,7 +13,7 @@ import { CreateNftDto } from "src/dtos";
 import { DataService, ENftService, NftService, PostService, UserService } from "src/services";
 import { Nft } from "src/schemas";
 import { verifyAccessToken } from "src/auth/google.verifier";
-import { fetchWalletByAddress, getPromptPrice, getTokenPrice, ownerOf, querySubscribingAPI, querySubscriberAPI, queryNFTsByAddress, queryListAllower, queryPromptBuyerByTokenAndAddress, queryAllNFTsByAddressAndCollection, queryAllCollectionFactory, ownerCollection, queryAllCollectionByDeployerAPI, queryAllCollectionByAddressAPI, getTokenAddressByUserAddress } from "src/api";
+import { fetchWalletByAddress, getPromptPrice, getTokenPrice, ownerOf, querySubscribingAPI, querySubscriberAPI, queryNFTsByAddress, queryListAllower, queryPromptBuyerByTokenAndAddress, queryAllNFTsByAddressAndCollection, queryAllCollectionFactory, ownerCollection, queryAllCollectionByDeployerAPI, queryAllCollectionByAddressAPI, getTokenAddressByUserAddress, getCollectionByDeployer } from "src/api";
 
 import * as dotenv from "dotenv";
 dotenv.config();
@@ -85,7 +85,8 @@ export class ENftController {
         if (!walletDeployer.data.owner) {
             throw new BadRequestException(`Wallet does not exist`);
         }
-        const addressCollection = walletDeployer.data.address;
+        const deployer = walletDeployer.data.address;
+        const addressCollection = await getCollectionByDeployer(deployer);
         const listNftId = await this.eNftService.getENftByAddressCollection(addressCollection);
         const listNft = await Promise.all(listNftId.map(async (id) => {
             const nft = await this.eNftService.findENftByIdAndAddressCollection(id, addressCollection);
@@ -95,7 +96,7 @@ export class ENftController {
                 throw new BadRequestException(`Wallet does not exist`);
             }
             const listSubscriber = await querySubscriberAPI(addressCollection);
-            if (listSubscriber.includes(walletUser.data.owner.toLocaleLowerCase())) {
+            if (listSubscriber.includes(walletUser.data.address.toLocaleLowerCase()) || walletUser.data.address.toLocaleLowerCase() === deployer.toLocaleLowerCase()) {
                 const price: Array<BN> = await getTokenPrice(nft.addressCollection, String(nft.id))
                 return {
                     id: nft.id,

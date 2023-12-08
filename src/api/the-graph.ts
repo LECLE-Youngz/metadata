@@ -363,7 +363,6 @@ export async function getCreatorStatusAPI(address: string): Promise<boolean> {
         console.log('Error fetching data: ', err);
         throw new BadRequestException('Failed to fetch data from GraphQL API');
     }
-
 }
 
 export async function getTokenAddressByUserAddress(address: string): Promise<string> {
@@ -448,6 +447,28 @@ export async function verifyTransferPromptAPI(addressSeller: string, addressBuye
         });
         const data: ResponseVerifyTransferPrompt = response.data;
         return data.data.itemListeds.length > 0 && data.data.promptBoughts.length > 0;
+    } catch (err) {
+        console.log('Error fetching data: ', err);
+        throw new BadRequestException('Failed to fetch data from GraphQL API');
+    }
+}
+
+
+export async function getCollectionByDeployer(address: string): Promise<string> {
+    try {
+        const response: GaxiosResponse<any> = await request({
+            url: process.env.THE_GRAPH_API_URL,
+            method: 'POST',
+            data: {
+                query: queryCreatorStatus,
+                variables: {
+                    address: address,
+                },
+            },
+        });
+        const data: ResponseCreatorStatus = response.data;
+        const creatorStatus = data.data.premiumTokenCreateds[0].tokenAddress;
+        return creatorStatus;
     } catch (err) {
         console.log('Error fetching data: ', err);
         throw new BadRequestException('Failed to fetch data from GraphQL API');
