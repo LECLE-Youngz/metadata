@@ -460,14 +460,14 @@ export async function getCollectionByDeployer(address: string): Promise<string> 
             url: process.env.THE_GRAPH_API_URL,
             method: 'POST',
             data: {
-                query: queryCreatorStatus,
+                query: queryExclusiveNFTCreated,
                 variables: {
                     address: address,
                 },
             },
         });
-        const data: ResponseCreatorStatus = response.data;
-        const creatorStatus = data.data.premiumTokenCreateds[0].tokenAddress;
+        const data: ResponseExclusiveNFTCreateds = response.data;
+        const creatorStatus = data.data.exclusiveNFTCreateds[0].tokenAddress;
         return creatorStatus;
     } catch (err) {
         console.log('Error fetching data: ', err);
