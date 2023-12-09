@@ -27,6 +27,9 @@ export class Nft {
 
     @Prop({ required: true })
     attributes: Array<Attribute>;
+
+    @Prop({ required: true })
+    type: "normal" | "lucky" | "mystery";
 }
 
 export const NftSchema = SchemaFactory.createForClass(Nft);

@@ -78,7 +78,7 @@ export class NftController {
     }
 
     @Post()
-    async createNft(@Body() createNft: CreateNftDto, @Headers('Authorization') accessToken: string): Promise<Nft> {
+    async createNft(@Body() createNft: CreateNftDto, @Headers('Authorization') accessToken: string) {
         try {
             const user = await verifyAccessToken(accessToken);
             const wallet = await fetchWalletByAddress(user.email);
@@ -90,7 +90,7 @@ export class NftController {
             if (existedNft) {
                 throw new BadRequestException(`Nft already exists`);
             }
-            if (!createNft.eNft) {
+            if (createNft.type !== "exclusive") {
                 await this.dataService.createData(createNft.id, createNft.addressCollection.toLowerCase(), createNft.meta);
 
                 return await this.nftService.createNft(
@@ -99,6 +99,7 @@ export class NftController {
                     createNft.description,
                     createNft.image,
                     createNft.addressCollection.toLowerCase(),
+                    createNft.type
                 );
             } else {
                 return await this.eNftService.createENft(
@@ -107,7 +108,7 @@ export class NftController {
                     createNft.description,
                     createNft.image,
                     createNft.addressCollection.toLowerCase(),
-                    createNft.meta
+                    createNft.meta,
                 );
             }
         } catch (error) {

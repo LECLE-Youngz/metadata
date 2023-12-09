@@ -34,6 +34,7 @@ export class NftService {
         description: string,
         image: string,
         addressCollection: string,
+        type: string,
     ): Promise<Nft> {
         return this.nftModel.create({
             id,
@@ -42,6 +43,7 @@ export class NftService {
             image,
             addressCollection,
             attributes: [],
+            type,
         });
     }
 

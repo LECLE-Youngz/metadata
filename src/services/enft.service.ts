@@ -43,7 +43,8 @@ export class ENftService {
             image,
             addressCollection,
             attributes: [],
-            meta
+            meta,
+            type: "exclusive"
         });
     }
 

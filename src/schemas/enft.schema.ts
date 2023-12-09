@@ -24,6 +24,9 @@ export class ENft {
     attributes: Array<Attribute>;
 
     @Prop({ required: true })
+    type: string;
+
+    @Prop({ required: true })
     meta: Metadata;
 }
 
