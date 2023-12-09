@@ -13,7 +13,7 @@ import { CreateNftDto } from "src/dtos";
 import { DataService, ENftService, NftService, PostService, UserService } from "src/services";
 import { Nft } from "src/schemas";
 import { verifyAccessToken } from "src/auth/google.verifier";
-import { fetchWalletByAddress, getPromptPrice, getTokenPrice, ownerOf, querySubscribingAPI, querySubscriberAPI, queryNFTsByAddress, queryListAllower, queryPromptBuyerByTokenAndAddress, queryAllNFTsByAddressAndCollection, queryAllCollectionFactory, ownerCollection, queryAllCollectionByDeployerAPI, queryAllCollectionByAddressAPI, getTokenAddressByUserAddress, getExclusiveNFTCollection, getCollectionByDeployer } from "src/api";
+import { fetchWalletByAddress, getPromptPrice, getTokenPrice, ownerOf, querySubscribingAPI, querySubscriberAPI, queryNFTsByAddress, queryListAllower, queryPromptBuyerByTokenAndAddress, queryAllNFTsByAddressAndCollection, queryAllCollectionFactory, ownerCollection, queryAllCollectionByDeployerAPI, queryAllCollectionByAddressAPI, getTokenAddressByUserAddress, getExclusiveNFTCollection, getCollectionByDeployer, queryAllCollectionByAddressWithoutExclusiveAPI } from "src/api";
 
 import * as dotenv from "dotenv";
 dotenv.config();
@@ -34,9 +34,10 @@ export class NftController {
 
     @Get()
     async getAllNfts() {
-        const nfts = await this.nftService.findAll();
+        const nftsCollection = await queryAllCollectionByAddressWithoutExclusiveAPI()
+        const listNft = await this.nftService.findNftsByListObjectIdWithCollection(nftsCollection.map(nft => ({ id: Number(nft.tokenId), addressCollection: nft.contract })));
         const nftsWithOwners = await Promise.all(
-            nfts.map(async (nft) => {
+            listNft.map(async (nft) => {
                 const addressOwner: string = await ownerOf(nft.id, nft.addressCollection);
                 const wallet = await fetchWalletByAddress(addressOwner);
                 if (wallet) {
@@ -472,4 +473,15 @@ export class NftController {
         };
 
     }
+
+    @Get("/event/:id")
+    async getEventById(@Param("id") id: string) {
+        const user = await this.userService.findUserById(id);
+        const wallet = await fetchWalletByAddress(user.email);
+        if (!wallet.data.address) {
+            throw new BadRequestException(`Event does not exist`);
+        }
+        return ["0xb95ade735b085b90fb696bd9be62f1fda9c4196c"]
+    }
+
 }

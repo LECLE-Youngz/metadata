@@ -157,3 +157,13 @@ export type ResponseVerifyTransferPrompt = {
         itemListeds: any
     }
 }
+
+
+export type ResponseCollectionByAddress = {
+    data: {
+        nfttransfers: Array<{
+            tokenId: string;
+            contract: string;
+        }>
+    }
+}

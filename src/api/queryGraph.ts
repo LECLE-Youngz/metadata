@@ -173,3 +173,11 @@ query getVerified($seller: String, $buyer: String, $tokenId: String, $collection
   }
 }
 `
+export const queryAllCollectionByAddressWithoutExclusive = `
+query queryAllCollection {
+  nfttransfers(where: {from:"0x0000000000000000000000000000000000000000"}) {
+      contract
+      tokenId
+  }
+}
+`;
