@@ -17,6 +17,7 @@ import { verifyAccessToken } from "src/auth/google.verifier";
 import { CreateCommentDto, UpdateNumNftDto, UpdateNumPromptDto, UpdatePostDto } from "src/dtos";
 import { fetchWalletByAddress, ownerOf, querySubscriberAPI, querySubscribingAPI, verifyTransferNftAPI, verifyTransferPromptAPI } from "src/api";
 import { queryOwnerByIdNCollection } from "src/api/queryGraph";
+import { mailConfig } from "src/configs/mail";
 
 @Controller("api/v1/socials")
 export class SocialController {
@@ -544,8 +545,8 @@ export class SocialController {
         if (res?.number === 2) {
             await this.mailerService.sendMail({
                 to: userBuyer.email,
-                subject: "You have 5 buyers",
-                text: "You have 5 buyers"
+                subject: "",
+                html: mailConfig(userBuyer.given_name, userCreator.given_name, 2),
             })
         }
         return {
@@ -555,7 +556,6 @@ export class SocialController {
 
     @Put("/increase-prompt/:creatorId")
     async increasePromptSoldAndPurchased(@Param("creatorId") creatorId: string, @Headers('Authorization') accessToken: string, @Body() body: UpdateNumPromptDto) {
-        // TODO: check blockchain
         const userBuyer = await verifyAccessToken(accessToken);
         const walletBuyer = await fetchWalletByAddress(userBuyer.email);
         if (!walletBuyer.data.address) {

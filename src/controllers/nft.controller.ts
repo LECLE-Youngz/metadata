@@ -431,7 +431,7 @@ export class NftController {
         }
     }
 
-    @Get(":id/collection/:addressCollection")
+    @Get("/collection/:addressCollection/nft/:id")
     async getNftById(@Param("id") id: number, @Param("addressCollection") addressCollectionRaw: string) {
         const addressCollection = addressCollectionRaw.toLowerCase();
         const nfts = await this.nftService.findNftByIdAndAddressCollection(id, addressCollection);
