@@ -621,4 +621,11 @@ export class NftController {
         const updateNft = await this.nftService.updateCollectionAndNftIdWithNftAutoCountFrom0(listNftUpdate, addressCollection);
         return updateNft;
     }
+
+    @Get("count/user/:id/type/:type")
+    async getCountNftByType(@Param("type") type: string, @Param("id") id: string) {
+        const user = await this.userService.findUserById(id);
+        const listNftUpdate = await this.nftService.getNumberByTypeAndCollection(type, user.id);
+        return listNftUpdate
+    }
 }

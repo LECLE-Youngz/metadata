@@ -82,4 +82,8 @@ export class NftService {
     async getNftByType(type: string): Promise<Array<Nft>> {
         return this.nftModel.find({ type });
     }
+
+    async getNumberByTypeAndCollection(type: string, addressCollection: string): Promise<number> {
+        return this.nftModel.countDocuments({ type, addressCollection });
+    }
 }
