@@ -22,7 +22,11 @@ import {
     queryAllCollection,
     queryDeplpoyerByCollection,
     queryExclusiveNFTCreated,
-    queryVerifyTransferNft
+    queryVerifyTransferNft,
+    queryAllCollectionByAddressWithoutExclusive,
+    queryAllEvent,
+    queryAllEventByDeployer,
+    queryAllEventByAddressCollection
 } from "./queryGraph";
 import {
     ResponseListCollection,
@@ -34,7 +38,10 @@ import {
     ResponseCreatorStatus,
     ResponseExclusiveNFTCreateds,
     ResponseVerifyTransferNft,
-    ResponseVerifyTransferPrompt
+    ResponseVerifyTransferPrompt,
+    ResponseCollectionByAddress,
+    ResponseEvent,
+    ResponseEventByAddress
 } from "src/types/response.type";
 
 import Web3 from "web3";
@@ -472,5 +479,91 @@ export async function getCollectionByDeployer(address: string): Promise<string> 
     } catch (err) {
         console.log('Error fetching data: ', err);
         throw new BadRequestException('Failed to fetch data from GraphQL API');
+    }
+}
+
+export async function queryAllCollectionByAddressWithoutExclusiveAPI() {
+    try {
+        const response: GaxiosResponse<ResponseCollectionByAddress> = await request({
+            url: process.env.THE_GRAPH_API_URL,
+            method: 'POST',
+            data: {
+                query: queryAllCollectionByAddressWithoutExclusive,
+                variables: {},
+            },
+        });
+        const data: ResponseCollectionByAddress = response.data;
+        // merge 2 array
+        return data.data.nfttransfers;
+
+
+    } catch (err) {
+        console.log('Error fetching data: ', err);
+        throw new BadRequestException('Failed to fetch data from GraphQL API | queryAllCollectionByAddressWithoutExclusiveAPI');
+    }
+}
+
+export async function queryAllEventAPI(): Promise<Array<string>> {
+    try {
+        const response: GaxiosResponse<ResponseEvent> = await request({
+            url: process.env.THE_GRAPH_API_URL,
+            method: 'POST',
+            data: {
+                query: queryAllEvent,
+                variables: {},
+            },
+        });
+        const data: ResponseEvent = response.data;
+        console.log(data);
+        return [...data.data.mysteryEventCreateds, ...data.data.luckyTokenCreateds].map((event) => event.tokenAddress);
+    }
+    catch (err) {
+        console.log('Error fetching data: ', err);
+        throw new BadRequestException('Failed to fetch data from GraphQL API | queryAllEventAPI');
+    }
+
+}
+
+export async function queryEventByDeployerAPI(deployer: string): Promise<Array<string>> {
+    try {
+        const response: GaxiosResponse<ResponseEvent> = await request({
+            url: process.env.THE_GRAPH_API_URL,
+            method: 'POST',
+            data: {
+                query: queryAllEventByDeployer,
+                variables: {
+                    owner: deployer
+                },
+            },
+        });
+        const data: ResponseEvent = response.data;
+        return [...data.data.mysteryEventCreateds, ...data.data.luckyTokenCreateds].map((event) => event.tokenAddress);
+    }
+    catch (err) {
+        console.log('Error fetching data: ', err);
+        throw new BadRequestException('Failed to fetch data from GraphQL API | queryAllEventAPI');
+    }
+
+}
+
+export async function queryEventByAddressAPI(address: string) {
+    try {
+        const response: GaxiosResponse<ResponseEventByAddress> = await request({
+            url: process.env.THE_GRAPH_API_URL,
+            method: 'POST',
+            data: {
+                query: queryAllEventByAddressCollection,
+                variables: {
+                    contract: address
+                },
+            },
+        });
+        const data: ResponseEventByAddress = response.data;
+        return data.data.eventTransfers.map((event) => event.tokenId);
+
+    }
+    catch (err) {
+        console.log('Error fetching data: ', err);
+        throw new BadRequestException('Failed to fetch data from GraphQL API | queryAllEventAPI');
     }
 }

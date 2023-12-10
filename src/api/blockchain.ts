@@ -5,6 +5,7 @@ import collectionABI from "src/configs/NexthypeNFT.sol/NEXTHYPE.json";
 import factoryABI from "src/configs/GenerativeNFTFactory.sol/GenerativeNFTFactory.json";
 import generativeABI from "src/configs/GenerativeNFT.sol/GenerativeNFT.json";
 import * as dotenv from "dotenv";
+import mystery from "src/configs/MysteryNft.sol/MysteryDropEvent.json";
 dotenv.config();
 
 const provider = new JsonRpcProvider(process.env.FUJI_RPC);

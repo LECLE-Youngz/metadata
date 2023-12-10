@@ -13,7 +13,7 @@ import { CreateNftDto } from "src/dtos";
 import { DataService, ENftService, NftService, PostService, UserService } from "src/services";
 import { Nft } from "src/schemas";
 import { verifyAccessToken } from "src/auth/google.verifier";
-import { fetchWalletByAddress, getPromptPrice, getTokenPrice, ownerOf, querySubscribingAPI, querySubscriberAPI, queryNFTsByAddress, queryListAllower, queryPromptBuyerByTokenAndAddress, queryAllNFTsByAddressAndCollection, queryAllCollectionFactory, ownerCollection, queryAllCollectionByDeployerAPI, queryAllCollectionByAddressAPI, getTokenAddressByUserAddress, getExclusiveNFTCollection, getCollectionByDeployer } from "src/api";
+import { fetchWalletByAddress, getPromptPrice, getTokenPrice, ownerOf, querySubscribingAPI, querySubscriberAPI, queryNFTsByAddress, queryListAllower, queryPromptBuyerByTokenAndAddress, queryAllNFTsByAddressAndCollection, queryAllCollectionFactory, ownerCollection, queryAllCollectionByDeployerAPI, queryAllCollectionByAddressAPI, getTokenAddressByUserAddress, getExclusiveNFTCollection, getCollectionByDeployer, queryAllCollectionByAddressWithoutExclusiveAPI, queryEventByDeployerAPI, queryEventByAddressAPI, queryAllEventAPI } from "src/api";
 
 import * as dotenv from "dotenv";
 dotenv.config();
@@ -34,9 +34,10 @@ export class NftController {
 
     @Get()
     async getAllNfts() {
-        const nfts = await this.nftService.findAll();
+        const nftsCollection = await queryAllCollectionByAddressWithoutExclusiveAPI()
+        const listNft = await this.nftService.findNftsByListObjectIdWithCollection(nftsCollection.map(nft => ({ id: Number(nft.tokenId), addressCollection: nft.contract })));
         const nftsWithOwners = await Promise.all(
-            nfts.map(async (nft) => {
+            listNft.map(async (nft) => {
                 const addressOwner: string = await ownerOf(nft.id, nft.addressCollection);
                 const wallet = await fetchWalletByAddress(addressOwner);
                 if (wallet) {
@@ -78,7 +79,7 @@ export class NftController {
     }
 
     @Post()
-    async createNft(@Body() createNft: CreateNftDto, @Headers('Authorization') accessToken: string): Promise<Nft> {
+    async createNft(@Body() createNft: CreateNftDto, @Headers('Authorization') accessToken: string) {
         try {
             const user = await verifyAccessToken(accessToken);
             const wallet = await fetchWalletByAddress(user.email);
@@ -90,7 +91,7 @@ export class NftController {
             if (existedNft) {
                 throw new BadRequestException(`Nft already exists`);
             }
-            if (!createNft.eNft) {
+            if (createNft.type !== "exclusive") {
                 await this.dataService.createData(createNft.id, createNft.addressCollection.toLowerCase(), createNft.meta);
 
                 return await this.nftService.createNft(
@@ -99,6 +100,7 @@ export class NftController {
                     createNft.description,
                     createNft.image,
                     createNft.addressCollection.toLowerCase(),
+                    createNft.type
                 );
             } else {
                 return await this.eNftService.createENft(
@@ -107,7 +109,7 @@ export class NftController {
                     createNft.description,
                     createNft.image,
                     createNft.addressCollection.toLowerCase(),
-                    createNft.meta
+                    createNft.meta,
                 );
             }
         } catch (error) {
@@ -471,4 +473,74 @@ export class NftController {
         };
 
     }
+
+    @Get("/event/user/:id")
+    async getEventById(@Param("id") id: string) {
+        const user = await this.userService.findUserById(id);
+        const wallet = await fetchWalletByAddress(user.email);
+        if (!wallet.data.address) {
+            throw new BadRequestException(`Event does not exist`);
+        }
+        const listCollection = await queryEventByDeployerAPI(wallet.data.address);
+        return listCollection;
+    }
+
+    @Get("/event/:address")
+    async getEventByAddress(@Param("address") address: string) {
+        const listCollection = await queryEventByAddressAPI(address);
+        return listCollection;
+    }
+
+    @Get("/event/:address/nft/:id")
+    async getEventNftById(@Param("id") id: number, @Param("address") address: string) {
+        const nfts = await this.nftService.findNftByIdAndAddressCollection(id, address);
+        if (!nfts) {
+            throw new BadRequestException(`Nft does not exist`);
+        }
+        const addressOwner: string = await ownerOf(id, address);
+        const wallet = await fetchWalletByAddress(addressOwner);
+        if (!wallet) {
+            throw new BadRequestException(`Wallet does not exist`);
+        }
+        const price: Array<BN> = await getTokenPrice(nfts.addressCollection, String(nfts.id))
+        const promptPrice: Array<BN> = await getPromptPrice(nfts.addressCollection, String(nfts.id))
+        const ownerInfo = await this.userService.findUserByEmail(wallet.data.owner);
+        const listAllower = await queryListAllower(nfts.addressCollection, nfts.id);
+        const listBoughts = await queryPromptBuyerByTokenAndAddress(nfts.addressCollection, nfts.id);
+
+        return {
+            id: nfts.id,
+            name: nfts.name,
+            description: nfts.description,
+            image: nfts.image,
+            price: {
+                avax: price[0].toString(),
+                usd: price[1].toString(),
+
+            },
+            owner: ownerInfo,
+            promptPrice: {
+                avax: promptPrice[0].toString(),
+                usd: promptPrice[1].toString(),
+            },
+            promptBuyer: listBoughts,
+            addressCollection: nfts.addressCollection,
+            promptAllower: listAllower,
+            attributes: nfts.attributes,
+        };
+    }
+
+    @Get("/event")
+    async getAllEvent() {
+        const listCollection = await queryAllEventAPI();
+        const listCollectionMappingOwner = await Promise.all(listCollection.map(async (address) => {
+            const owner = await ownerCollection(address);
+            return {
+                address: address,
+                owner: owner,
+            }
+        }))
+    }
+
+
 }
