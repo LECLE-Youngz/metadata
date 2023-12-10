@@ -72,11 +72,18 @@ export class NftService {
         return this.nftModel.distinct("addressCollection");
     }
 
-    async updateCollection(listCollectionUpdate: Array<Nft>, newCollection: string) {
-        return this.nftModel.updateMany({ id: { $in: listCollectionUpdate.map(nft => nft.id) } }, { addressCollection: newCollection });
+    async updateCollectionAndNftIdWithNftAutoCountFrom0(listCollectionUpdate: Array<Nft>, newCollection: string) {
+        return listCollectionUpdate.forEach(async (nft) => {
+            await this.nftModel.updateOne({ id: nft.id, addressCollection: nft.addressCollection }, { addressCollection: newCollection, id: nft.id + 1 })
+        })
     }
+
 
     async getNftByType(type: string): Promise<Array<Nft>> {
         return this.nftModel.find({ type });
+    }
+
+    async getNumberByTypeAndCollection(type: string, addressCollection: string): Promise<number> {
+        return this.nftModel.countDocuments({ type, addressCollection });
     }
 }
