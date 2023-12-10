@@ -92,7 +92,7 @@ export class NftController {
             if (existedNft) {
                 throw new BadRequestException(`Nft already exists`);
             }
-            if (createNft.type !== "exclusive") {
+            if (createNft.eNft) {
                 await this.dataService.createData(createNft.id, createNft.addressCollection.toLowerCase(), createNft.meta);
 
                 return await this.nftService.createNft(
@@ -101,7 +101,7 @@ export class NftController {
                     createNft.description,
                     createNft.image,
                     createNft.addressCollection.toLowerCase(),
-                    createNft.type
+                    "exclusive",
                 );
             } else {
                 return await this.eNftService.createENft(

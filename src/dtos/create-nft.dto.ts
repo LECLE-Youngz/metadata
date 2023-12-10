@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber, IsObject, IsString } from "class-validator";
+import { IsBoolean, IsNotEmpty, IsNumber, IsObject, IsString } from "class-validator";
 import { Metadata } from "src/schemas";
 
 export class CreateNftDto {
@@ -26,7 +26,7 @@ export class CreateNftDto {
     @IsNotEmpty()
     meta: Metadata;
 
-    @IsString()
+    @IsBoolean()
     @IsNotEmpty()
-    type: string;
+    eNft: boolean;
 }
