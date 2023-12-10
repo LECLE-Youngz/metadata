@@ -167,3 +167,22 @@ export type ResponseCollectionByAddress = {
         }>
     }
 }
+
+export type ResponseEvent = {
+    data: {
+        mysteryEventCreateds: Array<{
+            tokenAddress: string;
+        }>,
+        luckyTokenCreateds: Array<{
+            tokenAddress: string;
+        }>
+    }
+}
+
+export type ResponseEventByAddress = {
+    data: {
+        eventTransfers: Array<{
+            tokenId: string;
+        }>
+    }
+}

@@ -13,13 +13,14 @@ import { CreateNftDto } from "src/dtos";
 import { DataService, ENftService, NftService, PostService, UserService } from "src/services";
 import { Nft } from "src/schemas";
 import { verifyAccessToken } from "src/auth/google.verifier";
-import { fetchWalletByAddress, getPromptPrice, getTokenPrice, ownerOf, querySubscribingAPI, querySubscriberAPI, queryNFTsByAddress, queryListAllower, queryPromptBuyerByTokenAndAddress, queryAllNFTsByAddressAndCollection, queryAllCollectionFactory, ownerCollection, queryAllCollectionByDeployerAPI, queryAllCollectionByAddressAPI, getTokenAddressByUserAddress, getExclusiveNFTCollection, getCollectionByDeployer, queryAllCollectionByAddressWithoutExclusiveAPI } from "src/api";
+import { fetchWalletByAddress, getPromptPrice, getTokenPrice, ownerOf, querySubscribingAPI, querySubscriberAPI, queryNFTsByAddress, queryListAllower, queryPromptBuyerByTokenAndAddress, queryAllNFTsByAddressAndCollection, queryAllCollectionFactory, ownerCollection, queryAllCollectionByDeployerAPI, queryAllCollectionByAddressAPI, getTokenAddressByUserAddress, getExclusiveNFTCollection, getCollectionByDeployer, queryAllCollectionByAddressWithoutExclusiveAPI, queryEventByDeployerAPI, queryEventByAddressAPI, queryAllEventAPI } from "src/api";
 
 import * as dotenv from "dotenv";
 dotenv.config();
 
 import BN from "bn.js"
 import Web3 from "web3";
+import { queryAllEventByDeployer } from "src/api/queryGraph";
 
 @Controller("api/v1/nfts")
 export class NftController {
@@ -474,14 +475,67 @@ export class NftController {
 
     }
 
-    @Get("/event/:id")
+    @Get("/event/user/:id")
     async getEventById(@Param("id") id: string) {
         const user = await this.userService.findUserById(id);
         const wallet = await fetchWalletByAddress(user.email);
         if (!wallet.data.address) {
             throw new BadRequestException(`Event does not exist`);
         }
-        return ["0xb95ade735b085b90fb696bd9be62f1fda9c4196c"]
+        const listCollection = await queryEventByDeployerAPI(wallet.data.address);
+        return listCollection;
     }
+
+    @Get("/event/:address")
+    async getEventByAddress(@Param("address") address: string) {
+        const listCollection = await queryEventByAddressAPI(address);
+        return listCollection;
+    }
+
+    @Get("/event/:address/nft/:id")
+    async getEventNftById(@Param("id") id: number, @Param("address") address: string) {
+        const nfts = await this.nftService.findNftByIdAndAddressCollection(id, address);
+        if (!nfts) {
+            throw new BadRequestException(`Nft does not exist`);
+        }
+        const addressOwner: string = await ownerOf(id, address);
+        const wallet = await fetchWalletByAddress(addressOwner);
+        if (!wallet) {
+            throw new BadRequestException(`Wallet does not exist`);
+        }
+        const price: Array<BN> = await getTokenPrice(nfts.addressCollection, String(nfts.id))
+        const promptPrice: Array<BN> = await getPromptPrice(nfts.addressCollection, String(nfts.id))
+        const ownerInfo = await this.userService.findUserByEmail(wallet.data.owner);
+        const listAllower = await queryListAllower(nfts.addressCollection, nfts.id);
+        const listBoughts = await queryPromptBuyerByTokenAndAddress(nfts.addressCollection, nfts.id);
+
+        return {
+            id: nfts.id,
+            name: nfts.name,
+            description: nfts.description,
+            image: nfts.image,
+            price: {
+                avax: price[0].toString(),
+                usd: price[1].toString(),
+
+            },
+            owner: ownerInfo,
+            promptPrice: {
+                avax: promptPrice[0].toString(),
+                usd: promptPrice[1].toString(),
+            },
+            promptBuyer: listBoughts,
+            addressCollection: nfts.addressCollection,
+            promptAllower: listAllower,
+            attributes: nfts.attributes,
+        };
+    }
+
+    @Get("/event")
+    async getAllEvent() {
+        const listCollection = await queryAllEventAPI();
+        return listCollection;
+    }
+
 
 }

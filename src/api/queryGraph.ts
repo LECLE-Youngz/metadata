@@ -181,3 +181,32 @@ query queryAllCollection {
   }
 }
 `;
+
+export const queryAllEvent = `
+query queryAllEvent {
+mysteryEventCreateds {
+  tokenAddress
+}
+luckyTokenCreateds {
+  tokenAddress
+}}
+`
+
+export const queryAllEventByDeployer = `
+query queryAllEventByDeployer($owner: String) {
+mysteryEventCreateds(where: {owner: $owner}) {
+  tokenAddress
+}
+luckyTokenCreateds(where: {owner: $owner}) {
+  tokenAddress
+}
+}
+`
+
+export const queryAllEventByAddressCollection = `
+query queryAllEventByAddressCollection($contract: String) {
+eventTransfers(where: {contract: $contract, from: "0x0000000000000000000000000000000000000000"}) {
+  tokenId
+}
+}
+`
