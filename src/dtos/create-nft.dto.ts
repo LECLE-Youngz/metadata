@@ -26,7 +26,7 @@ export class CreateNftDto {
     @IsNotEmpty()
     meta: Metadata;
 
-    @IsBoolean()
+    @IsString()
     @IsNotEmpty()
-    eNft: boolean;
+    type: string;
 }
