@@ -20,7 +20,6 @@ dotenv.config();
 
 import BN from "bn.js"
 import Web3 from "web3";
-import { queryAllEventByDeployer } from "src/api/queryGraph";
 
 @Controller("api/v1/nfts")
 export class NftController {
