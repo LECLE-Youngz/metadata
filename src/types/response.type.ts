@@ -186,3 +186,28 @@ export type ResponseEventByAddress = {
         }>
     }
 }
+
+export type ResponseEventDeployer = {
+    data: {
+        eventCreateds: Array<{
+            owner: string;
+        }>,
+    }
+}
+
+export type ResponseTags = {
+    data: {
+        mysteryBoxCreateds: Array<{
+            id: string;
+        }>,
+        luckyTokenCreateds: Array<{
+            id: string;
+        }>,
+        mysteryEventCreateds: Array<{
+            id: string;
+        }>,
+        luckyTreasuryCreateds: Array<{
+            id: string;
+        }>
+    }
+}

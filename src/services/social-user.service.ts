@@ -88,6 +88,15 @@ export class SocialUserService {
         return this.socialUserModel.findOne({ id })
     }
 
+    async getNumSoldBuyerWithCreator(buyerId: string, creatorId: string): Promise<number> {
+        const listPurchasedByCreator: Promise<Array<AddressCount>> = this.socialUserModel.findOne({ id: creatorId });
+        const index = (await listPurchasedByCreator).findIndex(item => item.address === buyerId);
+        if (index === -1) {
+            return 0;
+        }
+        return (await listPurchasedByCreator)[index].count;
+    }
+
     async increaseListPurchasedByCreator(addressBuyer: string, addressCreator: string): Promise<any> {
         const socialUserBuyer = await this.socialUserModel.findOne({ id: addressBuyer })
         const socialUserCreator = await this.socialUserModel.findOne({ id: addressCreator })

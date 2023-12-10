@@ -26,7 +26,9 @@ import {
     queryAllCollectionByAddressWithoutExclusive,
     queryAllEvent,
     queryAllEventByDeployer,
-    queryAllEventByAddressCollection
+    queryAllEventByAddressCollection,
+    getOwnerByEvent,
+    getEventTag
 } from "./queryGraph";
 import {
     ResponseListCollection,
@@ -41,7 +43,9 @@ import {
     ResponseVerifyTransferPrompt,
     ResponseCollectionByAddress,
     ResponseEvent,
-    ResponseEventByAddress
+    ResponseEventByAddress,
+    ResponseEventDeployer,
+    ResponseTags
 } from "src/types/response.type";
 
 import Web3 from "web3";
@@ -514,7 +518,6 @@ export async function queryAllEventAPI(): Promise<Array<string>> {
             },
         });
         const data: ResponseEvent = response.data;
-        console.log(data);
         return [...data.data.mysteryEventCreateds, ...data.data.luckyTokenCreateds].map((event) => event.tokenAddress);
     }
     catch (err) {
@@ -566,4 +569,59 @@ export async function queryEventByAddressAPI(address: string) {
         console.log('Error fetching data: ', err);
         throw new BadRequestException('Failed to fetch data from GraphQL API | queryAllEventAPI');
     }
+}
+
+export async function queryOwnerByCollectionAPI(address: string) {
+    try {
+        const response: GaxiosResponse<any> = await request({
+            url: process.env.THE_GRAPH_API_URL,
+            method: 'POST',
+            data: {
+                query: getOwnerByEvent,
+                variables: {
+                    eventAddress: address,
+                },
+            },
+        });
+        const data: ResponseEventDeployer = response.data;
+        return data.data.eventCreateds[0].owner;
+    }
+    catch (err) {
+        console.log('Error fetching data: ', err);
+        throw new BadRequestException('Failed to fetch data from GraphQL API | queryDeploerByCollectionAPI');
+    }
+}
+
+export async function queryTagByCollectionAPI(address: string): Promise<string> {
+    try {
+        const response: GaxiosResponse<any> = await request({
+            url: process.env.THE_GRAPH_API_URL,
+            method: 'POST',
+            data: {
+                query: getEventTag,
+                variables: {
+                    eventAddress: address,
+                },
+            },
+        });
+        const data: ResponseTags = response.data;
+        if (data.data.mysteryBoxCreateds.length > 0) {
+            return "drop";
+        }
+        if (data.data.luckyTokenCreateds.length > 0) {
+            return "lucky";
+        }
+        if (data.data.mysteryEventCreateds.length > 0) {
+            return "mystery";
+        }
+        if (data.data.luckyTreasuryCreateds.length > 0) {
+            return "treasury";
+        }
+        return null;
+    }
+    catch (err) {
+        console.log('Error fetching data: ', err);
+        throw new BadRequestException('Failed to fetch data from GraphQL API | queryTagByCollectionAPI');
+    }
+
 }

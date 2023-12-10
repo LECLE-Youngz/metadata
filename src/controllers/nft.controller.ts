@@ -10,16 +10,18 @@ import {
 import { ExportSubscribing, NftCollection } from "src/types";
 
 import { CreateNftDto } from "src/dtos";
-import { DataService, ENftService, NftService, PostService, UserService } from "src/services";
+import { DataService, ENftService, NftService, PostService, SocialUserService, UserService } from "src/services";
 import { Nft } from "src/schemas";
 import { verifyAccessToken } from "src/auth/google.verifier";
-import { fetchWalletByAddress, getPromptPrice, getTokenPrice, ownerOf, querySubscribingAPI, querySubscriberAPI, queryNFTsByAddress, queryListAllower, queryPromptBuyerByTokenAndAddress, queryAllNFTsByAddressAndCollection, queryAllCollectionFactory, ownerCollection, queryAllCollectionByDeployerAPI, queryAllCollectionByAddressAPI, getTokenAddressByUserAddress, getExclusiveNFTCollection, getCollectionByDeployer, queryAllCollectionByAddressWithoutExclusiveAPI, queryEventByDeployerAPI, queryEventByAddressAPI, queryAllEventAPI } from "src/api";
+import { fetchWalletByAddress, getPromptPrice, getTokenPrice, ownerOf, querySubscribingAPI, querySubscriberAPI, queryNFTsByAddress, queryListAllower, queryPromptBuyerByTokenAndAddress, queryAllNFTsByAddressAndCollection, queryAllCollectionFactory, ownerCollection, queryAllCollectionByDeployerAPI, queryAllCollectionByAddressAPI, getTokenAddressByUserAddress, getExclusiveNFTCollection, getCollectionByDeployer, queryAllCollectionByAddressWithoutExclusiveAPI, queryEventByDeployerAPI, queryEventByAddressAPI, queryAllEventAPI, queryOwnerByCollectionAPI, queryTagByCollectionAPI } from "src/api";
 
 import * as dotenv from "dotenv";
 dotenv.config();
 
 import BN from "bn.js"
 import Web3 from "web3";
+import { mysteryEvMax, nftPurchasedRequired } from "src/api/mystery";
+import { mysteryDropEvMax } from "src/api/mysteryDrop";
 
 @Controller("api/v1/nfts")
 export class NftController {
@@ -29,6 +31,7 @@ export class NftController {
         private readonly dataService: DataService,
         private readonly postService: PostService,
         private readonly eNftService: ENftService,
+        private readonly socialUserService: SocialUserService,
     ) { }
 
 
@@ -531,15 +534,82 @@ export class NftController {
     }
 
     @Get("/event")
-    async getAllEvent() {
+    async getAllEvent(@Headers('Authorization') accessToken: string) {
         const listCollection = await queryAllEventAPI();
+        const msgSender = await verifyAccessToken(accessToken);
+        const walletSender = await fetchWalletByAddress(msgSender.email);
+        if (!walletSender.data.address) {
+            throw new BadRequestException(`Wallet does not exist`);
+        }
         const listCollectionMappingOwner = await Promise.all(listCollection.map(async (address) => {
-            const owner = await ownerCollection(address);
+            const owner = await queryOwnerByCollectionAPI(address);
+            const wallet = await fetchWalletByAddress(Web3.utils.toChecksumAddress(owner));
+            if (!wallet.data.address) {
+                throw new BadRequestException(`Wallet does not exist`);
+            }
+            const userInfo = await this.userService.findUserByEmail(wallet.data.owner);
+            const listSubscriber = await querySubscriberAPI(address);
+            const tags = await queryTagByCollectionAPI(address)
+
+            const numNftRequire = tags === "mystery" ? (await nftPurchasedRequired(address)).toString() : null;
+
+            let fullfill = "no";
+            let maxSupply = null;
+            if (tags === "lucky") {
+                const checkSub = listSubscriber.find(sub => sub === walletSender.data.address);
+                if (checkSub) {
+                    fullfill = "yes";
+                }
+                else {
+                    fullfill = "no";
+
+                }
+                maxSupply = null;
+
+            }
+            else if (
+                tags === "mystery"
+            ) {
+                const count = await this.socialUserService.getNumSoldBuyerWithCreator(walletSender.data.address, wallet.data.address);
+                const numberPurchase = await nftPurchasedRequired(address).toString();
+                if (count >= Number(numberPurchase)) {
+                    fullfill = "yes";
+                    maxSupply = await mysteryEvMax(address)
+                } else {
+                    fullfill = count.toString();
+                }
+            }
+            else if (
+                tags === "drop"
+            ) {
+                fullfill = "no"
+                maxSupply = await mysteryDropEvMax(address)
+            }
+            else if (
+                tags === "treasury"
+            ) {
+                fullfill = "yes"
+                maxSupply = null
+            }
+
+
+
+
             return {
+                tags: tags,
                 address: address,
-                owner: owner,
+                owner: {
+                    id: userInfo.id,
+                    name: userInfo.name,
+                },
+                fullfill: fullfill,
+                maxSupply: maxSupply,
+                require: numNftRequire,
+                addressCollection: address,
             }
         }))
+
+        return listCollectionMappingOwner;
     }
 
 
