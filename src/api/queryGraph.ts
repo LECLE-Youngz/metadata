@@ -210,3 +210,28 @@ eventTransfers(where: {contract: $contract, from: "0x000000000000000000000000000
 }
 }
 `
+
+export const getOwnerByEvent = `
+query getOwnerByEvent($eventAddress: String) {
+  eventCreateds(where: {tokenAddress: $eventAddress}) {
+    owner
+  }
+}`
+
+
+export const getEventTag = `
+query getEventTag($eventAddress: String) {
+  mysteryBoxCreateds(where: {tokenAddress: $eventAddress}) {
+    id
+  }
+  luckyTokenCreateds(where: {tokenAddress: $eventAddress}) {
+    id
+  }
+  mysteryEventCreateds(where: {tokenAddress: $eventAddress}) {
+    id
+  }
+  luckyTreasuryCreateds(where: {tokenAddress: $eventAddress}) {
+    id
+  }
+}
+`

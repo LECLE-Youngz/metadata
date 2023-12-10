@@ -5,10 +5,12 @@ import collectionABI from "src/configs/NexthypeNFT.sol/NEXTHYPE.json";
 import factoryABI from "src/configs/GenerativeNFTFactory.sol/GenerativeNFTFactory.json";
 import generativeABI from "src/configs/GenerativeNFT.sol/GenerativeNFT.json";
 import * as dotenv from "dotenv";
-import mystery from "src/configs/MysteryNft.sol/MysteryDropEvent.json";
+import mysteryDropABI from "src/configs/MysteryNft.sol/MysteryDropEvent.json";
+import mysteryABI from "src/configs/MysteryNft.sol/MysteryBox.json";
 dotenv.config();
 
 const provider = new JsonRpcProvider(process.env.FUJI_RPC);
+
 
 export const marketplace = async () => {
     const contract = new ethers.Contract(
@@ -28,6 +30,28 @@ export const collection = async (addressCollection: string) => {
     );
 
     return contract;
+}
+
+export const mysteryCollection = async (addressCollection: string) => {
+    const contract = new ethers.Contract(
+        addressCollection,
+        mysteryABI.abi as any,
+        provider
+    );
+
+    return contract;
+
+}
+
+export const mysteryDropCollection = async (addressCollection: string) => {
+    const contract = new ethers.Contract(
+        addressCollection,
+        mysteryDropABI.abi as any,
+        provider
+    );
+
+    return contract;
+
 }
 
 export const factory = async () => {
