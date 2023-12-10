@@ -86,11 +86,11 @@ export class NftController {
     async createNft(@Body() createNft: CreateNftDto, @Headers('Authorization') accessToken: string) {
         try {
             const user = await verifyAccessToken(accessToken);
-            const wallet = await fetchWalletByAddress(user.email);
-            const addressOwner: string = await ownerOf(createNft.id, createNft.addressCollection);
-            if (addressOwner !== wallet.data.address) {
-                throw new BadRequestException(`You are not owner of this nft`);
-            }
+            // const wallet = await fetchWalletByAddress(user.email);
+            // const addressOwner: string = await ownerOf(createNft.id, createNft.addressCollection);
+            // if (addressOwner !== wallet.data.address) {
+            //     throw new BadRequestException(`You are not owner of this nft`);
+            // }
             // const existedNft = await this.nftService.findNftByIdAndAddressCollection(createNft.id, createNft.addressCollection);
             // if (existedNft) {
             //     throw new BadRequestException(`Nft already exists`);
