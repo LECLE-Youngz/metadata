@@ -28,7 +28,9 @@ import {
     queryAllEventByDeployer,
     queryAllEventByAddressCollection,
     getOwnerByEvent,
-    getEventTag
+    getEventTag,
+    getMysteryEventByOwner,
+    getEventByDeployer
 } from "./queryGraph";
 import {
     ResponseListCollection,
@@ -45,7 +47,9 @@ import {
     ResponseEvent,
     ResponseEventByAddress,
     ResponseEventDeployer,
-    ResponseTags
+    ResponseTags,
+    ResponseMysteryByAddress,
+    ResponseEventByDeployer
 } from "src/types/response.type";
 
 import Web3 from "web3";
@@ -622,6 +626,50 @@ export async function queryTagByCollectionAPI(address: string): Promise<string> 
     catch (err) {
         console.log('Error fetching data: ', err);
         throw new BadRequestException('Failed to fetch data from GraphQL API | queryTagByCollectionAPI');
+    }
+
+}
+
+export async function queryMysteryByDeployerAPI(deployer: string): Promise<Array<string>> {
+    try {
+        const response: GaxiosResponse<ResponseMysteryByAddress> = await request({
+            url: process.env.THE_GRAPH_API_URL,
+            method: 'POST',
+            data: {
+                query: getMysteryEventByOwner,
+                variables: {
+                    owner: deployer
+                },
+            },
+        });
+        const data: ResponseMysteryByAddress = response.data;
+        return data.data.mysteryEventCreateds.map((event) => event.tokenAddress);
+    }
+    catch (err) {
+        console.log('Error fetching data: ', err);
+        throw new BadRequestException('Failed to fetch data from GraphQL API | queryAllEventAPI');
+    }
+
+}
+
+export async function queryEventAddressByDeployerAPI(deployer: string) {
+    try {
+        const response: GaxiosResponse<ResponseEventByDeployer> = await request({
+            url: process.env.THE_GRAPH_API_URL,
+            method: 'POST',
+            data: {
+                query: getEventByDeployer,
+                variables: {
+                    owner: deployer
+                },
+            },
+        });
+        const data: ResponseEventByDeployer = response.data;
+        return data.data;
+    }
+    catch (err) {
+        console.log('Error fetching data: ', err);
+        throw new BadRequestException('Failed to fetch data from GraphQL API | queryAllEventAPI');
     }
 
 }

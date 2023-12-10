@@ -2,20 +2,16 @@ import { IsArray, IsNotEmpty, IsNumber, IsString, IsBoolean } from "class-valida
 
 export class UpdateNumNftDto {
     @IsNumber()
-    @IsNotEmpty()
     nftId: number;
 
     @IsString()
-    @IsNotEmpty()
     addressCollection: string;
 }
 
 export class UpdateNumPromptDto {
     @IsNumber()
-    @IsNotEmpty()
     nftId: number;
 
     @IsString()
-    @IsNotEmpty()
     addressCollection: string;
 }

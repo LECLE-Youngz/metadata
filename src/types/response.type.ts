@@ -211,3 +211,25 @@ export type ResponseTags = {
         }>
     }
 }
+
+export type ResponseMysteryByAddress = {
+    data: {
+        mysteryEventCreateds: Array<{
+            tokenAddress: string;
+        }>
+    }
+}
+
+export type ResponseEventByDeployer = {
+    data: {
+        mysteryBoxCreateds: Array<{
+            tokenAddress: string;
+        }>,
+        mysteryEventCreateds: Array<{
+            tokenAddress: string;
+        }>,
+        luckyTokenCreateds: Array<{
+            tokenAddress: string;
+        }>,
+    }
+}

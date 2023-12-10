@@ -6,6 +6,7 @@ import {
     Body,
     Headers,
     BadRequestException,
+    Put,
 } from "@nestjs/common";
 import { ExportSubscribing, NftCollection } from "src/types";
 
@@ -13,7 +14,7 @@ import { CreateNftDto } from "src/dtos";
 import { DataService, ENftService, NftService, PostService, SocialUserService, UserService } from "src/services";
 import { Nft } from "src/schemas";
 import { verifyAccessToken } from "src/auth/google.verifier";
-import { fetchWalletByAddress, getPromptPrice, getTokenPrice, ownerOf, querySubscribingAPI, querySubscriberAPI, queryNFTsByAddress, queryListAllower, queryPromptBuyerByTokenAndAddress, queryAllNFTsByAddressAndCollection, queryAllCollectionFactory, ownerCollection, queryAllCollectionByDeployerAPI, queryAllCollectionByAddressAPI, getTokenAddressByUserAddress, getExclusiveNFTCollection, getCollectionByDeployer, queryAllCollectionByAddressWithoutExclusiveAPI, queryEventByDeployerAPI, queryEventByAddressAPI, queryAllEventAPI, queryOwnerByCollectionAPI, queryTagByCollectionAPI } from "src/api";
+import { fetchWalletByAddress, getPromptPrice, getTokenPrice, ownerOf, querySubscribingAPI, querySubscriberAPI, queryNFTsByAddress, queryListAllower, queryPromptBuyerByTokenAndAddress, queryAllNFTsByAddressAndCollection, queryAllCollectionFactory, ownerCollection, queryAllCollectionByDeployerAPI, queryAllCollectionByAddressAPI, getTokenAddressByUserAddress, getExclusiveNFTCollection, getCollectionByDeployer, queryAllCollectionByAddressWithoutExclusiveAPI, queryEventByDeployerAPI, queryEventByAddressAPI, queryAllEventAPI, queryOwnerByCollectionAPI, queryTagByCollectionAPI, queryEventAddressByDeployerAPI } from "src/api";
 
 import * as dotenv from "dotenv";
 dotenv.config();
@@ -612,4 +613,12 @@ export class NftController {
     }
 
 
+    @Put("/collection/:addressCollection/type/:type")
+    async updateCollection(@Param("addressCollection") addressCollectionRaw: string, @Param("type") type: string, @Headers('Authorization') accessToken: string) {
+        const addressCollection = addressCollectionRaw.toLowerCase();
+        const user = await verifyAccessToken(accessToken);
+        const listNftUpdate = await this.nftService.findNftByAddressCollectionAndType(user.id, type)
+        const updateNft = await this.nftService.updateCollection(listNftUpdate, addressCollection);
+        return updateNft;
+    }
 }

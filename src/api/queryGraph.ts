@@ -235,3 +235,25 @@ query getEventTag($eventAddress: String) {
   }
 }
 `
+
+export const getMysteryEventByOwner = `
+query getMysteryEventByOwner($owner: String) {
+  mysteryEventCreateds(where: {owner: $owner}) {
+    tokenAddress
+  }
+}
+`
+
+export const getEventByDeployer = `
+query getEventByDeployer($owner: String) {
+  mysteryBoxCreateds(where: {owner: $owner}) {
+    tokenAddress
+  }
+  luckyTokenCreateds(where: {owner: $owner}) {
+    tokenAddress
+  }
+  mysteryEventCreateds(where: {owner: $owner}) {
+    tokenAddress
+  }
+}
+`
