@@ -1,5 +1,5 @@
 export const mailConfig = (username: string, creator: string, num: number): string => {
-    return `
+	return `
     <!DOCTYPE html>
 <html xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office" lang="en">
 
@@ -133,7 +133,7 @@ export const mailConfig = (username: string, creator: string, num: number): stri
 														<tr>
 															<td class="pad" style="padding-bottom:20px;padding-left:15px;padding-right:15px;padding-top:20px;text-align:center;">
 																<div class="alignment" align="center"><!--[if mso]>
-<v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="http://www.example.com/" style="height:40px;width:120px;v-text-anchor:middle;" arcsize="60%" stroke="false" fillcolor="#ffffff">
+<v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="https://next-hype.vercel.app/" style="height:40px;width:120px;v-text-anchor:middle;" arcsize="60%" stroke="false" fillcolor="#ffffff">
 <w:anchorlock/>
 <v:textbox inset="0px,0px,0px,0px">
 <center style="color:#091548; font-family:'Trebuchet MS', sans-serif; font-size:15px">

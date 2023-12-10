@@ -28,6 +28,11 @@ export class NftService {
     }
 
 
+    async findNftByAddressCollectionAndType(addressCollection: string, type: string): Promise<Array<Nft>> {
+        return this.nftModel.find({ addressCollection, type });
+    }
+
+
     async createNft(
         id: number,
         name: string,
@@ -65,5 +70,13 @@ export class NftService {
 
     async getAllCollection(): Promise<Array<String>> {
         return this.nftModel.distinct("addressCollection");
+    }
+
+    async updateCollection(listCollectionUpdate: Array<Nft>, newCollection: string) {
+        return this.nftModel.updateMany({ id: { $in: listCollectionUpdate.map(nft => nft.id) } }, { addressCollection: newCollection });
+    }
+
+    async getNftByType(type: string): Promise<Array<Nft>> {
+        return this.nftModel.find({ type });
     }
 }

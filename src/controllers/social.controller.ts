@@ -15,9 +15,10 @@ import { PostService, CommentService, SocialUserService, UserService, NftService
 
 import { verifyAccessToken } from "src/auth/google.verifier";
 import { CreateCommentDto, UpdateNumNftDto, UpdateNumPromptDto, UpdatePostDto } from "src/dtos";
-import { fetchWalletByAddress, ownerOf, querySubscriberAPI, querySubscribingAPI, verifyTransferNftAPI, verifyTransferPromptAPI } from "src/api";
+import { fetchWalletByAddress, ownerOf, queryMysteryByDeployerAPI, querySubscriberAPI, querySubscribingAPI, verifyTransferNftAPI, verifyTransferPromptAPI } from "src/api";
 import { queryOwnerByIdNCollection } from "src/api/queryGraph";
 import { mailConfig } from "src/configs/mail";
+import { nftPurchasedRequired } from "src/api/mystery";
 
 @Controller("api/v1/socials")
 export class SocialController {
@@ -541,12 +542,19 @@ export class SocialController {
         // if (!verify) {
         //     throw new BadRequestException(`You don't have this nft`);
         // }
+        const listMystery = await queryMysteryByDeployerAPI(walletCreator.data.address);
+        const listNftPurchasedRequired = await Promise.all(listMystery.map(async (mystery) => {
+            const count = await nftPurchasedRequired(mystery).toString();
+            return count;
+        }))
         const res = await this.socialUserService.increaseListPurchasedByCreator(userBuyer.id, creatorId);
-        if (res?.number === 2) {
+        // find res.number in listNftPurchasedRequired
+        const index = listNftPurchasedRequired.findIndex(item => item === res.number.toString());
+        if (index) {
             await this.mailerService.sendMail({
                 to: userBuyer.email,
                 subject: "",
-                html: mailConfig(userBuyer.given_name, userCreator.given_name, 2),
+                html: mailConfig(userBuyer.given_name, userCreator.given_name, index),
             })
         }
         return {
