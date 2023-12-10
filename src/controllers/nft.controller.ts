@@ -534,7 +534,13 @@ export class NftController {
     @Get("/event")
     async getAllEvent() {
         const listCollection = await queryAllEventAPI();
-        return listCollection;
+        const listCollectionMappingOwner = await Promise.all(listCollection.map(async (address) => {
+            const owner = await ownerCollection(address);
+            return {
+                address: address,
+                owner: owner,
+            }
+        }))
     }
 
 
