@@ -597,7 +597,6 @@ export class NftController {
 
             return {
                 tag: tag,
-                address: address,
                 owner: {
                     id: userInfo.id,
                     name: userInfo.name,
