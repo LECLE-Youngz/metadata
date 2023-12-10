@@ -548,7 +548,6 @@ export class NftController {
                 throw new BadRequestException(`Wallet does not exist`);
             }
             const userInfo = await this.userService.findUserByEmail(wallet.data.owner);
-            const listSubscriber = await querySubscriberAPI(address);
             const tag = await queryTagByCollectionAPI(address)
 
             const numNftRequire = tag === "mystery" ? (await nftPurchasedRequired(address)).toString() : null;
@@ -556,7 +555,8 @@ export class NftController {
             let fulfill = "no";
             let maxSupply = null;
             if (tag === "lucky") {
-                const checkSub = listSubscriber.find(sub => sub === walletSender.data.address);
+                const listSubscriber = await querySubscriberAPI(wallet.data.address);
+                const checkSub = listSubscriber.find(sub => sub === walletSender.data.address.toLowerCase());
                 if (checkSub) {
                     fulfill = "yes";
                 }
