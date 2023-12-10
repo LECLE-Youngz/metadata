@@ -91,10 +91,10 @@ export class NftController {
             if (addressOwner !== wallet.data.address) {
                 throw new BadRequestException(`You are not owner of this nft`);
             }
-            const existedNft = await this.nftService.findNftByIdAndAddressCollection(createNft.id, createNft.addressCollection);
-            if (existedNft) {
-                throw new BadRequestException(`Nft already exists`);
-            }
+            // const existedNft = await this.nftService.findNftByIdAndAddressCollection(createNft.id, createNft.addressCollection);
+            // if (existedNft) {
+            //     throw new BadRequestException(`Nft already exists`);
+            // }
             if (createNft.type !== "exclusive") {
                 await this.dataService.createData(createNft.id, createNft.addressCollection.toLowerCase(), createNft.meta);
 
@@ -618,7 +618,7 @@ export class NftController {
         const addressCollection = addressCollectionRaw.toLowerCase();
         const user = await verifyAccessToken(accessToken);
         const listNftUpdate = await this.nftService.findNftByAddressCollectionAndType(user.id, type)
-        const updateNft = await this.nftService.updateCollection(listNftUpdate, addressCollection);
+        const updateNft = await this.nftService.updateCollectionAndNftIdWithNftAutoCountFrom0(listNftUpdate, addressCollection);
         return updateNft;
     }
 }
