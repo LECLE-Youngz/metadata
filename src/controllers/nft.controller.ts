@@ -549,46 +549,46 @@ export class NftController {
             }
             const userInfo = await this.userService.findUserByEmail(wallet.data.owner);
             const listSubscriber = await querySubscriberAPI(address);
-            const tags = await queryTagByCollectionAPI(address)
+            const tag = await queryTagByCollectionAPI(address)
 
-            const numNftRequire = tags === "mystery" ? (await nftPurchasedRequired(address)).toString() : null;
+            const numNftRequire = tag === "mystery" ? (await nftPurchasedRequired(address)).toString() : null;
 
-            let fullfill = "no";
+            let fulfill = "no";
             let maxSupply = null;
-            if (tags === "lucky") {
+            if (tag === "lucky") {
                 const checkSub = listSubscriber.find(sub => sub === walletSender.data.address);
                 if (checkSub) {
-                    fullfill = "yes";
+                    fulfill = "yes";
                 }
                 else {
-                    fullfill = "no";
+                    fulfill = "no";
 
                 }
                 maxSupply = null;
 
             }
             else if (
-                tags === "mystery"
+                tag === "mystery"
             ) {
                 const count = await this.socialUserService.getNumSoldBuyerWithCreator(walletSender.data.address, wallet.data.address);
                 const numberPurchase = await nftPurchasedRequired(address).toString();
                 if (count >= Number(numberPurchase)) {
-                    fullfill = "yes";
+                    fulfill = "yes";
                     maxSupply = await mysteryEvMax(address)
                 } else {
-                    fullfill = count.toString();
+                    fulfill = count.toString();
                 }
             }
             else if (
-                tags === "drop"
+                tag === "drop"
             ) {
-                fullfill = "no"
+                fulfill = "no"
                 maxSupply = await mysteryDropEvMax(address)
             }
             else if (
-                tags === "treasury"
+                tag === "treasury"
             ) {
-                fullfill = "yes"
+                fulfill = "yes"
                 maxSupply = null
             }
 
@@ -596,13 +596,13 @@ export class NftController {
 
 
             return {
-                tags: tags,
+                tag: tag,
                 address: address,
                 owner: {
                     id: userInfo.id,
                     name: userInfo.name,
                 },
-                fullfill: fullfill,
+                fulfill: fulfill,
                 maxSupply: maxSupply,
                 require: numNftRequire,
                 addressCollection: address,
