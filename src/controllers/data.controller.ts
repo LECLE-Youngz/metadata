@@ -69,7 +69,7 @@ export class DataController {
             const nft = listNft.find(nft => nft.id === data.id && nft.addressCollection === data.addressCollection);
             const price = await getTokenPrice(data.addressCollection, String(data.id));
             const promptPrice = await getPromptPrice(data.addressCollection, String(data.id));
-            if (nft) {
+            if (nft && data) {
                 return {
                     id: nft?.id ?? data.id,
                     addressCollection: data.addressCollection,
@@ -93,6 +93,10 @@ export class DataController {
         }))
 
         const addressENft = await getCollectionByDeployer(wallet.data.address);
+        if (!addressENft) {
+            // filter null
+            return listDataWithNft.filter(data => data);
+        }
         const listDataENft = await this.eNftService.getENftByAddressCollection(addressENft);
         const listDataInfoENft = await this.eNftService.findENftsByListObjectIdWithCollection(listDataENft.map(data => ({ id: data, addressCollection: addressENft })));
         const listDataWithENft = await Promise.all(listDataInfoENft.map(async nft => {
