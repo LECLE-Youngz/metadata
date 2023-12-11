@@ -595,7 +595,7 @@ export class SocialController {
         if (index) {
             await this.mailerService.sendMail({
                 to: userBuyer.email,
-                subject: "",
+                subject: "Gift from Event Mystery",
                 html: mailConfig(userBuyer.given_name, userCreator.given_name, index),
             })
         }
