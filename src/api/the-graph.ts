@@ -130,8 +130,7 @@ export async function queryListAllower(addressCollection: string, tokenId: numbe
         // filter duplicate
         return [...promptBuyer, ...itemBuyer, ...transferBuyer];
     } catch (err) {
-        console.log('Error fetching data: ', err);
-        throw new BadRequestException('Failed to fetch data from GraphQL API, failed to queryPromptAllowerByTokenAndAddress');
+        return []
     }
 }
 
@@ -157,8 +156,7 @@ export async function queryPromptBuyerByTokenAndAddress(addressCollection: strin
         // filter duplicate
         return [...promptBuyer];
     } catch (err) {
-        console.log('Error fetching data: ', err);
-        throw new BadRequestException('Failed to fetch data from GraphQL API, failed to queryPromptBuyerByTokenAndAddress');
+        return []
     }
 }
 
@@ -485,8 +483,7 @@ export async function getCollectionByDeployer(address: string): Promise<string> 
         const creatorStatus = data.data.exclusiveNFTCreateds[0].tokenAddress;
         return creatorStatus;
     } catch (err) {
-        console.log('Error fetching data: ', err);
-        throw new BadRequestException('Failed to fetch data from GraphQL API');
+        return ""
     }
 }
 

@@ -354,33 +354,36 @@ export class NftController {
             };
         }));
         const addressENft = await getCollectionByDeployer(wallet.data.address);
-        const listDataENft = await this.eNftService.getENftByAddressCollection(addressENft);
-        const listDataInfoENft = await this.eNftService.findENftsByListObjectIdWithCollection(listDataENft.map(data => ({ id: data, addressCollection: addressENft })));
+        if (addressENft) {
+            const listDataENft = await this.eNftService.getENftByAddressCollection(addressENft);
+            const listDataInfoENft = await this.eNftService.findENftsByListObjectIdWithCollection(listDataENft.map(data => ({ id: data, addressCollection: addressENft })));
 
-        const listDataWithENft = await Promise.all(listDataInfoENft.map(async nft => {
-            const price: Array<BN> = await getTokenPrice(nft.addressCollection, String(nft.id))
+            const listDataWithENft = await Promise.all(listDataInfoENft.map(async nft => {
+                const price: Array<BN> = await getTokenPrice(nft.addressCollection, String(nft.id))
 
-            return {
-                id: nft.id,
-                addressCollection: nft.addressCollection,
-                name: nft.name,
-                description: nft.description,
-                image: nft.image,
-                price: {
-                    avax: price[0].toString(),
-                    usd: price[1].toString(),
-                },
-                promptPrice: {
-                    avax: "0",
-                    usd: "0",
-                },
-                attributes: nft.attributes,
-                promptBuyer: [],
-                promptAllower: [],
-                eNft: true,
-            }
-        }))
-        return listDataWithENft.concat(mappingPrice);
+                return {
+                    id: nft.id,
+                    addressCollection: nft.addressCollection,
+                    name: nft.name,
+                    description: nft.description,
+                    image: nft.image,
+                    price: {
+                        avax: price[0].toString(),
+                        usd: price[1].toString(),
+                    },
+                    promptPrice: {
+                        avax: "0",
+                        usd: "0",
+                    },
+                    attributes: nft.attributes,
+                    promptBuyer: [],
+                    promptAllower: [],
+                    eNft: true,
+                }
+            }))
+            return listDataWithENft.concat(mappingPrice);
+        }
+        return mappingPrice;
 
     }
 
