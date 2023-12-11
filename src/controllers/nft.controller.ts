@@ -575,7 +575,7 @@ export class NftController {
             else if (
                 tag === "mystery"
             ) {
-                const count = await this.socialUserService.getNumSoldBuyerWithCreator(walletSender.data.address, wallet.data.address);
+                const count = await this.socialUserService.getNumSoldBuyerWithCreator(msgSender.id, userInfo.id);
                 const numberPurchase = await nftPurchasedRequired(address).toString();
                 if (count >= Number(numberPurchase)) {
                     fulfill = "yes";
