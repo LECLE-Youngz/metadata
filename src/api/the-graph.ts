@@ -69,17 +69,17 @@ export async function queryNFTsByAddress(address: string, collection: string): P
             },
         });
         const data = response.data;
+
         const minusResult: Transfer[] =
             data.data.transfersTo && data.data.transfersFrom
-                ? data.data.transfersTo.filter(
+                ? data.data.transfersTo?.filter(
                     (transferTo: Transfer) => !data.data.transfersFrom.some((transferFrom: Transfer) => transferFrom.tokenId === transferTo.tokenId)
                 )
                 : [];
-        const tokenIdArray = minusResult.map((transfer) => Number(transfer.tokenId));
+        const tokenIdArray = minusResult?.map((transfer) => Number(transfer.tokenId)) ?? [];
         return tokenIdArray;
     } catch (err) {
-        console.log('Error fetching data: ', err);
-        throw new BadRequestException('Failed to fetch data from GraphQL API, failed to queryNFTsByAddress');
+        return []
     }
 }
 

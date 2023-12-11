@@ -6,6 +6,6 @@ export const nftPurchasedRequired = async (addressCollection: string) => {
 }
 
 export const mysteryEvMax = async (addressCollection: string) => {
-    const max = await mysteryCollection(addressCollection).then((res) => res.i_maxSupply());
+    const max = await mysteryCollection(addressCollection).then((res) => res.i_maxSupply);
     return max;
 }

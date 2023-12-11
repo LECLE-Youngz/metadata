@@ -65,19 +65,18 @@ export class DataController {
         const listData = await queryPromptAllowerByTokenAndAddress(wallet.data.address);
         const listDataInfo = await this.dataService.findDataByListIdAndCollection(listData.map(data => ({ id: data.tokenId, addressCollection: data.contract })));
         const listNft = await this.nftService.findNftsByListObjectIdWithCollection(listData.map(data => ({ id: data.tokenId, addressCollection: data.contract })));
-
         const listDataWithNft = await Promise.all(listDataInfo.map(async data => {
             const nft = listNft.find(nft => nft.id === data.id && nft.addressCollection === data.addressCollection);
             const price = await getTokenPrice(data.addressCollection, String(data.id));
             const promptPrice = await getPromptPrice(data.addressCollection, String(data.id));
             return {
-                id: nft.id,
-                addressCollection: nft.addressCollection,
-                name: nft.name,
-                description: nft.description,
-                meta: data.meta,
-                image: nft.image,
-                attributes: nft.attributes,
+                id: nft?.id ?? data.id,
+                addressCollection: data.addressCollection,
+                name: nft?.name ?? "",
+                description: nft?.description ?? "",
+                meta: data.meta ?? "",
+                image: nft?.image ?? "",
+                attributes: nft?.attributes ?? [],
                 price: {
                     avax: price[0].toString(),
                     usd: price[1].toString(),
