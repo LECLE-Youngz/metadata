@@ -15,7 +15,7 @@ import { PostService, CommentService, SocialUserService, UserService, NftService
 
 import { verifyAccessToken } from "src/auth/google.verifier";
 import { CreateCommentDto, UpdateNumNftDto, UpdateNumPromptDto, UpdatePostDto } from "src/dtos";
-import { fetchWalletByAddress, ownerOf, queryMysteryByDeployerAPI, querySubscriberAPI, querySubscribingAPI, verifyTransferNftAPI, verifyTransferPromptAPI } from "src/api";
+import { fetchWalletByAddress, getPromptPrice, getTokenPrice, ownerOf, queryListAllower, queryMysteryByDeployerAPI, queryPromptBuyerByTokenAndAddress, querySubscriberAPI, querySubscribingAPI, verifyTransferNftAPI, verifyTransferPromptAPI } from "src/api";
 import { queryOwnerByIdNCollection } from "src/api/queryGraph";
 import { mailConfig } from "src/configs/mail";
 import { nftPurchasedRequired } from "src/api/mystery";
@@ -216,6 +216,55 @@ export class SocialController {
         }
     }
 
+    @Get("/post/:id")
+    async getPostById(@Param("id") id: number, @Headers('Authorization') accessToken: string) {
+        const post = await this.postService.findPostById(id);
+        const ownerPost = await this.userService.findUserById(post.ownerId);
+        const comment = await this.commentService.findCommentByPostId(post.id);
+        const nft = await this.nftService.findNftByIdAndAddressCollection(post.nftId, post.addressCollection);
+        const user = await verifyAccessToken(accessToken);
+        if (!user.email) {
+            throw new BadRequestException(`You don't have permission, don't have email`);
+        }
+        const wallet = await fetchWalletByAddress(user.email);
+        if (!wallet.data.address) {
+            throw new BadRequestException(`You don't have wallet in node api`);
+        }
+        const [price, promptPrice, listAllower, listBoughts] = await Promise.all([
+            getTokenPrice(nft.addressCollection, String(nft.id)),
+            getPromptPrice(nft.addressCollection, String(nft.id)),
+            queryListAllower(nft.addressCollection, nft.id),
+            queryPromptBuyerByTokenAndAddress(nft.addressCollection, nft.id),
+        ]);
+        return {
+            postId: post.id,
+            text: post.text,
+            header: post.header,
+            exclusiveContent: post.exclusiveContent,
+            description: post.description,
+            bookmark: post.bookmark,
+            likes: post.likes,
+            timestamp: post.timestamp,
+            tags: post.tags,
+            nft: nft,
+            price: {
+                avax: price[0].toString(),
+                usd: price[1].toString(),
+            },
+            promptPrice: {
+                avax: promptPrice[0].toString(),
+                usd: promptPrice[1].toString(),
+            },
+            listAllower: listAllower,
+            listBoughts: listBoughts,
+            postOwner: {
+                id: ownerPost.id,
+                name: ownerPost.name,
+                email: ownerPost.email,
+                picture: ownerPost.picture,
+            }
+        }
+    }
 
 
 
