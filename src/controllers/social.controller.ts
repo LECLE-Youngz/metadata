@@ -582,13 +582,17 @@ export class SocialController {
         // }
         const listMystery = await queryMysteryByDeployerAPI(walletCreator.data.address);
         const listNftPurchasedRequired = await Promise.all(listMystery.map(async (mystery) => {
-            const count = await nftPurchasedRequired(mystery).toString();
-            return count;
-        }))
+            try {
+                const count = (await nftPurchasedRequired(mystery)).toString();
+                return count;
+            } catch (error) {
+                console.error(`Error getting count for mystery ${mystery}:`, error);
+                return '0';
+            }
+        }));
         const res = await this.socialUserService.increaseListPurchasedByCreator(userBuyer.id, creatorId);
-        // find res.number in listNftPurchasedRequired
-        const index = listNftPurchasedRequired.findIndex(item => item === res.number.toString());
-        if (res?.number === index) {
+        const index = listNftPurchasedRequired.findIndex(item => item.toString() === res.number.toString());
+        if (index) {
             await this.mailerService.sendMail({
                 to: userBuyer.email,
                 subject: "",
@@ -599,6 +603,7 @@ export class SocialController {
             status: "success"
         }
     }
+
 
     @Put("/increase-prompt/:creatorId")
     async increasePromptSoldAndPurchased(@Param("creatorId") creatorId: string, @Headers('Authorization') accessToken: string, @Body() body: UpdateNumPromptDto) {
