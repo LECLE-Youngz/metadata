@@ -457,6 +457,7 @@ export class SocialController {
         const ownerPost = await this.userService.findUserById(post.ownerId);
         const comment = await this.commentService.findCommentByPostId(post.id);
         const nft = await this.nftService.findNftByIdAndAddressCollection(post.nftId, post.addressCollection);
+        const data = await this.dataService.findDataByIdAndAddressCollection(nft.id, nft.addressCollection);
         const price: Array<BN> = await getTokenPrice(nft.addressCollection, String(nft.id))
         const promptPrice: Array<BN> = await getPromptPrice(nft.addressCollection, String(nft.id))
         const listAllower = await queryListAllower(nft.addressCollection, nft.id);
@@ -469,7 +470,6 @@ export class SocialController {
         if (!wallet.data.address) {
             throw new BadRequestException(`You don't have wallet in node api`);
         }
-
         if (post.exclusiveContent === true && post.ownerId !== user.id) {
             const walletOwnerPost = await fetchWalletByAddress(ownerPost.email);
             if (!walletOwnerPost.data.address) {
@@ -539,6 +539,8 @@ export class SocialController {
                         },
                         listAllower: listAllower,
                         listBoughts: listBoughts,
+                        meta: data.meta
+
                     },
                     postOwner: {
                         id: ownerPost.id,
@@ -612,6 +614,7 @@ export class SocialController {
                 },
                 listAllower: listAllower,
                 listBoughts: listBoughts,
+                data: data.meta
             },
 
             postOwner: {
