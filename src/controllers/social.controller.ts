@@ -591,13 +591,14 @@ export class SocialController {
             }
         }));
         const res = await this.socialUserService.increaseListPurchasedByCreator(userBuyer.id, creatorId);
-        const index = listNftPurchasedRequired.findIndex(item => item.toString() === res.number.toString());
-        if (index) {
+        const index = listNftPurchasedRequired.find(item => item.toString() === res.number.toString());
+        if (index !== undefined) {
             await this.mailerService.sendMail({
                 to: userBuyer.email,
                 subject: "Gift from Event Mystery",
                 html: mailConfig(userBuyer.given_name, userCreator.given_name, index),
             })
+            return "send mail"
         }
         return {
             status: "success"
