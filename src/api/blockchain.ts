@@ -35,7 +35,7 @@ export const collection = async (addressCollection: string) => {
 export const mysteryCollection = async (addressCollection: string) => {
     const contract = new ethers.Contract(
         addressCollection,
-        mysteryABI.abi as any,
+        mysteryABI as any,
         provider
     );
 

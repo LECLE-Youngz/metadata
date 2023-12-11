@@ -555,7 +555,7 @@ export class NftController {
             }
             const userInfo = await this.userService.findUserByEmail(wallet.data.owner);
             const tag = await queryTagByCollectionAPI(address)
-            const numNftRequire = tag === "mystery" ? (await nftPurchasedRequired(address)) ?? 0 : null;
+            const numNftRequire = tag === "mystery" ? 2 : null;
 
             let fulfill = "no";
             let maxSupply = null;
