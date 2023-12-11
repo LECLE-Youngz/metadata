@@ -11,7 +11,7 @@ import {
 } from "@nestjs/common";
 import { CreatePostDto } from "src/dtos/create-post.dto";
 
-import { PostService, CommentService, SocialUserService, UserService, NftService, MailerService } from "src/services";
+import { PostService, CommentService, SocialUserService, UserService, NftService, MailerService, DataService } from "src/services";
 
 import { verifyAccessToken } from "src/auth/google.verifier";
 import { CreateCommentDto, UpdateNumNftDto, UpdateNumPromptDto, UpdatePostDto } from "src/dtos";
@@ -28,7 +28,8 @@ export class SocialController {
         private readonly userService: UserService,
         private readonly nftService: NftService,
         private readonly socialUserService: SocialUserService,
-        private readonly mailerService: MailerService
+        private readonly mailerService: MailerService,
+        private readonly dataService: DataService,
     ) { }
 
     //post social
@@ -236,6 +237,8 @@ export class SocialController {
             queryListAllower(nft.addressCollection, nft.id),
             queryPromptBuyerByTokenAndAddress(nft.addressCollection, nft.id),
         ]);
+        const data = await this.dataService.findDataByIdAndAddressCollection(nft.id, nft.addressCollection);
+
         return {
             postId: post.id,
             text: post.text,
@@ -246,15 +249,26 @@ export class SocialController {
             likes: post.likes,
             timestamp: post.timestamp,
             tags: post.tags,
-            nft: nft,
-            price: {
-                avax: price[0].toString(),
-                usd: price[1].toString(),
+            nft: {
+                price: {
+                    avax: price[0].toString(),
+                    usd: price[1].toString(),
+                },
+                promptPrice: {
+                    avax: promptPrice[0].toString(),
+                    usd: promptPrice[1].toString(),
+                },
+                nftId: nft.id,
+                name: nft.name,
+                description: nft.description,
+                image: nft.image,
+                attributes: nft.attributes,
+                addressCollection: nft.addressCollection,
+                type: nft.type,
+                data: data.meta,
+
             },
-            promptPrice: {
-                avax: promptPrice[0].toString(),
-                usd: promptPrice[1].toString(),
-            },
+
             listAllower: listAllower,
             listBoughts: listBoughts,
             postOwner: {
