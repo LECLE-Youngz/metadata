@@ -659,12 +659,12 @@ export class SocialController {
         }))
         const res = await this.socialUserService.increaseListPurchasedByCreator(userBuyer.id, creatorId);
         // find res.number in listNftPurchasedRequired
-        const index = listNftPurchasedRequired.findIndex(item => item === res.number.toString());
-        if (index) {
+        // const index = listNftPurchasedRequired.findIndex(item => item === res.number.toString());
+        if (res?.number === 2) {
             await this.mailerService.sendMail({
                 to: userBuyer.email,
                 subject: "",
-                html: mailConfig(userBuyer.given_name, userCreator.given_name, index),
+                html: mailConfig(userBuyer.given_name, userCreator.given_name, 2),
             })
         }
         return {
