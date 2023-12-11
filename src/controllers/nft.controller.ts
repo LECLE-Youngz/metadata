@@ -39,6 +39,7 @@ export class NftController {
     @Get()
     async getAllNfts() {
         const nftsCollection = await queryAllCollectionByAddressWithoutExclusiveAPI()
+        console.log(nftsCollection);
         const listNft = await this.nftService.findNftsByListObjectIdWithCollection(nftsCollection.map(nft => ({ id: Number(nft.tokenId), addressCollection: nft.contract })));
         const nftsWithOwners = await Promise.all(
             listNft.map(async (nft) => {
