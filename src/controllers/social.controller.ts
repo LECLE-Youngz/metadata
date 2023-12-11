@@ -10,6 +10,7 @@ import {
     Delete
 } from "@nestjs/common";
 import { CreatePostDto } from "src/dtos/create-post.dto";
+import BN from "bn.js";
 
 import { PostService, CommentService, SocialUserService, UserService, NftService, MailerService, DataService } from "src/services";
 
@@ -456,12 +457,10 @@ export class SocialController {
         const ownerPost = await this.userService.findUserById(post.ownerId);
         const comment = await this.commentService.findCommentByPostId(post.id);
         const nft = await this.nftService.findNftByIdAndAddressCollection(post.nftId, post.addressCollection);
-        const [price, promptPrice, listAllower, listBoughts] = await Promise.all([
-            getTokenPrice(nft.addressCollection, String(nft.id)),
-            getPromptPrice(nft.addressCollection, String(nft.id)),
-            queryListAllower(nft.addressCollection, nft.id),
-            queryPromptBuyerByTokenAndAddress(nft.addressCollection, nft.id),
-        ]);
+        const price: Array<BN> = await getTokenPrice(nft.addressCollection, String(nft.id))
+        const promptPrice: Array<BN> = await getPromptPrice(nft.addressCollection, String(nft.id))
+        const listAllower = await queryListAllower(nft.addressCollection, nft.id);
+        const listBoughts = await queryPromptBuyerByTokenAndAddress(nft.addressCollection, nft.id);
         const user = await verifyAccessToken(accessToken);
         if (!user.email) {
             throw new BadRequestException(`You don't have permission, don't have email`);
@@ -470,8 +469,6 @@ export class SocialController {
         if (!wallet.data.address) {
             throw new BadRequestException(`You don't have wallet in node api`);
         }
-
-
 
         if (post.exclusiveContent === true && post.ownerId !== user.id) {
             const walletOwnerPost = await fetchWalletByAddress(ownerPost.email);
@@ -532,13 +529,13 @@ export class SocialController {
                         addressCollection: nft.addressCollection,
                         type: nft.type,
                         price: {
-                            avax: price[0].toString(),
-                            usd: price[1].toString(),
+                            avax: price[0].toString() ?? "0",
+                            usd: price[1].toString() ?? "0",
 
                         },
                         promptPrice: {
-                            avax: promptPrice[0].toString(),
-                            usd: promptPrice[1].toString(),
+                            avax: promptPrice[0].toString() ?? "0",
+                            usd: promptPrice[1].toString() ?? "0",
                         },
                         listAllower: listAllower,
                         listBoughts: listBoughts,
@@ -596,7 +593,27 @@ export class SocialController {
             listComment: listOwnerComment,
             timestamp: post.timestamp,
             tags: post.tags,
-            nft: nft,
+            nft: {
+                nftId: nft.id,
+                name: nft.name,
+                description: nft.description,
+                image: nft.image,
+                attributes: nft.attributes,
+                addressCollection: nft.addressCollection,
+                type: nft.type,
+                price: {
+                    avax: price[0].toString() ?? "0",
+                    usd: price[1].toString() ?? "0",
+
+                },
+                promptPrice: {
+                    avax: promptPrice[0].toString() ?? "0",
+                    usd: promptPrice[1].toString() ?? "0",
+                },
+                listAllower: listAllower,
+                listBoughts: listBoughts,
+            },
+
             postOwner: {
                 id: ownerPost.id,
                 name: ownerPost.name,
