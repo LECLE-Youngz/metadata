@@ -315,11 +315,13 @@ export class NftController {
         const listCollection = await this.nftService.getAllListCollection();
         const listNftCollection: NftCollection[] = await Promise.all(
             listCollection.map(async (addressCollection: string) => {
+
                 const nfts = await queryNFTsByAddress(wallet.data.address, addressCollection);
                 return nfts.map((id) => ({
                     id: id,
                     addressCollection: addressCollection,
                 }));
+
             })
         ).then((nestedArrays) => nestedArrays.flat());
         const listInfoNft = await this.nftService.findNftsByListObjectIdWithCollection(listNftCollection);
@@ -550,8 +552,7 @@ export class NftController {
             }
             const userInfo = await this.userService.findUserByEmail(wallet.data.owner);
             const tag = await queryTagByCollectionAPI(address)
-
-            const numNftRequire = tag === "mystery" ? (await nftPurchasedRequired(address)) : null;
+            const numNftRequire = tag === "mystery" ? (await nftPurchasedRequired(address)) ?? 0 : null;
 
             let fulfill = "no";
             let maxSupply = null;
