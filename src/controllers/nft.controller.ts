@@ -618,8 +618,8 @@ export class NftController {
         const addressCollection = addressCollectionRaw.toLowerCase();
         const user = await verifyAccessToken(accessToken);
         const listNftUpdate = await this.nftService.findNftByAddressCollectionAndType(user.id, type)
-        const updateNft = await this.nftService.updateCollectionAndNftIdWithNftAutoCountFrom0(listNftUpdate, addressCollection);
-        return updateNft;
+        await this.nftService.updateCollectionAndNftIdWithNftAutoCountFrom0(listNftUpdate, addressCollection);
+        return "success";
     }
 
     @Get("count/user/:id/type/:type")
