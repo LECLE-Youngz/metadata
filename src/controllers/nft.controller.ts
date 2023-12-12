@@ -325,13 +325,27 @@ export class NftController {
             })
         ).then((nestedArrays) => nestedArrays.flat());
         const listInfoNft = await this.nftService.findNftsByListObjectIdWithCollection(listNftCollection);
-        const mappingPrice = await Promise.all(listInfoNft.map(async (nft) => {
-            const [price, promptPrice, listAllower, listBoughts] = await Promise.all([
-                getTokenPrice(nft.addressCollection, String(nft.id)),
-                getPromptPrice(nft.addressCollection, String(nft.id)),
-                queryListAllower(nft.addressCollection, nft.id),
-                queryPromptBuyerByTokenAndAddress(nft.addressCollection, nft.id),
-            ]);
+        const listNftPreMint = await this.nftService.findListNftByAddressCollection(user.id);
+        const finalInfoNft = listInfoNft.concat(listNftPreMint);
+        const mappingPrice = await Promise.all(finalInfoNft.map(async (nft) => {
+            let price, promptPrice, listAllower, listBoughts
+            try {
+                [price, promptPrice, listAllower, listBoughts] = await Promise.all([
+                    getTokenPrice(nft.addressCollection, String(nft.id)) ?? [new BN(0), new BN(0)],
+                    getPromptPrice(nft.addressCollection, String(nft.id)) ?? [new BN(0), new BN(0)],
+                    queryListAllower(nft.addressCollection, nft.id) ?? [],
+                    queryPromptBuyerByTokenAndAddress(nft.addressCollection, nft.id) ?? [],
+                ]);
+
+                // Rest of your code that depends on the values
+
+            } catch (error) {
+
+                price = [new BN(0), new BN(0)];
+                promptPrice = [new BN(0), new BN(0)];;
+                listAllower = [];
+                listBoughts = [];
+            }
             return {
                 id: nft.id,
                 name: nft.name,
@@ -350,9 +364,9 @@ export class NftController {
                 promptAllower: listAllower,
                 attributes: nft.attributes,
                 eNft: false,
-
             };
         }));
+
         const addressENft = await getCollectionByDeployer(wallet.data.address);
         if (addressENft) {
             const listDataENft = await this.eNftService.getENftByAddressCollection(addressENft);
@@ -383,6 +397,7 @@ export class NftController {
             }))
             return listDataWithENft.concat(mappingPrice);
         }
+
         return mappingPrice;
 
     }
@@ -555,7 +570,7 @@ export class NftController {
             }
             const userInfo = await this.userService.findUserByEmail(wallet.data.owner);
             const tag = await queryTagByCollectionAPI(address)
-            const numNftRequire = tag === "mystery" ? 2 : null;
+            const numNftRequire = tag === "mystery" ? (await nftPurchasedRequired(address)).toString() : null;
 
             let fulfill = "no";
             let maxSupply = null;
@@ -575,7 +590,7 @@ export class NftController {
             else if (
                 tag === "mystery"
             ) {
-                const count = await this.socialUserService.getNumSoldBuyerWithCreator(walletSender.data.address, wallet.data.address);
+                const count = await this.socialUserService.getNumSoldBuyerWithCreator(msgSender.id, userInfo.id);
                 const numberPurchase = await nftPurchasedRequired(address).toString();
                 if (count >= Number(numberPurchase)) {
                     fulfill = "yes";
@@ -622,7 +637,9 @@ export class NftController {
         const addressCollection = addressCollectionRaw.toLowerCase();
         const user = await verifyAccessToken(accessToken);
         const listNftUpdate = await this.nftService.findNftByAddressCollectionAndType(user.id, type)
+        const listDataUpdate = await this.dataService.findDataByListIdAndCollection(listNftUpdate.map(nft => ({ id: nft.id, addressCollection: nft.addressCollection })));
         await this.nftService.updateCollectionAndNftIdWithNftAutoCountFrom0(listNftUpdate, addressCollection);
+        await this.dataService.updateDataCollectionAndNftIdWithNftAutoCountFrom0(listDataUpdate, addressCollection);
         return "success";
     }
 

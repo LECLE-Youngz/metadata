@@ -17,7 +17,6 @@ import { PostService, CommentService, SocialUserService, UserService, NftService
 import { verifyAccessToken } from "src/auth/google.verifier";
 import { CreateCommentDto, UpdateNumNftDto, UpdateNumPromptDto, UpdatePostDto } from "src/dtos";
 import { fetchWalletByAddress, getPromptPrice, getTokenPrice, ownerOf, queryListAllower, queryMysteryByDeployerAPI, queryPromptBuyerByTokenAndAddress, querySubscriberAPI, querySubscribingAPI, verifyTransferNftAPI, verifyTransferPromptAPI } from "src/api";
-import { queryOwnerByIdNCollection } from "src/api/queryGraph";
 import { mailConfig } from "src/configs/mail";
 import { nftPurchasedRequired } from "src/api/mystery";
 
@@ -155,7 +154,6 @@ export class SocialController {
     async getPostByUserId(@Param("id") id: string) {
         try {
             return (await this.postService.findPostByOwnerId(id)).map(post => post.id);
-
         }
         catch (err) {
             throw new BadRequestException(err.message);
@@ -187,7 +185,6 @@ export class SocialController {
     }
 
 
-
     @Put("/post/:id")
     async updatePost(@Param("id") id: number, @Body() updatePostDto: UpdatePostDto, @Headers('Authorization') accessToken: string) {
         const user = await verifyAccessToken(accessToken);
@@ -217,73 +214,6 @@ export class SocialController {
             throw new BadRequestException(err.message);
         }
     }
-
-    // @Get("/post/:id")
-    // async getPostById(@Param("id") id: number, @Headers('Authorization') accessToken: string) {
-    //     const post = await this.postService.findPostById(id);
-    //     const ownerPost = await this.userService.findUserById(post.ownerId);
-    //     const comment = await this.commentService.findCommentByPostId(post.id);
-    //     const nft = await this.nftService.findNftByIdAndAddressCollection(post.nftId, post.addressCollection);
-    //     const user = await verifyAccessToken(accessToken);
-    //     if (!user.email) {
-    //         throw new BadRequestException(`You don't have permission, don't have email`);
-    //     }
-    //     const wallet = await fetchWalletByAddress(user.email);
-    //     if (!wallet.data.address) {
-    //         throw new BadRequestException(`You don't have wallet in node api`);
-    //     }
-    //     const [price, promptPrice, listAllower, listBoughts] = await Promise.all([
-    //         getTokenPrice(nft.addressCollection, String(nft.id)),
-    //         getPromptPrice(nft.addressCollection, String(nft.id)),
-    //         queryListAllower(nft.addressCollection, nft.id),
-    //         queryPromptBuyerByTokenAndAddress(nft.addressCollection, nft.id),
-    //     ]);
-    //     const data = await this.dataService.findDataByIdAndAddressCollection(nft.id, nft.addressCollection);
-
-    //     return {
-    //         postId: post.id,
-    //         text: post.text,
-    //         header: post.header,
-    //         exclusiveContent: post.exclusiveContent,
-    //         description: post.description,
-    //         bookmark: post.bookmark,
-    //         likes: post.likes,
-    //         timestamp: post.timestamp,
-    //         tags: post.tags,
-    //         nft: {
-    //             price: {
-    //                 avax: price[0].toString(),
-    //                 usd: price[1].toString(),
-    //             },
-    //             promptPrice: {
-    //                 avax: promptPrice[0].toString(),
-    //                 usd: promptPrice[1].toString(),
-    //             },
-    //             nftId: nft.id,
-    //             name: nft.name,
-    //             description: nft.description,
-    //             image: nft.image,
-    //             attributes: nft.attributes,
-    //             addressCollection: nft.addressCollection,
-    //             type: nft.type,
-    //             data: data.meta,
-
-    //         },
-    //         comment: comment.map(comment => comment.id),
-    //         listAllower: listAllower,
-    //         listBoughts: listBoughts,
-    //         postOwner: {
-    //             id: ownerPost.id,
-    //             name: ownerPost.name,
-    //             email: ownerPost.email,
-    //             picture: ownerPost.picture,
-    //         }
-    //     }
-    // }
-
-
-
-
 
     @Put("/post/comment/:commentId/like-or-unlike")
     async updateLikeComment(@Param("commentId") commentId: number, @Headers('Authorization') accessToken: string) {
@@ -385,8 +315,6 @@ export class SocialController {
     }
 
     // user social
-
-
 
     @Get("/comment/:id")
     async getCommentById(@Param("id") id: number) {
@@ -654,23 +582,29 @@ export class SocialController {
         // }
         const listMystery = await queryMysteryByDeployerAPI(walletCreator.data.address);
         const listNftPurchasedRequired = await Promise.all(listMystery.map(async (mystery) => {
-            const count = await nftPurchasedRequired(mystery).toString();
-            return count;
-        }))
+            try {
+                const count = (await nftPurchasedRequired(mystery)).toString();
+                return count;
+            } catch (error) {
+                console.error(`Error getting count for mystery ${mystery}:`, error);
+                return '0';
+            }
+        }));
         const res = await this.socialUserService.increaseListPurchasedByCreator(userBuyer.id, creatorId);
-        // find res.number in listNftPurchasedRequired
-        // const index = listNftPurchasedRequired.findIndex(item => item === res.number.toString());
-        if (res?.number === 2) {
+        const index = listNftPurchasedRequired.find(item => item.toString() === res.number.toString());
+        if (index !== undefined) {
             await this.mailerService.sendMail({
                 to: userBuyer.email,
-                subject: "",
-                html: mailConfig(userBuyer.given_name, userCreator.given_name, 2),
+                subject: "Gift from Event Mystery",
+                html: mailConfig(userBuyer.given_name, userCreator.given_name, index),
             })
+            return "send mail"
         }
         return {
             status: "success"
         }
     }
+
 
     @Put("/increase-prompt/:creatorId")
     async increasePromptSoldAndPurchased(@Param("creatorId") creatorId: string, @Headers('Authorization') accessToken: string, @Body() body: UpdateNumPromptDto) {

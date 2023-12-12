@@ -25,5 +25,12 @@ export class DataService {
         });
     }
 
+    async updateDataCollectionAndNftIdWithNftAutoCountFrom0(listCollectionUpdate: Array<Data>, newCollection: string) {
+        return listCollectionUpdate.forEach(async (nft) => {
+            await this.dataModel.updateOne({ id: nft.id, addressCollection: nft.addressCollection }, { addressCollection: newCollection, id: nft.id + 1 })
+        })
+    }
+
+
 
 }

@@ -118,6 +118,13 @@ export class SocialUserService {
             listPurchasedByCreator[index].count++;
         }
         await this.socialUserModel.updateOne({ id: addressCreator }, { listPurchasedByCreator })
+        if (index === -1) {
+            return {
+                addressBuyer: addressBuyer,
+                addressCreator: addressCreator,
+                number: 1
+            }
+        }
         return {
             addressBuyer: addressBuyer,
             addressCreator: addressCreator,

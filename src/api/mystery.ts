@@ -2,7 +2,7 @@ import { mysteryCollection } from "./blockchain";
 
 export const nftPurchasedRequired = async (addressCollection: string) => {
     const res = await mysteryCollection(addressCollection);
-    const numNFT = res.nftPurchasedRequired;
+    const numNFT = res.nftPurchasedRequired();
     return numNFT;
 };
 

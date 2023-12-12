@@ -27,6 +27,10 @@ export class NftService {
         return this.nftModel.distinct("id", { addressCollection });
     }
 
+    async findListNftByAddressCollection(addressCollection: string): Promise<Array<Nft>> {
+        return this.nftModel.find({ addressCollection });
+    }
+
 
     async findNftByAddressCollectionAndType(addressCollection: string, type: string): Promise<Array<Nft>> {
         return this.nftModel.find({ addressCollection, type });
